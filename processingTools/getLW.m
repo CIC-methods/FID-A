@@ -19,8 +19,8 @@
 
 function [FWHM]=getLW(in,zpfactor,Refppmmin,Refppmmax);
 
-%in=jn_readlcmraw(filestring,'dat');
-in=jn_zeropad(in,zpfactor);
+%in=op_readlcmraw(filestring,'dat');
+in=op_zeropad(in,zpfactor);
 
 %FIRST FIND FWHM USING TWO METHODS:
 
@@ -50,9 +50,9 @@ while sat=='n'
     parsGuess(4)=0; %Baseline Offset
     parsGuess(5)=0; %Phase
     
-    yGuess=jn_lorentz(parsGuess,ppmwindow);
-    parsFit=nlinfit(ppmwindow,real(Refwindow'),@jn_lorentz,parsGuess);
-    yFit=jn_lorentz(parsFit,ppmwindow);
+    yGuess=op_lorentz(parsGuess,ppmwindow);
+    parsFit=nlinfit(ppmwindow,real(Refwindow'),@op_lorentz,parsGuess);
+    yFit=op_lorentz(parsFit,ppmwindow);
     
     figure;
     plot(ppmwindow,Refwindow,'.',ppmwindow,yGuess,':',ppmwindow,yFit);
