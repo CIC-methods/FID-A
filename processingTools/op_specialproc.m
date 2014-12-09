@@ -271,9 +271,9 @@ ph1=input('input 1st order phase correction: ');
 out=op_addphase(out_av,ph0,ph1);
 out_noproc=op_addphase(out_noproc,ph0,ph1);
 
-%normalize out number of averages:
-out=op_avgNormalize(out);
-out_noproc=op_avgNormalize(out_noproc);
+%normalize out number of averages: (No longer used);
+% out=op_avgNormalize(out);
+% out_noproc=op_avgNormalize(out_noproc);
 
 %Now do a manual phase correction on the water unsuppressed data:
 if exist(filename2)
@@ -284,9 +284,9 @@ if exist(filename2)
     out_w=op_addphase(out_w_av,ph0,ph1);
     out_w_noproc=op_addphase(out_w_noproc,ph0,ph1);
     
-    %normalize out number of averages:
-    out_w=op_avgNormalize(out_w);
-    out_w_noproc=op_avgNormalize(out_w_noproc);
+    %normalize out number of averages: (No longer used);
+%     out_w=op_avgNormalize(out_w);
+%     out_w_noproc=op_avgNormalize(out_w_noproc);
 end
 
 wrt=input('write? ','s');

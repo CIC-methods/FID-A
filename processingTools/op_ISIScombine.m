@@ -47,6 +47,7 @@ else
     reshapedFids(:,2)=diff(reshapedFids(:,ind2),1,2);
 end
 fids=reshape(reshapedFids(:,ind1),sz);
+fids=fids/2;  %Divide by 2 so that this is an averaging operation;
 
 
 %re-calculate Specs using fft

@@ -31,6 +31,7 @@ end
 %add the spectrum along the averages dimension;
 fids=sum(in.fids,in.dims.averages);
 fids=squeeze(fids);
+fids=fids/in.sz(in.dims.averages); %divide by number of averages;
 
 %re-calculate Specs using fft
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
