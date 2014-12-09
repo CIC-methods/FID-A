@@ -1,0 +1,118 @@
+%rf_hs.m
+%Jamie Near, McGill University 2014.
+%
+% USAGE:
+% [rf,FM,scan,mvector]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
+% 
+% DESCRIPTION:
+% this funciton creates any desired HS pulse.  N is the number of steps, n
+% is the order of the HS pulse, tbw is the time bandwidth product of the
+% pulse, Tp is the duration of the pulse and thk is the desired thickness of
+% the pulse.
+% 
+% INPUTS:
+% outfile        = name of output rf file.
+% N              = Number of points in RF waveform.
+% n              = order of the HS pulse.
+% tbw            = Time bandwidth product.
+% Tp             = Duration of the RF pulse (ms).
+% trunc          = Truncation of the amplitude modulation function.
+% thk            = thickness of the slice selective pulse.  
+
+function [rf,FM,scan,mvector]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
+
+
+
+%create outfile names for rf and grd files
+if isempty(outfile)
+   outfileRF = [];
+   outfileGRD = [];
+else
+   outfileRF = [outfile '.RF'];
+   outfileGRD = [outfile '.GRD'];
+   clear outfile;
+   
+	% Check if file exists and confirm overwrite
+	if exist(outfileRF, 'file') || exist(outfileGRD, 'file')
+      r = input(['Delete existing file(s) ' outfileRF ' and ' outfileGRD ' (Y/n)?'],'s');
+      if ~isempty(r)
+         if lower(r(1)) == 'n'
+            return
+         end
+      end
+	end
+end
+
+
+%make sure N is even
+if mod(N,2)~=0
+    N=N+1;
+end
+
+%initialize the time vectors
+%ta has N steps from 0 to Tp.
+t=[0:Tp/(N-1):Tp];
+
+%tau has N steps from -1 to 1. (useful for defining our AM and GM
+%functions.)
+tau=t*2/Tp-1;
+
+%create time vector from 0 to 1 that is N/2 in length (useful for creation
+%of FM).
+tau2=tau(end/2+1:end);
+
+%create truncation factor.
+B=asech(trunc);
+
+%Find Bandwith Factor A
+bw=tbw/Tp;
+A=bw/2;
+
+%find time step size
+dt=t(2)-t(1);
+
+%define Gyromagnetic Ratio (Hz/G)
+gyro=4257.7;
+
+%First define the AM function:
+F1=sech(B*(tau.^n));
+
+%now calculate the FM function based on the assumption of a constant
+%gradient by integrating the AM function:
+F2=zeros(1,length(F1));
+F2(length(F1)/2+1:length(F1))=cumsum(F1(length(F1)/2+1:length(F1)));
+F2(1:length(F1)/2)=-F2(end:-1:length(F1)/2+1);
+F2=F2/max(F2);
+% figure
+% subplot(1,2,1)
+% plot(tau,F1);
+% subplot(1,2,2)
+% plot(tau,F2);
+
+%calculate a static gradient value based on desired slice thickness and
+%bandwidth.  Ans in Gauss/cm.
+if nargin > 6
+   G=bw/(gyro*thk);
+else
+    G=0;
+end
+
+GM=ones(N,1)*G;
+AM=F1;
+FM=A*F2;
+%+(G*gyro*1);
+
+
+
+%create phase modulation function
+ph=cumsum(FM)*dt*360;
+
+rf(:,1)=ph;
+rf(:,2)=AM;
+rf(:,3)=1;
+
+if nargin > 6
+   rf(:,4)=GM;
+end
+
+
