@@ -1,33 +1,27 @@
-%op_specialproc_fmrs.m
+%op_specialproc_fmrs_slidingWindow.m
 %Jamie Near, McGill University 2014.
 %
 %USAGE:
-%[out_stimOFF,out_stimON,out_w]=op_specialproc_fmrs(filestring,blockDesign,leadingAvgsToRmv);
+%[out_stimOFF,out_stimON,out_w]=op_specialproc_fmrs_slidingWindow(filestring,windowSize);
 %
 %DESCRIPTION:
 %Processing script for functional MRS data acquired using the SPECIAL MRS 
 %sequence.  Includes combination of reciever channels, removal of bad 
-%averages, freqeuncy drift correction, and leftshifting.  Also includes
-%prior knowledge of the stimulation paradigm (given by the 'blockDesign'
-%vector) and returns the averaged stimulus OFF and simulus ON spectra.
+%averages, freqeuncy drift correction, and leftshifting.  This code
+%generates a 'sliding window timecourse' of MR spectra by combining the
+%averages within a small window given by the windowSize argument, and then
+%sliding the window by 1 average and combining again.  Each summed window
+%is output as an LCModel text file to be analyzed in LCModel.
 %
 %INPUTS:
 %filestring:        String variable for the name of the directory containing
 %                       the water suppressed .dat file.  Water unsuppressed
 %                       .dat file should be contained in [filestring '_w/'];
-%blockDesign:       This is a vector of positive and negative even integers that
-%                       make up the ON/OFF block design.  Each integer 
-%                       represents the number of sequential averages in a 
-%                       block.  Positive integers refer to ON blocks, and 
-%                       negative integers refer to OFF blocks.  For
-%                       example, for a block design consisting of 30 OFF
-%                       averages followed by 20 ON averages followed by 10
-%                       OFF averages, the blockDesign vector would be: 
-%                       [-30 20 -10];
-%leadingAvgsToRmv:  The number of averages to omit from the beginning of
-%                       each block.  This is done to account for a lag in the 
-%                       neurochemical response to stimulus.  Must be an 
-%                       even integer.  (optional. Default=0);
+%windowSize:       This is an integer that specifies the number of averages
+%                       that are stored within the sliding window.  It is
+%                       recommended to choose a window size that is
+%                       divisible by the number of phase cycles so that the
+%                       window does not contain any partial phase cycles.
 %
 %OUTPUTS:
 %out_stimOFF:       Fully processed water suppressed spectrum from the sum 
@@ -36,19 +30,10 @@
 %                       of the stimulus ON periods.
 %out_w:             Fully processed, water unsuppressed output spectrum.
 
-function [out_stimOFF,out_stimON,out_w]=op_specialproc_fmrs(filestring,blockDesign,leadingAvgsToRmv);
+function [out1,out_w]=op_specialproc_fmrs_slidingWindow(filestring,windowSize);
 
 if nargin<3
     leadingAvgsToRmv=0;
-end
-
-%Check to make sure the elements of blockDesign are even integers:
-if sum(mod(blockDesign,2))>0
-    error('ERROR:  blockDesign must consist of only even integers!  ');
-end
-%Check to make sure that leadingAvgsToRmv is even:
-if mod(leadingAvgsToRmv,2)>0
-    error('ERROR: leadingAvgsToRmv must be an even integer!  ');
 end
 
 %initialize some parameters.
@@ -269,94 +254,41 @@ else
     
 end
 
-%Now separate the spectrum into the "Stimulus ON" and "Stimulus OFF"
-%blocks.  Remove the correct number of leading averages from each block.
+%Do a phase correction
+SpecTool(op_leftshift(op_averaging(out_aa),out_aa.pointsToLeftshift),0.05,-2,7);
+ph0=input('input 0 order phase correction: ');
+ph1=input('input 1st order phase correction: ');
+out_aa=op_addphase(out_aa,ph0,ph1);
 
-%First check to make sure that the length of the block design is equal to
-%the number of averages:
-if sum(abs(blockDesign))==out_aa.rawAverages;
-    blockDesign=blockDesign/2;
-elseif sum(abs(blockDesign))==out_aa.rawAverages/2;
-    %do nothing
-else
-    error('ERROR:  Length of blockDesign must be equal to the number of averages!  ');
+
+%Now use op_takeaverages to perform the sliding window:
+windowIndices=zeros(out_aa.sz(out_aa.dims.averages),1);
+slidingWindow=[1:windowSize];
+windowIndices(slidingWindow)=ones(length(slidingWindow),1);
+windowIndices=windowIndices>0; %make logical
+close all;
+wrt=input('write? ','s');
+for n=1:out_aa.sz(out_aa.dims.averages)-(length(slidingWindow)-1)
+    %take sliding window:
+    eval(['out' num2str(n) '_aa=op_takeaverages(out_aa,windowIndices);']);
+    
+    %Averaging and left shifting
+    eval(['out' num2str(n) '_av=op_leftshift(op_averaging(out' num2str(n) '_aa),out' num2str(n) '_aa.pointsToLeftshift);']);
+    
+    if wrt=='y' || wrt=='Y'
+        %Write to LCModel text file
+        eval(['RF=op_writelcm(out' num2str(n) '_av,[filestring ''/'' filestring ''_out' num2str(n) '_lcm''],8.5);']);
+    end
+    
+    windowIndices(slidingWindow)=zeros(length(slidingWindow),1);
+    slidingWindow=slidingWindow+1;
+    windowIndices(slidingWindow)=ones(length(slidingWindow),1);
 end
 
-%Initialize the ONaverages and OFFaverages vectors.  These will be vectors
-%of zeros and ones corresponding to the averages that you would like to
-%take to make up the ON and OFF averages.
-ONaverages=[];
-OFFaverages=[];
-
-%If the block design starts with a negative number, then the experiment
-%started with an OFF period.  The ONaverages and OFFaverages are filled as
-%follows:
-if blockDesign(1)<0
-    blockDesignTrimmedON=blockDesign-leadingAvgsToRmv/2;
-    if isrow(blockDesign)
-        blockDesignTrimmedOFF=blockDesign+[0 (leadingAvgsToRmv/2)*ones(1,length(blockDesign)-1)];
-    elseif iscolumn(blockDesign)
-        blockDesignTrimmedOFF=blockDesign+[0;(leadingAvgsToRmv/2)*ones(length(blockDesign)-1,1)];
-    end
-    for n=1:length(blockDesignTrimmedON);
-        ONaverages=[ONaverages;zeros(abs(blockDesignTrimmedON(n)),1)+mod(n+1,2)];
-    end
-    for n=1:length(blockDesignTrimmedOFF);
-        OFFaverages=[OFFaverages;zeros(abs(blockDesignTrimmedOFF(n)),1)+mod(n,2)];
-    end
-    ONaverages=ONaverages(1:sum(abs(blockDesign)));
-    OFFaverages=OFFaverages(1:sum(abs(blockDesign)));
-   
-%If the block design starts with a positive number, then the experiment 
-%started with an ON period.  The ON averages and OFF averages are filled as
-%follows:
-elseif blochDesign(1)>0
-    blockDesignTrimmedOFF=blockDesign-leadingAvgsToRmv/2;
-    if isrow(blockDesign)
-        blockDesignTrimmedON=blockDesign+[0 (leadingAvgsToRmv/2)*ones(1,length(blockDesign)-1)];
-    elseif iscolumn(blockDesign)
-        blockDesignTrimmedON=blockDesign+[0;(leadingAvgsToRmv/2)*ones(length(blockDesign)-1,1)];
-    end
-    for n=1:length(blockDesignTrimmedON);
-        ONaverages=[ONaverages;zeros(abs(blockDesignTrimmedON(n)),1)+mod(n,2)];
-    end
-    for n=1:length(blockDesignTrimmedOFF);
-        OFFaverages=[OFFaverages;zeros(abs(blockDesignTrimmedOFF(n)),1)+mod(n+1,2)];
-    end
-    ONaverages=ONaverages(1:sum(abs(blockDesign)));
-    OFFaverages=OFFaverages(1:sum(abs(blockDesign)));
-end
-
-
-%Now use op_takeaverages to make the stimulation ON and stimulation OFF
-%spectra.
-
-ONaverages=ONaverages>0; %ONaverages must be a logical;
-OFFaverages=OFFaverages>0; %OFFaverages must be a logical;
-outON_aa=op_takeaverages(out_aa,ONaverages);
-outOFF_aa=op_takeaverages(out_aa,OFFaverages);
-
-
-
-
-%now do the averaging and left shift to get rid of first order phase:
-outON_av=op_leftshift(op_averaging(outON_aa),outON_aa.pointsToLeftshift);
-outOFF_av=op_leftshift(op_averaging(outOFF_aa),outOFF_aa.pointsToLeftshift);
+%now do the averaging and left shift for water unsuppressed data to get rid of first order phase:
 if exist(filename2)
     out_w_av=op_leftshift(op_averaging(out_w_aa),out_w_aa.pointsToLeftshift);
 end
-
-%Do a manual phase correction:
-SpecTool(outON_av,0.05,-2,7);
-ph0=input('input 0 order phase correction: ');
-ph1=input('input 1st order phase correction: ');
-
-out_stimON=op_addphase(outON_av,ph0,ph1);
-out_stimOFF=op_addphase(outOFF_av,ph0,ph1);
-
-%normalize out number of averages: (No longer used)
-% out_stimON=op_avgNormalize(out_stimON);
-% out_stimOFF=op_avgNormalize(out_stimOFF);
 
 %Now do a manual phase correction on the water unsuppressed data:
 if exist(filename2)
@@ -370,15 +302,11 @@ if exist(filename2)
 %     out_w=op_avgNormalize(out_w);
 end
 
-wrt=input('write? ','s');
 if wrt=='y' || wrt=='Y'
-    RF=op_writelcm(out_stimON,[filestring '/' filestring '_stimON_lcm'],8.5);
-    RF=op_writelcm(out_stimOFF,[filestring '/' filestring '_stimOFF_lcm'],8.5);
     if exist(filename2)
-        RF=op_writelcm(out_w,[filestring '_w/' filestring '_w_lcm'],8.5);
+            RF=op_writelcm(out_w,[filestring '_w/' filestring '_w_lcm'],8.5);
     end
 end
-
 
 
 
