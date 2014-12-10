@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 %USAGE:
-%[out_stimOFF,out_stimON,out_w]=op_specialproc_fmrs_slidingWindow(filestring,windowSize);
+%[out1,out_w]=op_specialproc_fmrs_slidingWindow(filestring,windowSize);
 %
 %DESCRIPTION:
 %Processing script for functional MRS data acquired using the SPECIAL MRS 
@@ -11,7 +11,8 @@
 %generates a 'sliding window timecourse' of MR spectra by combining the
 %averages within a small window given by the windowSize argument, and then
 %sliding the window by 1 average and combining again.  Each summed window
-%is output as an LCModel text file to be analyzed in LCModel.
+%is output as an LCModel text file to be analyzed in LCModel.  As a
+%result, this function generates many text output files.  
 %
 %INPUTS:
 %filestring:        String variable for the name of the directory containing
@@ -24,10 +25,7 @@
 %                       window does not contain any partial phase cycles.
 %
 %OUTPUTS:
-%out_stimOFF:       Fully processed water suppressed spectrum from the sum 
-%                       of the stimulus OFF periods.
-%out_stimON:        Fully processed water suppressed spectrum from the sum
-%                       of the stimulus ON periods.
+%out1:              The first sliding window spectrum.  
 %out_w:             Fully processed, water unsuppressed output spectrum.
 
 function [out1,out_w]=op_specialproc_fmrs_slidingWindow(filestring,windowSize);
@@ -273,11 +271,11 @@ for n=1:out_aa.sz(out_aa.dims.averages)-(length(slidingWindow)-1)
     eval(['out' num2str(n) '_aa=op_takeaverages(out_aa,windowIndices);']);
     
     %Averaging and left shifting
-    eval(['out' num2str(n) '_av=op_leftshift(op_averaging(out' num2str(n) '_aa),out' num2str(n) '_aa.pointsToLeftshift);']);
+    eval(['out' num2str(n) '=op_leftshift(op_averaging(out' num2str(n) '_aa),out' num2str(n) '_aa.pointsToLeftshift);']);
     
     if wrt=='y' || wrt=='Y'
         %Write to LCModel text file
-        eval(['RF=op_writelcm(out' num2str(n) '_av,[filestring ''/'' filestring ''_out' num2str(n) '_lcm''],8.5);']);
+        eval(['RF=op_writelcm(out' num2str(n) ',[filestring ''/'' filestring ''_out' num2str(n) '_lcm''],8.5);']);
     end
     
     windowIndices(slidingWindow)=zeros(length(slidingWindow),1);
