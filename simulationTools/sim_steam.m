@@ -2,13 +2,13 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm,spoilAngle)
+% out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm)
 % 
 % DESCRIPTION:
-% Simulate the STEAM sequence using a spoiler gradient to get rid of
-% unwanted coherences.  Simulation should be run multiple times with
-% different spoil angles to get rid of all unwanted coherences.  THIS CODE
-% HAS NOT BEEN TESTED.  NOT SURE IF IT PRODUCES THE CORRECT SPECTRA.
+% Simulate the STEAM sequence using ideal (instantaneous) RF pulses.  To 
+% remove unwanted coherences, a 4 step phase cycle is automatically
+% performed, with the first and third rf pulses being cycled by 0, 90 180,
+% and 270 degrees.  THIS CODE IS NOT TESTED.  RESULTS MAY NOT BE ACCURATE!!
 % 
 % INPUTS:
 % n         = number of points in fid/spectrum
@@ -19,7 +19,7 @@
 % te        = echo time in [s]
 % tm        = mixing time in [s]
 
-function out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm,spoilAngle)
+function out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm)
 
 %Set water to centre
 sys.shifts=sys.shifts-4.65;
@@ -27,18 +27,24 @@ sys.shifts=sys.shifts-4.65;
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
-%BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                            %EXCITE
-d=sim_evolve(d,H,te/2);                         %Evolve by te/2
-d=sim_spoil(d,H,spoilAngle);                    %Apply first te/2 spoiling;
-d=sim_rotate(d,H,90,'x');                       %Second 90 degree pulse about x' axis.
-d=sim_evolve(d,H,tm);                           %Evolve by TM delay
-d=sim_spoil(d,H,spoilAngle);                    %Apply TM spoiling
-d=sim_rotate(d,H,90,'x');                       %Final 90 degree pulse about x' axis.
-d=sim_evolve(d,H,te/2);                         %Evolve by te/2
-d=sim_spoil(d,H,spoilAngle);                    %Apply final te/2 spoiling
-[out,dout]=sim_readout(d,H,n,sw,linewidth,270); %Readout along -y' (270 degree phase);
+ph=[0:90:270];
+out=struct();
+figure; hold;
+for m=1:4
+    %BEGIN PULSE SEQUENCE************
+    d=sim_excite_arbPh(H,ph(m));                    %EXCITE
+    d=sim_evolve(d,H,te/2);                         %Evolve by te/2
+    d=sim_rotate(d,H,-90,'x');                      %Second 90 degree pulse about x' axis.
+    d=sim_evolve(d,H,tm);                           %Evolve by TM delay
+    d=sim_rotate_arbPh(d,H,90,ph(m));               %Final 90 degree pulse about x' axis.
+    d=sim_evolve(d,H,te/2);                         %Evolve by te/2
+    [out_temp,dout]=sim_readout(d,H,n,sw,linewidth,90); %Readout along +y' (90 degree phase);
 %END PULSE SEQUENCE**************
+out=op_addScans(out,out_temp);
+plot(out_temp.ppm,out_temp.specs,'color',[0.5,m/4,m/4]);
+end
+
+out=op_ampScale(out,0.25); %scale down to account for four phase cycles;
 
 %Fill in structure header fields:
 out.seq='steam';
