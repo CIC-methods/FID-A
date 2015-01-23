@@ -18,8 +18,8 @@ if ~isstruct(RF_in)
     error('ERROR:  the input RF pulse must be in structure format.  Try using rf_readwaveform to convert it!  Aborting.  ');
 end
 
-P=1;
-Q=ceil(length(RF_in.waveform(:,1))/N);
+P=N;
+Q=length(RF_in.waveform(:,1));
 
 
 RF_out=RF_in;
