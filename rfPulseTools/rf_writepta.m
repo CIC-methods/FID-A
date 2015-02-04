@@ -64,12 +64,17 @@ end
 
 %Reference gradient is only used in slice selective pulses.  This refers to
 %the gradient required to excite a 10mm slice if the pulse duration is
-%5.12ms  Not calculated in the code.  Must be calculated outside of this
-%program
+%5.12ms  Given that the Time-bandwidth product is included in the rf
+%structure, the refgrad value can be calculated here, but the option is
+%provided to enter it manually, in case a different refgrad value is
+%desired.  
 refgrad=1;
-refg=input('Would you like to input a reference gradient?  (y or n)  ','s');
+refg=input('Would you like to manually input a reference gradient?  \nThis is the gradient amplitude in [mT/m] required to excite a 10mm slice with a \npulse duration of 5.12 ms.  If you say ''n'' (recommended for conventional pulses), \nthen this program will calculate refgrad for you. (y or n)  ','s');
 if refg=='y' || refg=='Y'
     refgrad=input('Enter the reference gradient (mT/m):  ');
+elseif refg=='n' || refg=='N'
+    %refgrad [mT/m] = (1000 [mT]/[1T]) * tbw [unitless] ) / ( (0.00512 [s]) * (42577000 [Hz]/[T]) * (0.01 [m]) );
+    refgrad = 1000 * RF.tbw/(0.00512 * 42577000 * 0.01);
 end
 
 
