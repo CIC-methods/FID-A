@@ -86,7 +86,7 @@ else
     ylabel('mz');
     w1max=input('Input desired w1max in kHz:  ');
     w1max=w1max*1000; %convert w1max to [Hz]
-    tw1=tp*w1max;
+    tw1=Tp*w1max;
 end
 
 RF_struct.tw1=tw1;
