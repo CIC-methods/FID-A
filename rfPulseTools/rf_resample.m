@@ -21,11 +21,23 @@ end
 P=N;
 Q=length(RF_in.waveform(:,1));
 
+%Find out if the pulse is phase modulated.  Whether or not it is phase
+%modulated will determine how we go about resampling the phase function
+a=(round(RF_in.waveform(:,1))==180)|(round(RF_in.waveform(:,1))==0);
+
+if sum(a)<length(RF_in.waveform(:,1))
+    isPhsMod=true;
+else
+    isPhsMod=false;
+end
+
 
 RF_out=RF_in;
 newWaveform(:,1)=resample(RF_out.waveform(:,1),P,Q);
 newWaveform(:,2)=resample(RF_out.waveform(:,2),P,Q);
 newWaveform(:,3)=ones(length(newWaveform(:,1)),1);
-newWaveform(:,1)=180*(newWaveform(:,1)>100);
+if ~isPhsMod
+    newWaveform(:,1)=180*(newWaveform(:,1)>100);
+end
 
 RF_out.waveform=newWaveform;
