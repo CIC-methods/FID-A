@@ -58,6 +58,19 @@ else
     isPhsMod=false;
 end
 
+%If there are any phase discontinuities in the phase function that are
+%equal to a 360 degree jump we can remove these.  This will make it easier
+%for rf_resample to do it's job later on:
+jumps=diff(RF_struct.waveform(:,1));
+jumpsAbs=(abs(jumps)>355 & abs(jumps)<365);  %Assume jumps within this range are exactly = 360 degrees.
+jumpIndex=find(jumpsAbs);
+for n=1:length(jumpIndex)
+    RF_struct.waveform(jumpIndex(n)+1:end,1)=RF_struct.waveform(jumpIndex(n)+1:end,1)-(360*(jumps(jumpIndex(n))/abs(jumps(jumpIndex(n)))));
+end
+
+
+
+
 Tp=0.005;  %assume a 5 ms rf pulse;
 if ~isPhsMod
     %The pulse is not phase modulated, so we can calculate the w1max:
