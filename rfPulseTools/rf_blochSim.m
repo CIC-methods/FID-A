@@ -28,7 +28,7 @@ if nargin<5
     end
 end        
 
-[mv,sc]=bes(RF.waveform,tp,'f',RF.tw1/tp,f0-fspan/2,f0+fspan/2,10000);
+[mv,sc]=bes(RF.waveform,tp,'f',peakB1,f0-fspan/2,f0+fspan/2,10000);
 
 figure
 subplot(3,1,1),plot(sc,mv(1,:));
