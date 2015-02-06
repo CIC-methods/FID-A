@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [rf,FM,scan,mvector]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
+% [rf]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
 % 
 % DESCRIPTION:
 % this funciton creates any desired HS pulse.  N is the number of steps, n
@@ -17,9 +17,9 @@
 % tbw            = Time bandwidth product.
 % Tp             = Duration of the RF pulse (ms).
 % trunc          = Truncation of the amplitude modulation function.
-% thk            = thickness of the slice selective pulse.  
+% thk            = thickness of the slice selective pulse (optional).  
 
-function [rf,FM,scan,mvector]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
+function [RF,FM,mv,sc]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
 
 
 
@@ -107,12 +107,33 @@ FM=A*F2;
 %create phase modulation function
 ph=cumsum(FM)*dt*360;
 
-rf(:,1)=ph;
-rf(:,2)=AM;
-rf(:,3)=1;
-
+waveform(:,1)=ph;
+waveform(:,2)=AM;
+waveform(:,3)=1;
 if nargin > 6
-   rf(:,4)=GM;
+   waveform(:,4)=GM;
 end
+
+
+%Now find the b1max required to get full inversion:
+%Since the pulse is phase modulated, so we will need to run some test to find
+%out the w1max;  To do this, we can plot Mz as a function of w1 and
+%find the value of w1 that results in the desired flip angle.
+Tp=0.005;
+[mv,sc]=bes(waveform,Tp*1000,'b',0,0,5,40000);
+plot(sc,mv(3,:));
+xlabel('w1 (kHz)');
+ylabel('mz');
+w1max=input('Input desired w1max in kHz:  ');
+w1max=w1max*1000; %convert w1max to [Hz]
+tw1=Tp*w1max;
+
+RF.waveform=waveform;
+RF.type='inv';
+RF.f0=0;
+RF.tw1=tw1;
+RF.tbw=tbw;
+
+[sc,mv]=bes(RF.waveform,Tp*1000,'f',tw1/Tp/1000,-tbw/Tp,tbw/Tp,40000);
 
 
