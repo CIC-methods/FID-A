@@ -62,13 +62,13 @@ sys.shifts=sys.shifts-centreFreq;
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                                %EXCITE
 d=sim_evolve(d,H,taus(1)/1000);                          %Evolve by taus(1)
-d=sim_rotate(d,H,editFlip,'y');                        %1st editing pulse
-d=sim_evolve(d,H,taus(2)/1000);                          %Evolve by taus(2)
 d=sim_shapedRF(d,H,refPulse,refTp,180,90+refPh1,Gx,dx);%1st shaped 180 degree refocusing pulse
+d=sim_evolve(d,H,taus(2)/1000);                          %Evolve by taus(2)
+d=sim_rotate(d,H,editFlip,'y');                        %1st editing pulse
 d=sim_evolve(d,H,taus(3)/1000);                          %Evolve by taus(3)
-d=sim_rotate(d,H,editFlip,'y');                        %2nd editing pulse 
-d=sim_evolve(d,H,taus(4)/1000);                          %Evolve by taus(4)
 d=sim_shapedRF(d,H,refPulse,refTp,180,90+refPh2,Gy,dy);%2nd shaped 180 degree refocusing pulse
+d=sim_evolve(d,H,taus(4)/1000);                          %Evolve by taus(4)
+d=sim_rotate(d,H,editFlip,'y');                        %2nd editing pulse 
 d=sim_evolve(d,H,taus(5)/1000);                          %Evolve by taus(5)
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
