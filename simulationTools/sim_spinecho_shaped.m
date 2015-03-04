@@ -30,7 +30,8 @@
 function out = sim_spinecho_shaped(n,sw,Bfield,linewidth,sys,TE,RF,Tp,grad,pos,ph)
 
 %Set water to centre
-sys.shifts=sys.shifts-4.65;
+centreFreq=4.65;
+sys.shifts=sys.shifts-centreFreq;
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -42,6 +43,9 @@ d=sim_shapedRF(d,H,RF,Tp,180,90+ph,grad,pos);   %shaped 180 degree refocusing pu
 d=sim_evolve(d,H,TE/2000);                      %Evolve by TE/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
+
+%Correct the ppm scale:
+out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
 out.seq='spinecho';
