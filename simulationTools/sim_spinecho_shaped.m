@@ -1,21 +1,33 @@
 % sim_spinecho_shaped.m
-% Robin Simpson and Jamie Near, 2014.
+% Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out = sim_spinecho_shaped(n,sw,Bfield,linewidth,sys,tau,RF,Tp,grad,pos,ph)
+% sim_spinecho_shaped(n,sw,Bfield,linewidth,sys,TE,RF,Tp,grad,pos,ph)
 % 
 % DESCRIPTION:
-% This function simulates a spin-echo experiment with instantaneous RF pulses.
+% This function simulates a localized spin-echo sequence with a shaped
+% refocusing pulse.  It enables choice of the echo-time as well as the 
+% choice of the phase refocusing pulse.  This allows phase cycling of the 
+% refocusing pulses by repeating simulations with different pulse phases, 
+% which is necessary to remove unwanted coherences from outside the volume 
+% of interest.  For the refocusing pulse, a two step phase cycling scheme 
+% is typically sufficient, where the refocusing pulse is phase cycled by 0 
+% and 90 degrees the phase are combined by subtraction.
 % 
 % INPUTS:
-% n         = number of points in fid/spectrum
-% sw        = desired spectral width in [Hz]
-% Bfield    = main magnetic field strength in [T]
-% linewidth = linewidth in [Hz]
-% sys       = spin system definition structure
-% tau       = echo time in [s]
+% n          = number of points in fid/spectrum
+% sw         = desired spectral width in [Hz]
+% Bfield     = main magnetic field strength in [T]
+% linewidth  = linewidth in [Hz]
+% sys        = Metabolite spin system definition structure;
+% TE         = Echo time in [ms]
+% RF         = Refocusing pulse structure (load using rf_loadwaveform);
+% Tp         = duration of refocusing pulse in [ms]
+% grad       = gradient strength for the selective refocusing pulse [G/cm]
+% pos        = position offset in the direction corresponding to the refocusing pulse [cm]
+% ph         = the phase of the refocusing pulse in [degrees];
 
-function out = sim_spinecho_shaped(n,sw,Bfield,linewidth,sys,tau,RF,Tp,grad,pos,ph)
+function out = sim_spinecho_shaped(n,sw,Bfield,linewidth,sys,TE,RF,Tp,grad,pos,ph)
 
 %Set water to centre
 sys.shifts=sys.shifts-4.65;
@@ -25,9 +37,9 @@ sys.shifts=sys.shifts-4.65;
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                            %EXCITE
-d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
+d=sim_evolve(d,H,TE/2);                         %Evolve by TE/2
 d=sim_shapedRF(d,H,RF,Tp,180,90+ph,grad,pos);   %shaped 180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
+d=sim_evolve(d,H,TE/2);                         %Evolve by TE/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
