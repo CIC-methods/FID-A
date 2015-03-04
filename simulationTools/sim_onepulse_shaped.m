@@ -55,6 +55,9 @@ end
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
+%Correct the ppm scale:
+out.ppm=out.ppm-(4.65-centreFreq);
+
 %Fill in structure header fields:
 out.seq='onepulse';
 out.te=0;

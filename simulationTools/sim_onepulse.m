@@ -20,7 +20,8 @@
 function out = sim_onepulse(n,sw,Bfield,linewidth,sys)
 
 %Set water to centre
-sys.shifts=sys.shifts-4.65;
+centreFreq=4.65;
+sys.shifts=sys.shifts-centreFreq;
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -29,6 +30,9 @@ sys.shifts=sys.shifts-4.65;
 d=sim_excite(H,'x');                            %EXCITE
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
+
+%Correct the ppm scale:
+out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
 out.seq='onepulse';

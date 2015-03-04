@@ -22,6 +22,7 @@
 function out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm)
 
 %Set water to centre
+centreFreq=4.65;
 sys.shifts=sys.shifts-4.65;
 
 %Calculate Hamiltonian matrices and starting density matrix.
@@ -45,6 +46,9 @@ plot(out_temp.ppm,out_temp.specs,'color',[0.5,m/4,m/4]);
 end
 
 out=op_ampScale(out,0.25); %scale down to account for four phase cycles;
+
+%Correct the ppm scale:
+out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
 out.seq='steam';
