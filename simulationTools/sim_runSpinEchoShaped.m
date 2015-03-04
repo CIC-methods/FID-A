@@ -44,9 +44,9 @@ sw=2000; %spectral width [Hz]
 lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thk=3; %slice thickness of x refocusing pulse [cm]
-pos=[-2.0125:0.175:2.0125]; %X positions to simulate [cm]
+pos=[-3:0.3:3]; %X positions to simulate [cm]
 TE=68; %timing of the pulse sequence [ms]
-spinSys='GABA'; %spin system to simulate
+spinSys='Cr'; %spin system to simulate
 phCyc=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
 
@@ -70,7 +70,7 @@ Gx=(RF.tbw/(Tp/1000))/(gamma*thk/10000); %[G/cm]
 
 %Initialize structures:
 out_pos_rpc=cell(length(pos),length(phCyc));
-out_pos=cell(length(pos));
+out_pos=cell(length(pos),1);
 out=struct([]);
 
 %loop through space: Don't forget to initialize the parallel processing
@@ -81,7 +81,7 @@ parfor X=1:length(pos);
                 for RP=1:length(phCyc)
                         disp(['Executing X-position ' num2str(X) ' of ' num2str(length(pos)) ', '...
                             'Refoc phase cycle ' num2str(RP) ' of ' num2str(length(phCyc)) '!!!']); 
-                        out_pos_rpc{X}{RP}=sim_spinecho_shaped(Npts,sw,Bfield,lw,sys,TE,RF,Tp,Gx,pos(X),phCyc1(RP));
+                        out_pos_rpc{X}{RP}=sim_spinecho_shaped(Npts,sw,Bfield,lw,sys,TE,RF,Tp,Gx,pos(X),phCyc(RP));
                         if RP==1
                             out_pos{X}=out_pos_rpc{X}{RP};
                         else

@@ -37,15 +37,15 @@ sys.shifts=sys.shifts-4.65;
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                            %EXCITE
-d=sim_evolve(d,H,TE/2);                         %Evolve by TE/2
+d=sim_evolve(d,H,TE/2000);                      %Evolve by TE/2
 d=sim_shapedRF(d,H,RF,Tp,180,90+ph,grad,pos);   %shaped 180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,TE/2);                         %Evolve by TE/2
+d=sim_evolve(d,H,TE/2000);                      %Evolve by TE/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
 %Fill in structure header fields:
 out.seq='spinecho';
-out.te=tau;
+out.te=TE;
 out.sim='shaped';
 
 %Additional fields for compatibility with FID-A processing tools.
