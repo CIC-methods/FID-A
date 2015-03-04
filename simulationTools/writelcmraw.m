@@ -31,6 +31,9 @@ investigator='jnear';
 comment=['Simulated LCModel basis set for ' data_struct.sim ' ' data_struct.seq...
     ' experiment with echo time ' num2str(data_struct.te) ' ms'];
 
+%Take the complex conjugate becuase the sense of rotation in LCModel seems to
+%be opposite to that used in FID-A.
+data_struct=op_complexConj(data_struct);
 
 RF=zeros(length(data_struct.fids),2);
 RF(:,1)=real(data_struct.fids);
