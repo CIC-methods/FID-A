@@ -32,7 +32,7 @@ if exist(filename)
         rf=rf_readpta(filename);
     elseif filename(end-2:end)=='.RF'
         disp('Varian/Agilent format .RF RF pulse file detected!! Loading waveform now.');
-        rf=readRF(filename);
+        rf=readrfvnmr(filename);
     else
         error('ERROR:  RF Pulse file not recognized.  Aborting!');
     end
