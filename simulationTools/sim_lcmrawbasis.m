@@ -543,7 +543,10 @@ elseif makeraw=='n'||makeraw=='N'
 end
 
 if makeraw
-    RF=writelcmraw(out,[metab '.RAW'],metab);
+    %Do complex conjugate becuase the sense of rotation in LCModel seems to
+    %be opposite to that used in FID-A.
+    out_conj=op_complexConj(out);
+    RF=writelcmraw(out_conj,[metab '.RAW'],metab);
 else
     RF=[];
 end

@@ -25,12 +25,12 @@
 
 % ************INPUT PARAMETERS**********************************
  lb=2;         %linewidth (Hz)
- np=4096;      %Spectral points
+ np=8192;      %Spectral points
  sw=4000;      %Spectral width (Hz)
  Bo=7;         %Magnetic Field Strength (Tesla)
- te1=0.002;    %First PRESS echo time, or SPECIAL echo time (s)
- te2=0.002;    %Second PRESS echo time (if applicable) (s).
- seq='se'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
+ te1=0.0055;    %First PRESS echo time, or SPECIAL echo time (s)
+ te2=0.0055;    %Second PRESS echo time (if applicable) (s).
+ seq='p'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
  ref='y'       %Add reference peak at 0ppm (used in LCModel, y or n);
 % *************END OF INPUT PARAMETERS**************************
 
