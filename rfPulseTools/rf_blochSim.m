@@ -5,7 +5,9 @@
 % [mv,sc]=rf_blochSim(RF,tp,fspan,f0,peakB1);
 % 
 % DESCRIPTION:
-% Perform a bloch simulation of an RF pulse.  
+% Perform a bloch simulation of an RF pulse.  This code simply runs Martyn 
+% Klassen's excellent bloch equation simulator.  For more information, see
+% help file for bes.m.  (~FID-A/rfPulseTools/mklassenTools/bes.m).
 % 
 % INPUTS:
 % RF        = RF pulse definition structure

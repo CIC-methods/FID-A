@@ -22,7 +22,7 @@ function coilcombos=op_getcoilcombos(file_or_struct,point,mode);
 
 
 if isstr(file_or_struct)
-    in=op_loadspec_twix(file_or_struct);
+    in=io_loadspec_twix(file_or_struct);
 else
     in=file_or_struct;
 end

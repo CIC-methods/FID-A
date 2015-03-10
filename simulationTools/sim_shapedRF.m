@@ -44,13 +44,13 @@ if isstr(RF)
     end
     if RF(end-3:end)=='.pta'
         if exist(RF)
-            RF_struct=rf_loadwaveform(RF,type);
+            RF_struct=io_loadRFwaveform(RF,type);
         else
             error('ERROR:  RF pulse file not found! ');
         end
     elseif RF(end-2:end)=='.RF'
         if exist(RF)
-            RF_struct=rf_loadwaveform(RF,type);
+            RF_struct=io_loadRFwaveform(RF,type);
         else
             error('ERROR: RF pulse file not found! ');
         end

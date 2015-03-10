@@ -7,7 +7,7 @@
 % DESCRIPTION:
 % Create an n point gaussian rf waveform.  Waveform can be converted in to siemens
 % pta file using rf_writepta.m or into varian/agilent rf file using
-% rf_writerf.m.
+% io_writeRF.m.
 % 
 % INPUTS:
 % tp         = duration of rf pulse in ms.

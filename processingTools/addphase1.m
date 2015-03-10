@@ -6,7 +6,9 @@
 %
 %DESCRIPTION:
 %Add first order phase to a spectrum (added phase is linearly dependent on
-%frequency).
+%frequency).  This function operates on a vector (fid or spectrum), not on 
+%a FID-A data structure.  For a phase shifting function that operates on a 
+%FID-A data structure, see 'op_addphase.m'.
 %
 %INPUTS:
 %specs      = input vector
