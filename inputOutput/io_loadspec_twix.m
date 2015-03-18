@@ -19,10 +19,25 @@
 function out=io_loadspec_twix(filename);
 
 
-%read in the data using the new mapVBVD
+%read in the data using the new mapVBVD.  This code has been adapted to 
+%handle both single RAID files and multi-RAID files.  The vast majority of
+%Siemens twix data comes as a single RAID file, but I've encoundered a few 
+%multi-RAID files, particularly when using VD13D.  The way to distinguish
+%them here is that a for a single RAID file, mapVBVD will output a struct, 
+%whereas for a multi-RAID file, mapVBVD will output a cell array of structs.
+%This code assumes that the data of interest is in the last element of the 
+%cell array (possibly a bad assumption under some circumstances):
 twix_obj=mapVBVD(filename);
-dOut.data=twix_obj.image();
-
+if isstruct(twix_obj)
+    disp('single RAID file detected.');
+    RaidLength=1;
+    dOut.data=twix_obj.image();
+elseif iscell(twix_obj)
+    disp('multi RAID file detected.');
+    RaidLength=length(twix_obj);
+    %assume that the data of interest is in the last element of the cell.
+    dOut.data=twix_obj{RaidLength}.image();
+end
 
 %find out if the data was acquired using the rm_special sequence, which 
 %does not separate the subspectra into separate array dimensions.  Make 
@@ -69,26 +84,36 @@ fclose(fid);
 %Find the number of averages:
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'ParamLong."lAverages"');
-while isempty(index)
+index=findstr(line,'<ParamLong."lAverages">');
+if isempty(index);
+    instancesFound=0;
+else
+    instancesFound=1;
+end
+while isempty(index) || instancesFound<RaidLength
     line=fgets(fid);
-    index=findstr(line,'ParamLong."lAverages"');
+    index=findstr(line,'<ParamLong."lAverages">');
+    if ~isempty(index)
+        instancesFound=instancesFound+1;
+    end
 end
 line=fgets(fid);
 line=fgets(fid);
-Naverages=str2num(line);
+Naverages=line;
+Naverages=str2num(Naverages);
 fclose(fid);
 
 %Find out if multiple coil elements were used:
 fid=fopen(filename);
 line=fgets(fid);
-coil_index=findstr(line,'ParamLong."MaxNoOfRxChannels"');
+coil_index=findstr(line,'ParamLong."iMaxNoOfRxChannels"');
 while isempty(coil_index)
     line=fgets(fid);
-    coil_index=findstr(line,'ParamLong."MaxNoOfRxChannels"');
+    coil_index=findstr(line,'ParamLong."iMaxNoOfRxChannels"');
 end
-%line(coil_index+33:coil_index+36)
-Ncoils=line(coil_index+34:coil_index+36);
+line=fgets(fid);
+line=fgets(fid);
+Ncoils=line;
 Ncoils=str2num(Ncoils);
 fclose(fid);
 
@@ -185,10 +210,18 @@ fid=fopen(filename);
 line=fgets(fid);
 index=findstr(line,'sRXSPEC.alDwellTime[0]');
 equals_index=findstr(line,'= ');
-while isempty(index) || isempty(equals_index)
+if isempty(index) || isempty(equals_index);
+    instancesFound=0;
+elseif ~isempty(index) && ~isempty(equals_index)
+    instancesFound=1;
+end
+while (isempty(index) || isempty(equals_index)) || instancesFound<RaidLength
     line=fgets(fid);
     index=findstr(line,'sRXSPEC.alDwellTime[0]');
     equals_index=findstr(line,'= ');
+    if ~isempty(index) && ~isempty(equals_index)
+        instancesFound=instancesFound+1;
+    end
 end
 dwelltime=line(equals_index+1:end);
 dwelltime=str2double(dwelltime)*1e-9;
@@ -288,7 +321,11 @@ out.averages=averages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
-out.pointsToLeftshift=twix_obj.image.freeParam(1);
+if RaidLength==1
+    out.pointsToLeftshift=twix_obj.image.freeParam(1);
+elseif RaidLength>1
+    out.pointsToLeftshift=twix_obj{RaidLength}.image.freeParam(1);
+end
 
 
 %FILLING IN THE FLAGS
