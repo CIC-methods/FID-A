@@ -1,78 +1,84 @@
-%io_loadspec_GE.m
+%io_loadspec_data.m
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs);
+% [out,out_w]=io_loadspec_data(filename,sw,Larmor,subspecs);
 % 
 % DESCRIPTION:
-% Reads in GE P file (.dat file) using code adapted from GERead.m, provided 
-% as part of the Gannet software package by Richard Edden (gabamrs.blogspot.com).
+% Reads in philips MRS data (.data and .list files) using code adapted from 
+% PhilipsRead_data.m, provided as part of the Gannet software package by 
+% Richard Edden (gabamrs.blogspot.com).
 % 
-% op_loadspec_GE outputs the data in structure format, with fields corresponding to time
-% scale, fids, frequency scale, spectra, and header fields containing
-% information about the acquisition.  The resulting matlab structure can be
-% operated on by the other functions in this MRS toolbox.  NOTE:  Since the 
-% Gannet code is geared towards edited GABA MRS data, this code may not be 
-% general enough to handle all types of MRS data.  Suggestions are most welcome.
+% op_loadspec_data outputs the data in structure format, with fields 
+% corresponding to time scale, fids, frequency scale, spectra, and header 
+% fields containing information about the acquisition.  The resulting 
+% matlab structure can be operated on by the other functions in this MRS 
+% toolbox.  NOTE:  Since the Gannet code is geared towards edited GABA MRS 
+% data, this code may not be general enough to handle all types of MRS data.  
+% Suggestions are most welcome.
 % 
 % INPUTS:
-% filename   = filename of GE P file to be loaded.
+% filename   = filename of Philips .data file to be loaded.
 % sw         = spectral width (Hz) 
 % Larmor     = Larmor frequency (Hz/ppm, ie.  127 for 3T)
 % subspecs   = number of subspectra in the data (from spectral editing, ISIS, etc.)
 
-function [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs);
+function [out,out_w]=io_loadspec_data(filename,sw,Larmor,subspecs);
 
-%read in the data using the GELoad.m (adapted from GERead.m)
-[GEout,GEout_w]=GELoad(filename);
+%read in the data using the philipsDataLoad.m (adapted from PhilipsRead_data.m)
+[FullData,WaterData]=philipsDataLoad(filename);
 
-%As far as I can tell, the data that comes out of the GELoad
-%function is normally a N x Navgs x Ncoils matrix.  The Navgs dimension
-%contains all the subspectra, so we will split them now:
+%As far as I can tell, the data that comes out of the philipsDataLoad
+%function is normally a N x Navgs matrix.  The coils have already been 
+%combined. The Navgs dimension contains all the subspectra, so we will 
+%split them now.  Note, that in the data-list format that I have seen, the
+%edit-OFF subspectra appear in elements [1 2 5 6 9 10 13 14...] and the
+%edit-ON subspectra appear in the elements [3 4 7 8 11 12 15 16...].  Other sequences
+%may result in a different subspecs order, but for now we will separate the 
+%subspectra in this way.
 %If the data has multiple subspectra 
-if subspecs>1 
-    %Split the subspectra out of the "averages" dimension:
-    data(:,:,:,1)=GEout(:,[1:2:end-1],:);
-    data(:,:,:,2)=GEout(:,[2:2:end],:);
+if subspecs>1
+    %First make an vector that holds the indices of the ON subspectra:
+    totalAvgs=size(FullData,2);
+    OFFindices=[1:2:totalAvgs]-mod([0:(totalAvgs/2)-1],2);
+    ONindices=[2:2:totalAvgs]+mod([1:totalAvgs/2],2);
+    %Now split the subspectra out of the "averages" dimension:
+    data(:,:,1)=FullData(:,OFFindices);
+    data(:,:,2)=FullData(:,ONindices);
 else
-    data=GEout;
+    data=FullData;
 end
 
 fids=squeeze(data);
-fids_w=squeeze(GEout_w);
-
-%swap the averages and the coils dimensions:
-fids=permute(fids,[1,3,2,4]);
-fids_w=permute(fids_w,[1,3,2]);
+fids_w=squeeze(WaterData)';
 
 sz=size(fids);
 sz_w=size(fids_w);
-
 
 %Find the magnetic field strength:
 Bo=Larmor/42.577;
 
 %Find the number of averages:
-Naverages=size(fids,2)*size(fids,4);
-Naverages_w=size(fids_w,2)*size(fids_w,4);
+Naverages=size(fids,2)*size(fids,3);
+Naverages_w=size(fids_w,2)*size(fids_w,3);
 
-%Find out if multiple coil elements were used:
-Ncoils=size(fids,3);
-Ncoils_w=size(fids_w,3);
+%In Philips data/list format, coil channels have already been combined:
+Ncoils=1;
+Ncoils_w=1;
 
 %Now create a record of the dimensions of the data array.  
 dims.t=1;
-dims.coils=2;
-dims.averages=3;
+dims.coils=0;
+dims.averages=2;
 if subspecs>1
-    dims.subSpecs=4;
+    dims.subSpecs=3;
 else
     dims.subSpecs=0;
 end
 
 dims_w.t=1;
-dims_w.coils=2;
-dims_w.averages=3;
+dims_w.coils=0;
+dims_w.averages=2;
 dims_w.subSpecs=0;
 
 
