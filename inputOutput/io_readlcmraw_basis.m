@@ -1,14 +1,14 @@
-%io_readlcmraw_basis.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%out=io_readlcmraw_basis(filename);
-%
-%DESCRIPTION:
-%Reads LCModel .raw model spectrum file into the FID-A data structure format in MATLAB.
-%
-%INPUTS:
-%filename   = filename of LCModel raw file.
+% io_readlcmraw_basis.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% out=io_readlcmraw_basis(filename);
+% 
+% DESCRIPTION:
+% Reads LCModel .raw model spectrum file into the FID-A data structure format in MATLAB.
+% 
+% INPUTS:
+% filename   = filename of LCModel raw file.
 
 function [out]=io_readlcmraw_basis(filename)
 

@@ -1,6 +1,6 @@
-%op_makeFreqDrift.m
-%Jamie Near, McGill University 2014.
-%
+% op_makeFreqDrift.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,fDrift]=op_makeFreqDrift(in,totalDrift,noise);
 % 

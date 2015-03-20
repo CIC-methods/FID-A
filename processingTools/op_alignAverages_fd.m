@@ -1,6 +1,6 @@
-%op_alignAverages_fd.m
-%Jamie Near, McGill University 2014.
-%
+% op_alignAverages_fd.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,fs,phs]=op_alignAverages_fd(in,minppm,maxppm,tmax,avg,initPars);
 % 

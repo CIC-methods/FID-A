@@ -1,6 +1,6 @@
-%op_getcoilcombos.m
-%Jamie Near, McGill University 2014.
-%
+% op_getcoilcombos.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % coilcombos=op_getcoilcombos(file_or_struct,point);
 % 

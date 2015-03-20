@@ -1,6 +1,6 @@
-%op_alignScans.m
-%Jamie Near, McGill University 2014.
-%
+% op_alignScans.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,ph,frq]=op_alignScans(in,in1,tmax,mode);
 % 

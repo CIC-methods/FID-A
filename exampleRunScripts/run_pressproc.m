@@ -1,6 +1,6 @@
-%run_pressproc.m
-%Jamie Near, McGill University 2014.
-%
+% run_pressproc.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,out_w,out_noproc,out_w_noproc]=run_pressproc(filestring,aaDomain,tmaxin,iterin);
 % 

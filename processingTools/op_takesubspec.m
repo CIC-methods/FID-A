@@ -1,6 +1,6 @@
-%op_takesubspec.m
-%Jamie Near, McGill University 2014.
-%
+% op_takesubspec.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_takesubspec(in,index);
 % 

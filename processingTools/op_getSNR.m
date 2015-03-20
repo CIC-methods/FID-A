@@ -1,18 +1,18 @@
-%op_getSNR.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[SNR]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
-%
-%DESCRIPTION:
-%Find the SNR of the NAA peak in a spectrum.
-%
-%INPUTS:
-%in             = input data in matlab structure format
-%NAAppmmin      = min of frequncy range in which to search for NAA peak.
-%NAAppmmax      = max of frequncy range in which to search for NAA peak.
-%noiseppmmin    = min of frequency range in which to measure noise.
-%noiseppmmax    = max of frequency range in which to measure noise.
+% op_getSNR.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [SNR]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
+% 
+% DESCRIPTION:
+% Find the SNR of the NAA peak in a spectrum.
+% 
+% INPUTS:
+% in             = input data in matlab structure format
+% NAAppmmin      = min of frequncy range in which to search for NAA peak.
+% NAAppmmax      = max of frequncy range in which to search for NAA peak.
+% noiseppmmin    = min of frequency range in which to measure noise.
+% noiseppmmax    = max of frequency range in which to measure noise.
 
 function [SNR]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
 

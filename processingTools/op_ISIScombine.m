@@ -1,6 +1,6 @@
-%op_ISIScombine.m
-%Jamie Near, McGill University 2014.
-%
+% op_ISIScombine.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_ISIScombine(in,addInd);
 % 

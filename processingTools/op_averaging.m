@@ -1,6 +1,6 @@
-%op_averaging.m
-%Jamie Near, McGill University 2014.
-%
+% op_averaging.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_averaging(in);
 % 

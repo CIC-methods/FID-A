@@ -1,6 +1,6 @@
-%op_lorentzianPeak.m
-%Jamie Near, McGill University 2014.
-%
+% op_lorentzianPeak.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_lorentzianPeak(n,sw,Bo,lw,ppm0,amp);
 % 

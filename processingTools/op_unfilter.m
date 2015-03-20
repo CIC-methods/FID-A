@@ -1,6 +1,6 @@
-%op_unfilter.m
-%Jamie Near, McGill University 2014.
-%
+% op_unfilter.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_unfilter(in,lb);
 % 

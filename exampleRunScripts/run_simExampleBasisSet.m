@@ -1,6 +1,6 @@
-%run_simExampleBasisSet.m
-%Jamie Near, McGill University 2014.
-%
+% run_simExampleBasisSet.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % This script is run simply by editing the input parameters and then
 % clicking "Run".
@@ -22,7 +22,7 @@
 %  te2      = Second PRESS echo time (if applicable) (s).
 %  seq      = Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
 %  ref      = Add reference peak at 0ppm (used in LCModel, y or n);
-
+% 
 % ************INPUT PARAMETERS**********************************
  lb=2;         %linewidth (Hz)
  np=8192;      %Spectral points

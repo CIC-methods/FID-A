@@ -1,6 +1,6 @@
-%op_combinesubspecs.m
-%Jamie Near, McGill University 2014.
-%
+% op_combinesubspecs.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_combinesubspecs(in,mode);
 % 

@@ -1,34 +1,34 @@
-%run_specialproc.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[out,out_w,out_noproc,out_w_noproc]=run_specialproc(filestring,aaDomain,tmaxin,iterin);
-%
-%DESCRIPTION:
-%Processing script for Siemens SPECIAL MRS data in .dat format (twix raw 
-%data).  Includes combination of reciever channels, removal of bad averages, 
-%freqeuncy drift correction, and leftshifting.
-%
-%INPUTS:
-%filestring:    String variable for the name of the directory containing
+% run_specialproc.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [out,out_w,out_noproc,out_w_noproc]=run_specialproc(filestring,aaDomain,tmaxin,iterin);
+% 
+% DESCRIPTION:
+% Processing script for Siemens SPECIAL MRS data in .dat format (twix raw 
+% data).  Includes combination of reciever channels, removal of bad averages, 
+% freqeuncy drift correction, and leftshifting.
+% 
+% INPUTS:
+% filestring:    String variable for the name of the directory containing
 %                   the water suppressed .dat file.  Water unsuppressed
 %                   .dat file should be contained in [filestring '_w/'];
-%aaDomain:      (Optional) Perform the spectral registration (drift correction) using
+% aaDomain:      (Optional) Perform the spectral registration (drift correction) using
 %                   the full spectrum ('t'), or only a limited frequency
 %                   range ('f').  Default is 'f'.
-%tmaxin:        (Optional).  Duration (in sec.) of the time domain signal
+% tmaxin:        (Optional).  Duration (in sec.) of the time domain signal
 %                   used in the spectral registration (drift correction).
 %                   Default is 0.2 sec.
-%iterin:        (Optional).  Maximum number of allowed iterations for the spectral
+% iterin:        (Optional).  Maximum number of allowed iterations for the spectral
 %                   registration to converge. Default is 20.
-%
-%OUTPUTS:
-%out:           Fully processed, water suppressed output spectrum.
-%out_w:         Fully processed, water unsuppressed output spectrum.
-%out_noproc:    Water suppressed output spectrum without pre-
+% 
+% OUTPUTS:
+% out:           Fully processed, water suppressed output spectrum.
+% out_w:         Fully processed, water unsuppressed output spectrum.
+% out_noproc:    Water suppressed output spectrum without pre-
 %                   processing (No bad-averages removal, no frequency drift
 %                   correction).
-%out_w_noproc:  Water unsuppressed output spectrum without pre-
+% out_w_noproc:  Water unsuppressed output spectrum without pre-
 %                   processing.
 
 function [out,out_w,out_noproc,out_w_noproc]=run_specialproc(filestring,aaDomain,tmaxin,iterin);

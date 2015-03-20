@@ -1,6 +1,6 @@
-%op_phaseAlignAverages.m
-%Jamie Near, McGill University 2014.
-%
+% op_phaseAlignAverages.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,phs]=op_phaseAlignAverages(in,Npts,avg,weighting)
 % 

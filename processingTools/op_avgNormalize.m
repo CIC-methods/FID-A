@@ -1,6 +1,6 @@
-%op_avgNormalize.m
-%Jamie Near, McGill University 2014.
-%
+% op_avgNormalize.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_avgNormalize(in,scaleFactor);
 % 

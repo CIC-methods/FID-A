@@ -1,6 +1,6 @@
-%op_leftshift.m
-%Jamie Near, McGill University 2014.
-%
+% op_leftshift.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_leftshift(in,ls);
 % 

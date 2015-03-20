@@ -1,19 +1,19 @@
-%run_getLWandSNR.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[ FWHM,SNR ] = run_getLWandSNR(in);
-%
-%DESCRIPTION:
-%calculate the linewidth and SNR of a spectrum.  This function calculates
-%the Linewidth by measuring the FWHM of the unsuppressed water peak.  SNR
-%is calculated by measuring the height of the NAA peak and comparing this
-%to the standard deviation of the noise in a signal-free region of the
-%spectrum.  SNR is measured four separate times using four different noise 
-%regions and the average of those four measurements is reported.
-%
-%INPUTS:
-%in    = input data in matlab structure format
+% run_getLWandSNR.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [ FWHM,SNR ] = run_getLWandSNR(in);
+% 
+% DESCRIPTION:
+% calculate the linewidth and SNR of a spectrum.  This function calculates
+% the Linewidth by measuring the FWHM of the unsuppressed water peak.  SNR
+% is calculated by measuring the height of the NAA peak and comparing this
+% to the standard deviation of the noise in a signal-free region of the
+% spectrum.  SNR is measured four separate times using four different noise 
+% regions and the average of those four measurements is reported.
+% 
+% INPUTS:
+% in    = input data in matlab structure format
 
 function [ FWHM,SNR ] = run_getLWandSNR(in);
 

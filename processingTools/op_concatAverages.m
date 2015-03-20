@@ -1,16 +1,16 @@
-%op_concatAverages.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%out=op_concatAverages(in1,in2);
-%
-%DESCRIPTION:
-%Concatenate two scans along the averages dimension.  Two scans with 50
-%averages each will now look like a single scan with 100 averages.
-%
-%INPUTS:
-%in1    = first input in matlab structure format.
-%in2    = second input in matlab structure format.
+% op_concatAverages.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% out=op_concatAverages(in1,in2);
+% 
+% DESCRIPTION:
+% Concatenate two scans along the averages dimension.  Two scans with 50
+% averages each will now look like a single scan with 100 averages.
+% 
+% INPUTS:
+% in1    = first input in matlab structure format.
+% in2    = second input in matlab structure format.
 
 function out=op_concatAverages(in1,in2);
 

@@ -1,6 +1,6 @@
-%op_alignrcvrs.m
-%Jamie Near, McGill University 2014.
-%
+% op_alignrcvrs.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,ph,sig]=op_alignrcvrs(in,point,mode,coilcombos);
 % 

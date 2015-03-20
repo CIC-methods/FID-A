@@ -1,16 +1,16 @@
-%op_addScans.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%out=op_addScans(in1,in2,subtract);
-%
-%DESCRIPTION:
-%Add or subtract two scans together.
-%
-%INPUTS:
-%in1        = First spectrum to add (in matlab structure format)
-%in2        = Second spectrum to add (also in matlab structure format).
-%subtract	= (optional).  Add or subtract?  (0 = add, 1=subtract).
+% op_addScans.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% out=op_addScans(in1,in2,subtract);
+% 
+% DESCRIPTION:
+% Add or subtract two scans together.
+% 
+% INPUTS:
+% in1        = First spectrum to add (in matlab structure format)
+% in2        = Second spectrum to add (also in matlab structure format).
+% subtract	= (optional).  Add or subtract?  (0 = add, 1=subtract).
 %             Default=0;
 
 function out=op_addScans(in1,in2,subtract);

@@ -1,6 +1,6 @@
-%op_ampScale.m
-%Jamie Near, McGill University 2014.
-%
+% op_ampScale.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_ampScale(in,A);
 % 

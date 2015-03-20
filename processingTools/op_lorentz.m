@@ -1,6 +1,6 @@
-%op_lorentz.m
-%Jamie Near, McGill University 2014.
-%
+% op_lorentz.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % y=op_lorentz(pars,ppm);
 % 

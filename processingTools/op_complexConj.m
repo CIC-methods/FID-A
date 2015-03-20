@@ -1,6 +1,6 @@
-%op_complexConj.m
-%Jamie Near, McGill University 2014.
-%
+% op_complexConj.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_complexConj(in)
 % 

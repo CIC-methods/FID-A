@@ -1,6 +1,6 @@
-%op_freqshift.m
-%Jamie Near, McGill University 2014.
-%
+% op_freqshift.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_freqshift(in,f);
 % 

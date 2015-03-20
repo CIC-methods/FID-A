@@ -1,6 +1,6 @@
-%op_plotspec.m
-%Jamie Near, McGill University 2015.
-%
+% op_plotspec.m
+% Jamie Near, McGill University 2015.
+% 
 % USAGE:
 % out=op_plotspec(in,ppmmin,ppmmax,xlab,ylab,tit);
 % 

@@ -1,18 +1,18 @@
-%op_addNoise.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[out,noise]=op_addNoise(in,sdnoise,noise);
-%
-%DESCRIPTION:
-%Add noise to a spectrum (useful for generating simulated data).  Normally
-%distributed random noise is added to both the real and imaginary parts of
-%the data.  Real and imaginary noise parts are uncorrelated.
-%
-%INPUTS:
-%in         = Input data in matlab structure format.
-%sdnoise    = Standard deviation of the random noise to be added in the time domain.
-%noise      = (optional)  Specific noise kernel to be added (if specified,
+% op_addNoise.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [out,noise]=op_addNoise(in,sdnoise,noise);
+% 
+% DESCRIPTION:
+% Add noise to a spectrum (useful for generating simulated data).  Normally
+% distributed random noise is added to both the real and imaginary parts of
+% the data.  Real and imaginary noise parts are uncorrelated.
+% 
+% INPUTS:
+% in         = Input data in matlab structure format.
+% sdnoise    = Standard deviation of the random noise to be added in the time domain.
+% noise      = (optional)  Specific noise kernel to be added (if specified,
 %               sdnoise variable is ignored).  
 
 function [out,noise]=op_addNoise(in,sdnoise,noise);

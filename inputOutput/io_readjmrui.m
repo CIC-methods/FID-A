@@ -1,11 +1,16 @@
-function [rf,info]=io_readjmrui(filename)
-
-% RF = READJMRUI(FILENAME) reads the textfile (.txt) output of jMRUI
+% io_readjmrui.m
+% Jamie Near, McGill University 2014.
 % 
-%
+% USAGE:
+% out=io_readjmrui(filename);
+% 
+% DESCRIPTION:
+% Reads jMRUI .txt format into the FID-A data structure format in MATLAB.
+% 
+% INPUTS:
+% filename   = filename of jMRUI .txt file.
 
-% Author: Jamie Near, FMRIB 2010
-
+function [rf,info]=io_readjmrui(filename)
 
 %try to incorporate the header information into a structure called 'info'
 fid=fopen(filename);

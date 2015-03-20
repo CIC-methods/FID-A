@@ -1,6 +1,6 @@
-%op_dccorr.m
-%Jamie Near, McGill University 2014.
-%
+% op_dccorr.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_dccorr(in,mode,var);
 % 

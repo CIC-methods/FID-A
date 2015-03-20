@@ -1,16 +1,16 @@
-%op_freqrange.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%out=op_freqrange(in,ppmmin,ppmmax);
-%
-%DESCRIPTION:
-%Output only a specified frequency range of the input spectrum.
-%
-%INPUTS:
-%in         = input data in matlab structure format.
-%ppmmin     = minimum extent of frequency range in ppm.
-%ppmmax     = maximum extent of frequency range in ppm.
+% op_freqrange.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% out=op_freqrange(in,ppmmin,ppmmax);
+% 
+% DESCRIPTION:
+% Output only a specified frequency range of the input spectrum.
+% 
+% INPUTS:
+% in         = input data in matlab structure format.
+% ppmmin     = minimum extent of frequency range in ppm.
+% ppmmax     = maximum extent of frequency range in ppm.
 
 function out=op_freqrange(in,ppmmin,ppmmax);
 

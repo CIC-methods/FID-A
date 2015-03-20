@@ -1,21 +1,21 @@
-%op_getLW.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[FWHM]=op_getLW(in,zpfactor,Refppmmin,Refppmmax);
-%
-%DESCRIPTION:
-%Estimates the linewidth of a reference peak in the spectrum.  Two methods are
-%used to estimate the linewidth:  1.  FWHM is measured by simply taking the
-%full width at half max of the reference peak.  2.  The FWHM is measured by
-%fitting the reference peak to a lorentzian lineshape and determine the FWHM of the
-%best fit.  The output FWHM is given by the average of these two measures.
-%
-%INPUTS:
-%in         = input spectrum in structure format.
-%zpfactor   = zero-padding factor (used for method 1.)
-%Refppmmin  = Min of frequency range (ppm) in which to search for reference peak.
-%Refppmmax  = Max of frequency range to (ppm) in which search for reference peak
+% op_getLW.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [FWHM]=op_getLW(in,zpfactor,Refppmmin,Refppmmax);
+% 
+% DESCRIPTION:
+% Estimates the linewidth of a reference peak in the spectrum.  Two methods are
+% used to estimate the linewidth:  1.  FWHM is measured by simply taking the
+% full width at half max of the reference peak.  2.  The FWHM is measured by
+% fitting the reference peak to a lorentzian lineshape and determine the FWHM of the
+% best fit.  The output FWHM is given by the average of these two measures.
+% 
+% INPUTS:
+% in         = input spectrum in structure format.
+% zpfactor   = zero-padding factor (used for method 1.)
+% Refppmmin  = Min of frequency range (ppm) in which to search for reference peak.
+% Refppmmax  = Max of frequency range to (ppm) in which search for reference peak
 
 function [FWHM]=op_getLW(in,zpfactor,Refppmmin,Refppmmax);
 

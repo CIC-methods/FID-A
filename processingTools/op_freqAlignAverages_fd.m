@@ -1,6 +1,6 @@
-%op_freqAlignAverages_fd.m
-%Jamie Near, McGill University 2014.
-%
+% op_freqAlignAverages_fd.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,fs,phs]=op_freqAlignAverages_fd(in,minppm,maxppm,tmax,avg,initPars);
 % 

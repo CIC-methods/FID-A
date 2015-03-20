@@ -1,16 +1,16 @@
-%op_rmNworstaverages.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[out,metric,badAverages]=op_rmNworstaverages(in,n);
-%
-%DESCRIPTION:
-%Removes motion corrupted averages from a dataset containing multiple
-%averages.  The N most badly motion corrupted averages are discarded.
-%
-%INPUTS:
-%in         = input data in matlab structure format
-%n          = number of bad averages to remove
+% op_rmNworstaverages.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [out,metric,badAverages]=op_rmNworstaverages(in,n);
+% 
+% DESCRIPTION:
+% Removes motion corrupted averages from a dataset containing multiple
+% averages.  The N most badly motion corrupted averages are discarded.
+% 
+% INPUTS:
+% in         = input data in matlab structure format
+% n          = number of bad averages to remove
 
 function [out,metric,badAverages]=op_rmNworstaverages(in,n);
 

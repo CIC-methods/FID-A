@@ -1,6 +1,6 @@
-%op_freqshiftSubspec.m
-%Jamie Near, McGill University 2014.
-%
+% op_freqshiftSubspec.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_freqshiftSubspec(in,f);
 % 

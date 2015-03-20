@@ -1,24 +1,24 @@
-%addphase1.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%PhasedSpecs=addphase1(specs,ppm,timeShift,ppm0,B0);
-%
-%DESCRIPTION:
-%Add first order phase to a spectrum (added phase is linearly dependent on
-%frequency).  This function operates on a vector (fid or spectrum), not on 
-%a FID-A data structure.  For a phase shifting function that operates on a 
-%FID-A data structure, see 'op_addphase.m'.
-%
-%INPUTS:
-%specs      = input vector
-%ppm        = freqeuncy scale (ppm) corresponding to the specs vector
-%timeShift  = This defines the amount of 1st order phase shift by
+% addphase1.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% PhasedSpecs=addphase1(specs,ppm,timeShift,ppm0,B0);
+% 
+% DESCRIPTION:
+% Add first order phase to a spectrum (added phase is linearly dependent on
+% frequency).  This function operates on a vector (fid or spectrum), not on 
+% a FID-A data structure.  For a phase shifting function that operates on a 
+% FID-A data structure, see 'op_addphase.m'.
+% 
+% INPUTS:
+% specs      = input vector
+% ppm        = freqeuncy scale (ppm) corresponding to the specs vector
+% timeShift  = This defines the amount of 1st order phase shift by
 %               specifying the equivalent horizontal shift (in seconds) in the time
 %               domain.
-%ppm0       = The frequency "origin" (ppm) of the 1st order phase shift. 
+% ppm0       = The frequency "origin" (ppm) of the 1st order phase shift. 
 %               (this frequency will undergo 0 phase shift).
-%B0         = The main magnetic field strength (needed since ppm depends on
+% B0         = The main magnetic field strength (needed since ppm depends on
 %               B0)
 
 function PhasedSpecs=addphase1(specs,ppm,timeShift,ppm0,B0);

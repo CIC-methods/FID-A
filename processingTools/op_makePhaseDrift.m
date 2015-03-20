@@ -1,6 +1,6 @@
-%op_makePhaseDrift.m
-%Jamie Near, McGill University 2014.
-%
+% op_makePhaseDrift.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,phDrift]=op_makePhaseDrift(in,totalDrift,noise);
 % 

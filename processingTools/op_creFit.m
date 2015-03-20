@@ -1,6 +1,6 @@
-%op_creFit.m
-%Jamie Near, McGill University 2014.
-%
+% op_creFit.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % parsFit=op_creFit(in,ph0,ph1);
 % 

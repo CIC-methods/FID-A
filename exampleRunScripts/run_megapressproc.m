@@ -1,6 +1,6 @@
-%run_megapressproc.m
-%Jamie Near, McGill University 2014.
-%
+% run_megapressproc.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out1_diff,out1_sum,outw]=run_megapressproc(filestring,avgAlignDomain,alignSS);
 % 

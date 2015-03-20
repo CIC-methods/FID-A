@@ -1,6 +1,6 @@
-%op_addrcvrs.m
-%Jamie Near, McGill University 2014.
-%
+% op_addrcvrs.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,fids_presum,specs_presum,ph,sig]=op_addrcvrs(in,point,mode,coilcombos);
 % 

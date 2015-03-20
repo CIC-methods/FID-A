@@ -1,6 +1,6 @@
-%op_gaussianPeak.m
-%Jamie Near, McGill University 2014.
-%
+% op_gaussianPeak.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_gaussianPeak(n,sw,Bo,lw,ppm0,amp);
 % 

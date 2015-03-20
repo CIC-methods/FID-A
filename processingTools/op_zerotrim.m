@@ -1,6 +1,6 @@
-%op_zerotrim.m
-%Jamie Near, McGill University 2014.
-%
+% op_zerotrim.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_zerotrim(in,numPointsToTrim);
 % 

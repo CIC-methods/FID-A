@@ -1,6 +1,6 @@
-%op_ecc.m
-%Jamie Near, McGill University 2014.
-%
+% op_ecc.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % [out,outw]=op_ecc(in,inw);
 % 

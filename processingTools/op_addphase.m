@@ -1,18 +1,18 @@
-%op_addphase.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
-%
-%DESCRIPTION:
-%add zero and first order phase to a spectrum.
-%
-%INPUTS:
-%in             = input spectrum in matlab structure format
-%ph0            = zero order phase to add (degrees)
-%ph1            = 1st order phase to add (in seconds);
-%ppm0           = (optional) frequency reference point.  Default = 4.65;
-%suppressPlot   = (optional) Boolian to suppress plots.  Default = 0;
+% op_addphase.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
+% 
+% DESCRIPTION:
+% add zero and first order phase to a spectrum.
+% 
+% INPUTS:
+% in             = input spectrum in matlab structure format
+% ph0            = zero order phase to add (degrees)
+% ph1            = 1st order phase to add (in seconds);
+% ppm0           = (optional) frequency reference point.  Default = 4.65;
+% suppressPlot   = (optional) Boolian to suppress plots.  Default = 0;
 
 function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
 

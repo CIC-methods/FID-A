@@ -1,6 +1,6 @@
-%op_getcoilcombos_specReg.m
-%Jamie Near, McGill University 2014.
-%
+% op_getcoilcombos_specReg.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % coilcombos=op_getcoilcombos_specReg(file_or_struct,tmin,tmax,point);
 % 

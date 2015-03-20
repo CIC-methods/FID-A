@@ -1,6 +1,6 @@
-%op_plotfid.m
-%Jamie Near, McGill University 2015.
-%
+% op_plotfid.m
+% Jamie Near, McGill University 2015.
+% 
 % USAGE:
 % out=op_plotfid(in,tmax,xlab,ylab,tit);
 % 

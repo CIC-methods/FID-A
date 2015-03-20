@@ -1,33 +1,33 @@
-%run_specialproc_fmrs_slidingWindow.m
-%Jamie Near, McGill University 2014.
-%
-%USAGE:
-%[out1,out_w]=run_specialproc_fmrs_slidingWindow(filestring,windowSize);
-%
-%DESCRIPTION:
-%Processing script for functional MRS data acquired using the SPECIAL MRS 
-%sequence.  This script accepts data in Siemens .dat format (twix raw data).  
-%Processing steps include combination of reciever channels, removal of bad 
-%averages, freqeuncy drift correction, and leftshifting.  This code
-%generates a 'sliding window timecourse' of MR spectra by combining the
-%averages within a small window given by the windowSize argument, and then
-%sliding the window by 1 average and combining again.  Each summed window
-%is output as an LCModel text file to be analyzed in LCModel.  As a
-%result, this function generates many text output files.  
-%
-%INPUTS:
-%filestring:        String variable for the name of the directory containing
+% run_specialproc_fmrs_slidingWindow.m
+% Jamie Near, McGill University 2014.
+% 
+% USAGE:
+% [out1,out_w]=run_specialproc_fmrs_slidingWindow(filestring,windowSize);
+% 
+% DESCRIPTION:
+% Processing script for functional MRS data acquired using the SPECIAL MRS 
+% sequence.  This script accepts data in Siemens .dat format (twix raw data).  
+% Processing steps include combination of reciever channels, removal of bad 
+% averages, freqeuncy drift correction, and leftshifting.  This code
+% generates a 'sliding window timecourse' of MR spectra by combining the
+% averages within a small window given by the windowSize argument, and then
+% sliding the window by 1 average and combining again.  Each summed window
+% is output as an LCModel text file to be analyzed in LCModel.  As a
+% result, this function generates many text output files.  
+% 
+% INPUTS:
+% filestring:        String variable for the name of the directory containing
 %                       the water suppressed .dat file.  Water unsuppressed
 %                       .dat file should be contained in [filestring '_w/'];
-%windowSize:       This is an integer that specifies the number of averages
+% windowSize:       This is an integer that specifies the number of averages
 %                       that are stored within the sliding window.  It is
 %                       recommended to choose a window size that is
 %                       divisible by the number of phase cycles so that the
 %                       window does not contain any partial phase cycles.
-%
-%OUTPUTS:
-%out1:              The first sliding window spectrum.  
-%out_w:             Fully processed, water unsuppressed output spectrum.
+% 
+% OUTPUTS:
+% out1:              The first sliding window spectrum.  
+% out_w:             Fully processed, water unsuppressed output spectrum.
 
 function [out1,out_w]=run_specialproc_fmrs_slidingWindow(filestring,windowSize);
 

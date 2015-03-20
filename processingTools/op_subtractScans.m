@@ -1,6 +1,6 @@
-%op_subtractScans.m
-%Jamie Near, McGill University 2014.
-%
+% op_subtractScans.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_subtractScans(in1,in2);
 % 

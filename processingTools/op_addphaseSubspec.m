@@ -1,6 +1,6 @@
-%op_addphaseSubspec.m
-%Jamie Near, McGill University 2014.
-%
+% op_addphaseSubspec.m
+% Jamie Near, McGill University 2014.
+% 
 % USAGE:
 % out=op_addphaseSubspec(in,ph);
 % 
