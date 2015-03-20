@@ -347,7 +347,12 @@ end
 
 %now choose global phase correction:
 SpecTool(out1_ls,0.5,0,7);
+disp('******************************************************************************');
 disp('Use GUI Interface to adjust 0th order phase until NAA peak (2 ppm) is inverted');
+disp('***NOTE If you are using the Siemens MEGA_PRESS WIP (WIP529), then you should');
+disp('adjust the 0th order phase until the NAA peak is upright!***');
+disp('************************************************************');
+fprintf('\n');
 ph0=input('Input desired phase shift (Hz): ');
 
 switch alignSS    
@@ -355,8 +360,13 @@ switch alignSS
         figure('position',[0 50 560 420]);
         out1_ls_filt=op_addphase(op_filter(out1_ls,5),ph0);
         subSpecTool(out1_ls_filt,0,7);
+        disp('***************************************************************************************');
         disp('Use GUI interface to align edit-ON and edit-OFF scans by adjusting Phase and Frequency.');
         disp('Try to minimize the residual water, residual Creatine, and residual Choline peaks!');
+        disp('***NOTE If you are using the Siemens MEGA_PRESS WIP (WIP529), then you will');
+        disp('have to add about 180 degrees of phase to the subspectrum!***');
+        disp('*************************************************************');
+        fprintf('\n');
         phshft1=input('Input Desired Phase Shift (Degrees) for first spectrum: ');
         frqshft1=input('Input Desired Frequncy Shift (Hz) for first spectrum: ');
         out1=op_freqshiftSubspec(op_addphaseSubspec(op_addphase(out1_ls,ph0),phshft1),frqshft1);

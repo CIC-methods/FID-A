@@ -53,6 +53,7 @@ while isempty(index) || isempty(equals_index)
 end
 sequence=line(equals_index+1:end);
 isSpecial=~isempty(findstr(sequence,'rm_special'));
+isWIP529=~isempty(findstr(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 fclose(fid);
 if isSpecial 
     squeezedData=squeeze(dOut.data);
@@ -62,10 +63,15 @@ else
     data=dOut.data;
 end
 
-
 fids=squeeze(data);
-sz=size(fids);
 
+%If we are dealing with WIP 529, then we need to swap the order of the 
+%averages and subspecs dimensions:
+if isWIP529
+    fids=permute(fids,[1,2,4,3]);
+end
+
+sz=size(fids);
 
 %Find the magnetic field strength:
 fid=fopen(filename);
