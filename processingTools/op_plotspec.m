@@ -27,7 +27,7 @@ if nargin<6
     if nargin<5
         ylab='';
         if nargin<4
-            xlab='Frequnecy (ppm)';
+            xlab='Frequency (ppm)';
             if nargin<3
                 ppmmax=5.2;
                 if nargin<2
