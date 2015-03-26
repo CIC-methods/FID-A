@@ -122,7 +122,7 @@ elseif type=='inv'
     %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
 end
 
-%First make a very high resolution plot the pulse profile over a narrower bandwidth:
+%Now make a very high resolution plot the pulse profile over a narrower bandwidth:
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
 
 if type=='exc'
