@@ -98,5 +98,6 @@ rf.waveform=rfwaveform;
 rf.type='inv';
 rf.tw1=tw1;
 rf.tbw=tbw;
+rf.f0=df;
 
 
