@@ -59,6 +59,7 @@ x=[-2.2:0.4:2.2]; %X positions to simulate [cm]
 %x=0;
 taus=[17,17,17,17]; %timing of the pulse sequence [ms]
 spinSys='GABA'; %spin system to simulate
+centreFreq=3.0; %Centre frequency of the MR spectrum [ppm]
 editPhCyc1=[0 90]; %phase cycling steps for 1st editing pulse [degrees]
 editPhCyc2=[0 90 180 270]; %phase cycling steps for 2nd editing pulse [degrees]
 refPhCyc=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
@@ -81,8 +82,8 @@ refRF=rf_resample(refRF,100);
 %This is the step where the editing pulse waveform (initially a pulse with 
 %zero-frequency) is frequency shifted to produce and edit-on and an
 %edit-off pulse;
-editRFon=rf_freqshift(editRF,editTp,(editOnFreq-3)*Bfield*gamma/1e6);
-editRFoff=rf_freqshift(editRF,editTp,(editOffFreq-3)*Bfield*gamma/1e6);
+editRFon=rf_freqshift(editRF,editTp,(centreFreq-editOnFreq)*Bfield*gamma/1e6);
+editRFoff=rf_freqshift(editRF,editTp,(centreFreq-editOffFreq)*Bfield*gamma/1e6);
 
 
 Gx=(refRF.tbw/(refTp/1000))/(gamma*thkX/10000); %[G/cm]

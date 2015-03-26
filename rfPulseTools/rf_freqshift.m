@@ -19,9 +19,9 @@ Tp=Tp/1000;
 dt=Tp/N;
 t=[0:dt:Tp-dt];
 
-phaseRamp = t * -F * 360;
+phaseRamp = t * F * 360;
 
 RF_shift=RF;
 RF_shift.waveform(:,1)=RF_shift.waveform(:,1)+phaseRamp';
-RF_shift.f0=RF_shift.f0+F;
+RF_shift.f0=RF.f0+F;
 

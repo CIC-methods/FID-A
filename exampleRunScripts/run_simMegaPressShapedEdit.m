@@ -37,6 +37,7 @@ Bfield=3; %magnetic field strength [Tesla]
 lw=2; %linewidth of the output spectrum [Hz]
 taus=[5,17,17,17,12]; %timing of the pulse sequence [ms]
 spinSys='GABA'; %spin system to simulate
+centreFreq=3.0; %Centre Frequency of MR spectrum [ppm];
 editPhCyc1=[0 90]; %phase cycling steps for 1st editing pulse [degrees]
 editPhCyc2=[0 90 180 270]; %phase cycling steps for 2nd editing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
@@ -53,8 +54,8 @@ sys=eval(['sys' spinSys]);
 %This is the step where the editing pulse waveform (initially a pulse with 
 %zero-frequency) is frequency shifted to produce and edit-on and an
 %edit-off pulse;
-editRFon=rf_freqshift(editRF,editTp,(editOnFreq-3)*Bfield*gamma/1e6);
-editRFoff=rf_freqshift(editRF,editTp,(editOffFreq-3)*Bfield*gamma/1e6);
+editRFon=rf_freqshift(editRF,editTp,(centreFreq-editOnFreq)*Bfield*gamma/1e6);
+editRFoff=rf_freqshift(editRF,editTp,(centreFreq-editOffFreq)*Bfield*gamma/1e6);
 
 %Initialize structures:
 outON_epc=cell(length(editPhCyc1),length(editPhCyc2));
