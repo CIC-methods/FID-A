@@ -70,7 +70,6 @@ out.flags.addedrcvrs=0;
 out.flags.subtracted=0;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
-out.flags.avgNormalized=0;
 if out.dims.subSpecs==0
     out.flags.isISIS=0;
 else

@@ -296,9 +296,6 @@ if exist(filename2)
     ph1=input('input 1st order phase correction: ');
     
     out_w=op_addphase(out_w_av,ph0,ph1);
-    
-    %normalize out number of averages: (No longer used)
-%     out_w=op_avgNormalize(out_w);
 end
 
 if wrt=='y' || wrt=='Y'

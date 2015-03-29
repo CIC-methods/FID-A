@@ -49,7 +49,7 @@ for m=1:B
     if avg=='y'||avg=='Y'
         base=in_avg;
         base=op_freqrange(base,minppm,maxppm);
-        base=base.fids(1:Npts,m)/in.sz(in.dims.averages);
+        base=base.fids(1:Npts,m);
         begin=1;
     else
         base=op_freqrange(in,minppm,maxppm);

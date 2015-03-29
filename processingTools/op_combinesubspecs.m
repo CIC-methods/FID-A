@@ -35,11 +35,11 @@ end
 if mode=='diff'
     %add the spectrum along the subSpecs dimension;
     fids=sum(in.fids,in.dims.subSpecs);
-    fids=fids/2;  %divide by 2 so that this is an averaging operation;
+    fids=fids/in.sz(in.dims.subSpecs); %divide by number of subspecs so that this is an averaging operation;
 elseif mode=='summ'
     %subtract the spectrum along the subSpecs dimension;
     fids=diff(in.fids,1,in.dims.subSpecs);
-    fids=fids/2;  %divide by 2 so that this is an averaging operation;
+    fids=fids/in.sz(in.dims.subSpecs); %divide by nymber of subspecs so that this is an averaging operation;
 end
 
 fids=squeeze(fids);

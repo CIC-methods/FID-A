@@ -355,10 +355,6 @@ ph1=input('input 1st order phase correction: ');
 out_stimON=op_addphase(outON_av,ph0,ph1);
 out_stimOFF=op_addphase(outOFF_av,ph0,ph1);
 
-%normalize out number of averages: (No longer used)
-% out_stimON=op_avgNormalize(out_stimON);
-% out_stimOFF=op_avgNormalize(out_stimOFF);
-
 %Now do a manual phase correction on the water unsuppressed data:
 if exist(filename2)
     SpecTool(out_w_av,0.05,-2,7);
@@ -366,9 +362,6 @@ if exist(filename2)
     ph1=input('input 1st order phase correction: ');
     
     out_w=op_addphase(out_w_av,ph0,ph1);
-    
-    %normalize out number of averages: (No longer used)
-%     out_w=op_avgNormalize(out_w);
 end
 
 wrt=input('write? ','s');

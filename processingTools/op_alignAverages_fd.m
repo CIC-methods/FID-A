@@ -45,7 +45,7 @@ for m=1:B
         disp('aligning all averages to the Average of the averages');
         base=op_averaging(in);
         base=op_freqrange(base,minppm,maxppm);
-        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))]/in.sz(in.dims.averages);
+        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
         begin=1;
     else
         disp('aligning all averages to the first average');

@@ -86,7 +86,6 @@ out.flags.addedrcvrs=1;
 out.flags.subtracted=1;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
-out.flags.avgNormalized=1;
 out.flags.isISIS=0;
 
 

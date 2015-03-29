@@ -5,11 +5,8 @@
 % out=op_averaging(in);
 % 
 % DESCRIPTION:
-% Combine the averages in a scan by adding the averages together.  For 
-% historical reasons, this function does not divide by the number of
-% averages, and therefore it is not really taking the average of the 
-% averages.  Dividing by the number of averages is typically performed in a 
-% separate step using op_avgNormalize.
+% Combine the averages in a scan by adding the averages together and then 
+% dividing by the number of averages.
 % 
 % INPUTS:
 % in	= input data in matlab structure format.

@@ -45,9 +45,9 @@ inavg=op_averaging(infilt);
 for n=1:in.sz(in.dims.averages)
     for m=1:SS
         if domain=='t' || domain=='T'
-            metric(n,m)=sum((real(infilt.fids(infilt.t>=0 & infilt.t<=tmax,n,m))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,m))/in.sz(in.dims.averages))).^2);
+            metric(n,m)=sum((real(infilt.fids(infilt.t>=0 & infilt.t<=tmax,n,m))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,m)))).^2);
         elseif domain=='f' || domain=='F'
-            metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m))/in.sz(in.dims.averages))).^2);
+            metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m)))).^2);
         end
     end
 end

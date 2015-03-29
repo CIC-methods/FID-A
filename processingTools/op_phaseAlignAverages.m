@@ -50,7 +50,7 @@ for m=1:B
     if avg=='y' || avg=='Y'
         disp('aligning all averages to the Average of the averages');
         base=in_avg;
-        base=base.fids(1:Npts ,m)/in.sz(in.dims.averages);
+        base=base.fids(1:Npts ,m);
         begin=1;
     else
         disp('aligning all averages to the first average');

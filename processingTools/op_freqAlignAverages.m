@@ -37,7 +37,7 @@ for m=1:B
     if avg=='y' || avg=='Y'
         disp('aligning all averages to the Average of the averages');
         base=op_averaging(in);
-        base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))]/in.sz(in.dims.averages);
+        base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
         begin=1;
     else
         disp('aligning all averages to the first average');

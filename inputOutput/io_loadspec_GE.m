@@ -201,7 +201,6 @@ out.flags.addedrcvrs=0;
 out.flags.subtracted=0;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
-out.flags.avgNormalized=0;
 if out.dims.subSpecs==0
     out.flags.isISIS=0;
 else
@@ -242,7 +241,6 @@ out_w.flags.addedrcvrs=0;
 out_w.flags.subtracted=0;
 out_w.flags.writtentotext=0;
 out_w.flags.downsampled=0;
-out_w.flags.avgNormalized=0;
 if out_w.dims.subSpecs==0
     out_w.flags.isISIS=0;
 else

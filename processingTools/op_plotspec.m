@@ -66,6 +66,7 @@ if isstruct(in)
 elseif iscell(in)
     plot(in{1}.ppm,real(in{1}.specs));
     ylabel('ARB UNITS');
+    disp('Multiple input spectra detected!! ')
     stagger=input('Please enter the desired vertical spacing of the spectra in ARB UNITS:  ');
     close;
     figure

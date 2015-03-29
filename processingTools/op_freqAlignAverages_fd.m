@@ -39,7 +39,7 @@ for m=1:B
     if avg=='y'||avg=='Y'
         base=op_averaging(in);
         base=op_freqrange(base,minppm,maxppm);
-        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))]/in.sz(in.dims.averages);
+        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
         begin=1;
     else
         base=op_freqrange(in,minppm,maxppm);

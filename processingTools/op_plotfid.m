@@ -67,7 +67,8 @@ if isstruct(in)
 elseif iscell(in)
     plot(in{1}.t,real(in{1}.fids));
     ylabel('ARB UNITS');
-    stagger=input('Please enter the desired vertical spacing of the fids in ARB UNITS:  ');
+    disp('Multiple input fids detected!! ')
+    stagger=input('please enter the desired vertical spacing of the fids in ARB UNITS (0 for none):  ');
     close;
     figure
     hold

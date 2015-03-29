@@ -387,14 +387,11 @@ plot(out_filt_diff.ppm,out_filt_diff.specs);
 
 
 %Make final fully processed data;
-% out1_diff=op_avgNormalize(op_combinesubspecs(out1,'diff'));
-% out1_sum=op_avgNormalize(op_combinesubspecs(out1,'summ'));
 out1_diff=op_combinesubspecs(out1,'diff');
 out1_sum=op_combinesubspecs(out1,'summ');
 
 %Make final water unsuppressed data
 if water
-%      outw=op_avgNormalize(op_combinesubspecs(outw_ls,'summ'));
     outw=op_combinesubspecs(outw_ls,'summ');
 else
     outw=0;

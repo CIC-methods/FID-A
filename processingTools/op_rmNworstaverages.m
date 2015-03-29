@@ -33,7 +33,7 @@ infilt=op_filter(in,10);
 inavg=op_averaging(infilt);
 for n=1:in.sz(in.dims.averages)
     for m=1:SS
-            metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m))/in.sz(in.dims.averages))).^2);
+            metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m)))).^2);
     end
 end
 for m=1:SS
