@@ -50,6 +50,8 @@ out.txfrq=txfrq;
 out.date=date;
 out.dims=dims;
 out.Bo=Bo;
+out.seq='';
+out.pointsToLeftshift=0;
 
 %Write flags
 out.flags.writtentostruct=1;

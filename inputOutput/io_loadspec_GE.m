@@ -185,6 +185,7 @@ out.averages=averages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
+out.seq='';
 out.pointsToLeftshift=0;
 
 
@@ -225,6 +226,7 @@ out_w.averages=averages_w;
 out_w.rawAverages=rawAverages_w;
 out_w.subspecs=subspecs_w;
 out_w.rawSubspecs=rawSubspecs_w;
+out_w.seq='';
 out_w.pointsToLeftshift=0;
 
 

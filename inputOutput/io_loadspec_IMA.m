@@ -163,6 +163,7 @@ out.averages=averages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
+out.seq='';
 out.pointsToLeftshift=0;
 
 

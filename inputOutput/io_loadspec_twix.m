@@ -63,6 +63,17 @@ else
     data=dOut.data;
 end
 
+%Make a pulse sequence identifier for the header (out.seq);
+if isSpecial
+    seq='rm_special'
+elseif isWIP529
+    seq='WIP529'
+else
+    seq='';
+end
+
+    
+
 fids=squeeze(data);
 
 %If we are dealing with WIP 529, then we need to swap the order of the 
@@ -327,6 +338,7 @@ out.averages=averages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
+out.seq=seq;
 if RaidLength==1
     out.pointsToLeftshift=twix_obj.image.freeParam(1);
 elseif RaidLength>1

@@ -111,6 +111,8 @@ out.txfrq=txfrq;
 out.date=date;
 out.dims=dims;
 out.Bo=out.txfrq/42.577/1e6;
+out.seq='';
+out.pointsToLeftshift=0;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;

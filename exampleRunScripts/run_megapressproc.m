@@ -408,9 +408,15 @@ set(gca,'XDir','reverse');
 out1_diff=op_combinesubspecs(out1,'diff');
 out1_sum=op_combinesubspecs(out1,'summ');
 
+
 %Make final water unsuppressed data
 if water
-    outw=op_combinesubspecs(outw_ls,'summ');
+    if strcmp(outw_ls.seq,'WIP529');
+        outw=op_combinesubspecs(outw_ls,'diff');
+    else
+        outw=op_combinesubspecs(outw_ls,'summ');
+    end
+    outw=op_addphase(outw,-phase(outw.fids(1))*180/pi,0,4.65,1);
 else
     outw=0;
 end

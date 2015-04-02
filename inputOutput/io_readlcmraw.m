@@ -163,6 +163,7 @@ txfrq=hzpppm*1e6;
 out.txfrq=txfrq;
 
 out.date=date;
+out.seq='';
 
 out.dims.t=1;
 out.dims.coils=0;
