@@ -107,7 +107,7 @@ handles.tiksiz=tiksiz;
 
 % %MAKE SUBSPECS PLOTS
 axes(handles.axes2);
-plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-');
+plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',handles.tiksiz)
@@ -119,7 +119,7 @@ set(gca,'XDir','reverse');
 
 %MAKE FREQENCY DOMAIN PLOTS
 axes(handles.axes3);
-plot(handles.in.ppm,real(handles.current_diffSpecs),'b-');
+plot(handles.in.ppm,real(handles.current_diffSpecs),'b-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',tiksiz);
@@ -198,7 +198,7 @@ handles.current_diffSpecs=handles.diff.specs;
 
 % %MAKE SUBSPECS PLOTS
 axes(handles.axes2);
-plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-');
+plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',handles.tiksiz)
@@ -210,7 +210,7 @@ set(gca,'XDir','reverse');
 
 %MAKE FREQENCY DOMAIN PLOTS
 axes(handles.axes3);
-plot(handles.in.ppm,real(handles.current_diffSpecs),'b-');
+plot(handles.in.ppm,real(handles.current_diffSpecs),'b-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',tiksiz);
@@ -297,7 +297,7 @@ handles.current_diffSpecs=handles.diff.specs;
 
 % %MAKE SUBSPECS PLOTS
 axes(handles.axes2);
-plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-');
+plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',handles.tiksiz)
@@ -309,7 +309,7 @@ set(gca,'XDir','reverse');
 
 %MAKE FREQENCY DOMAIN PLOTS
 axes(handles.axes3);
-plot(handles.in.ppm,real(handles.current_diffSpecs),'b-');
+plot(handles.in.ppm,real(handles.current_diffSpecs),'b-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',tiksiz);
@@ -377,7 +377,7 @@ handles.current_diffSpecs=handles.diff.specs;
 
 % %MAKE SUBSPECS PLOTS
 axes(handles.axes2);
-plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-');
+plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',handles.tiksiz)
@@ -389,7 +389,7 @@ set(gca,'XDir','reverse');
 
 %MAKE FREQENCY DOMAIN PLOTS
 axes(handles.axes3);
-plot(handles.in.ppm,real(handles.current_diffSpecs),'b-');
+plot(handles.in.ppm,real(handles.current_diffSpecs),'b-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',tiksiz);
@@ -453,7 +453,7 @@ handles.current_diffSpecs=handles.diff.specs;
 
 % %MAKE SUBSPECS PLOTS
 axes(handles.axes2);
-plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-');
+plot(handles.in.ppm,real(handles.current_subSpecs(:,1)),'b-',handles.in.ppm,real(addphase(handles.current_subSpecs(:,2),180)),'r-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',handles.tiksiz);
@@ -465,7 +465,7 @@ set(gca,'XDir','reverse');
 
 %MAKE FREQENCY DOMAIN PLOTS
 axes(handles.axes3);
-plot(handles.in.ppm,real(handles.current_diffSpecs),'b-');
+plot(handles.in.ppm,real(handles.current_diffSpecs),'b-','LineWidth',1.2);
 xlim([handles.ppmmin handles.ppmmax]);
 set(gca,'XDir','reverse');
 %set(gca,'FontSize',tiksiz);
