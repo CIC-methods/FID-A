@@ -1,15 +1,15 @@
-%sim_press.m
-%Robin Simpson and Jamie Near, 2014.
+% sim_press.m
+% Robin Simpson and Jamie Near, 2014.
 %
 % USAGE:
 % out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2)
 % 
 % DESCRIPTION:
-% This function simulates an ideal PRESS experiment.
-% The function calls the function 'sim_Hamiltonian.m' which produces the free
-% evolution Hamiltonian for the specified number of spins, J and shifts.
-% This time the individual Iy and Iz are needed as well.
-% This function simulates a spin-echo experiment with echo time tau. 
+% This function simulates an ideal PRESS experiment with first echo time 
+% "tau1" and a second echo time of "tau2".  The function calls the function
+% 'sim_Hamiltonian.m' which produces the free evolution Hamiltonian and 
+% rotation Hamiltonians for the specified spin system.
+
 % 
 % INPUTS:
 % n         = number of points in fid/spectrum
