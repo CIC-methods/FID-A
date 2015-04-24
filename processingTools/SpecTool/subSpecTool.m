@@ -35,10 +35,6 @@ function varargout = subSpecTool(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% JAMIE NEAR ADDED path modification so that exisiting code can be
-% recognized.
-addpath(genpath('/Users/jnear/Documents/Matlab/MatlabStuff'));
-
 % Edit the above text to modify the response to help subSpecTool
 
 % Last Modified by GUIDE v2.5 03-Apr-2013 15:35:35

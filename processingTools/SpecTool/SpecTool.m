@@ -36,10 +36,6 @@ function varargout = SpecTool(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% JAMIE NEAR ADDED path modification so that exisiting code can be
-% recognized.
-addpath(genpath('/Users/jnear/Documents/Matlab/MatlabStuff'));
-
 % Edit the above text to modify the response to help SpecTool
 
 % Last Modified by GUIDE v2.5 26-Nov-2010 13:30:49
