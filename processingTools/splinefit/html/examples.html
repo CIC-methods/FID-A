@@ -1,0 +1,388 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>SPLINEFIT EXAMPLES</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2011-07-01"><meta name="m-file" content="examples"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>SPLINEFIT EXAMPLES</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">EXAMPLE 1: Breaks and pieces</a></li><li><a href="#2">EXAMPLE 2: Spline orders</a></li><li><a href="#3">EXAMPLE 3: Periodic boundary conditions</a></li><li><a href="#4">EXAMPLE 4: Endpoint conditions</a></li><li><a href="#5">EXAMPLE 5: Airfoil data</a></li><li><a href="#6">EXAMPLE 6: Robust fitting</a></li></ul></div><h2>EXAMPLE 1: Breaks and pieces<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Data (200 points)</span>
+x = 2*pi*rand(1,200);
+y = sin(x) + sin(2*x) + 0.2*randn(size(x));
+
+<span class="comment">% Uniform breaks</span>
+breaks = linspace(0,2*pi,41); <span class="comment">% 41 breaks, 40 pieces</span>
+pp1 = splinefit(x,y,breaks);
+
+<span class="comment">% Breaks interpolated from data</span>
+pp2 = splinefit(x,y,10);  <span class="comment">% 11 breaks, 10 pieces</span>
+
+<span class="comment">% Plot</span>
+figure(1)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+plot(x,y,<span class="string">'.'</span>,xx,[y1;y2])
+axis([0,2*pi,-2.5,2.5]), grid <span class="string">on</span>
+legend(<span class="string">'data'</span>,<span class="string">'41 breaks, 40 pieces'</span>,<span class="string">'11 breaks, 10 pieces'</span>)
+title(<span class="string">'EXAMPLE 1: Breaks and pieces'</span>)
+</pre><img vspace="5" hspace="5" src="examples_01.png" alt=""> <h2>EXAMPLE 2: Spline orders<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Data (200 points)</span>
+x = 2*pi*rand(1,200);
+y = sin(x) + sin(2*x) + 0.1*randn(size(x));
+
+<span class="comment">% Splines</span>
+pp1 = splinefit(x,y,8,1);  <span class="comment">% Piecewise constant</span>
+pp2 = splinefit(x,y,8,2);  <span class="comment">% Piecewise linear</span>
+pp3 = splinefit(x,y,8,3);  <span class="comment">% Piecewise quadratic</span>
+pp4 = splinefit(x,y,8,4);  <span class="comment">% Piecewise cubic</span>
+pp5 = splinefit(x,y,8,5);  <span class="comment">% Etc.</span>
+
+<span class="comment">% Plot</span>
+figure(2)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+y3 = ppval(pp3,xx);
+y4 = ppval(pp4,xx);
+y5 = ppval(pp5,xx);
+plot(x,y,<span class="string">'.'</span>,xx,[y1;y2;y3;y4;y5]), grid <span class="string">on</span>
+legend(<span class="string">'data'</span>,<span class="string">'order 1'</span>,<span class="string">'order 2'</span>,<span class="string">'order 3'</span>,<span class="string">'order 4'</span>,<span class="string">'order 5'</span>)
+title(<span class="string">'EXAMPLE 2: Spline orders'</span>)
+</pre><img vspace="5" hspace="5" src="examples_02.png" alt=""> <h2>EXAMPLE 3: Periodic boundary conditions<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Data (100 points)</span>
+x = 2*pi*[0,rand(1,98),1];
+y = sin(x) - cos(2*x) + 0.2*randn(size(x));
+
+<span class="comment">% No constraints</span>
+pp1 = splinefit(x,y,10,5);
+<span class="comment">% Periodic boundaries</span>
+pp2 = splinefit(x,y,10,5,<span class="string">'p'</span>);
+
+<span class="comment">% Plot</span>
+figure(3)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+plot(x,y,<span class="string">'.'</span>,xx,[y1;y2]), grid <span class="string">on</span>
+legend(<span class="string">'data'</span>,<span class="string">'no constraints'</span>,<span class="string">'periodic'</span>)
+title(<span class="string">'EXAMPLE 3: Periodic boundary conditions'</span>)
+
+<span class="comment">% Check boundary conditions</span>
+y0 = ppval(pp2,[0,2*pi]);             <span class="comment">% y</span>
+y1 = ppval(ppdiff(pp2,1),[0,2*pi]);   <span class="comment">% y'</span>
+y2 = ppval(ppdiff(pp2,2),[0,2*pi]);   <span class="comment">% y''</span>
+y3 = ppval(ppdiff(pp2,3),[0,2*pi]);   <span class="comment">% y'''</span>
+disp(<span class="string">'Endpoint derivatives:'</span>)
+disp([y0;y1;y2;y3])
+</pre><pre class="codeoutput">Endpoint derivatives:
+   -0.9885   -0.9885
+    0.7848    0.7848
+    3.2802    3.2802
+    5.6253    5.6253
+
+</pre><img vspace="5" hspace="5" src="examples_03.png" alt=""> <h2>EXAMPLE 4: Endpoint conditions<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Data (200 points)</span>
+x = 2*pi*rand(1,200);
+y = sin(2*x) + 0.1*randn(size(x));
+
+<span class="comment">% Breaks</span>
+breaks = linspace(0,2*pi,10);
+
+<span class="comment">% Clamped endpoints, y = y' = 0</span>
+xc = [0,0,2*pi,2*pi];
+cc = [eye(2),eye(2)];
+con = struct(<span class="string">'xc'</span>,xc,<span class="string">'cc'</span>,cc);
+pp1 = splinefit(x,y,breaks,con);
+
+<span class="comment">% Hinged periodic endpoints, y = 0</span>
+con = struct(<span class="string">'xc'</span>,0);
+pp2 = splinefit(x,y,breaks,con,<span class="string">'p'</span>);
+
+<span class="comment">% Plot</span>
+figure(4)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+plot(x,y,<span class="string">'.'</span>,xx,[y1;y2]), grid <span class="string">on</span>
+legend(<span class="string">'data'</span>,<span class="string">'clamped'</span>,<span class="string">'hinged periodic'</span>)
+title(<span class="string">'EXAMPLE 4: Endpoint conditions'</span>)
+</pre><img vspace="5" hspace="5" src="examples_04.png" alt=""> <h2>EXAMPLE 5: Airfoil data<a name="5"></a></h2><pre class="codeinput"><span class="comment">% Truncated data</span>
+x = [0,1,2,4,8,16,24,40,56,72,80]/80;
+y = [0,28,39,53,70,86,90,79,55,22,2]/1000;
+xy = [x;y];
+
+<span class="comment">% Curve length parameter</span>
+ds = sqrt(diff(x).^2 + diff(y).^2);
+s = [0, cumsum(ds)];
+
+<span class="comment">% Constraints at s = 0: (x,y) = (0,0), (dx/ds,dy/ds) = (0,1)</span>
+con = struct(<span class="string">'xc'</span>,[0 0],<span class="string">'yc'</span>,[0 0; 0 1],<span class="string">'cc'</span>,eye(2));
+
+<span class="comment">% Fit a spline with 4 pieces</span>
+pp = splinefit(s,xy,4,con);
+
+<span class="comment">% Plot</span>
+figure(5)
+ss = linspace(0,s(end),400);
+xyfit = ppval(pp,ss);
+xyb = ppval(pp,pp.breaks);
+plot(x,y,<span class="string">'.'</span>,xyfit(1,:),xyfit(2,:),<span class="string">'r'</span>,xyb(1,:),xyb(2,:),<span class="string">'ro'</span>)
+legend(<span class="string">'data'</span>,<span class="string">'spline'</span>,<span class="string">'breaks'</span>)
+grid <span class="string">on</span>, axis <span class="string">equal</span>
+title(<span class="string">'EXAMPLE 5: Airfoil data'</span>)
+</pre><img vspace="5" hspace="5" src="examples_05.png" alt=""> <h2>EXAMPLE 6: Robust fitting<a name="6"></a></h2><pre class="codeinput"><span class="comment">% Data</span>
+x = linspace(0,2*pi,200);
+y = sin(x) + sin(2*x) + 0.05*randn(size(x));
+
+<span class="comment">% Add outliers</span>
+x = [x, linspace(0,2*pi,60)];
+y = [y, -ones(1,60)];
+
+<span class="comment">% Fit splines with hinged conditions</span>
+con = struct(<span class="string">'xc'</span>,[0,2*pi]);
+pp1 = splinefit(x,y,8,con,0.25); <span class="comment">% Robust fitting</span>
+pp2 = splinefit(x,y,8,con,0.75); <span class="comment">% Robust fitting</span>
+pp3 = splinefit(x,y,8,con); <span class="comment">% No robust fitting</span>
+
+<span class="comment">% Plot</span>
+figure(6)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+y3 = ppval(pp3,xx);
+plot(x,y,<span class="string">'.'</span>,xx,[y1;y2;y3]), grid <span class="string">on</span>
+legend(<span class="string">'data with outliers'</span>,<span class="string">'robust, beta = 0.25'</span>,<span class="string">'robust, beta = 0.75'</span>,<span class="keyword">...</span>
+    <span class="string">'no robust fitting'</span>)
+title(<span class="string">'EXAMPLE 6: Robust fitting'</span>)
+</pre><img vspace="5" hspace="5" src="examples_06.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+%%% SPLINEFIT EXAMPLES
+
+
+%% EXAMPLE 1: Breaks and pieces
+
+% Data (200 points)
+x = 2*pi*rand(1,200);
+y = sin(x) + sin(2*x) + 0.2*randn(size(x));
+
+% Uniform breaks
+breaks = linspace(0,2*pi,41); % 41 breaks, 40 pieces
+pp1 = splinefit(x,y,breaks);
+
+% Breaks interpolated from data
+pp2 = splinefit(x,y,10);  % 11 breaks, 10 pieces
+
+% Plot
+figure(1)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+plot(x,y,'.',xx,[y1;y2])
+axis([0,2*pi,-2.5,2.5]), grid on
+legend('data','41 breaks, 40 pieces','11 breaks, 10 pieces')
+title('EXAMPLE 1: Breaks and pieces')
+
+
+
+%% EXAMPLE 2: Spline orders
+
+% Data (200 points)
+x = 2*pi*rand(1,200);
+y = sin(x) + sin(2*x) + 0.1*randn(size(x));
+
+% Splines
+pp1 = splinefit(x,y,8,1);  % Piecewise constant
+pp2 = splinefit(x,y,8,2);  % Piecewise linear
+pp3 = splinefit(x,y,8,3);  % Piecewise quadratic
+pp4 = splinefit(x,y,8,4);  % Piecewise cubic
+pp5 = splinefit(x,y,8,5);  % Etc.
+
+% Plot
+figure(2)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+y3 = ppval(pp3,xx);
+y4 = ppval(pp4,xx);
+y5 = ppval(pp5,xx);
+plot(x,y,'.',xx,[y1;y2;y3;y4;y5]), grid on
+legend('data','order 1','order 2','order 3','order 4','order 5')
+title('EXAMPLE 2: Spline orders')
+
+
+
+%% EXAMPLE 3: Periodic boundary conditions
+
+% Data (100 points)
+x = 2*pi*[0,rand(1,98),1];
+y = sin(x) - cos(2*x) + 0.2*randn(size(x));
+
+% No constraints
+pp1 = splinefit(x,y,10,5);
+% Periodic boundaries
+pp2 = splinefit(x,y,10,5,'p');
+
+% Plot
+figure(3)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+plot(x,y,'.',xx,[y1;y2]), grid on
+legend('data','no constraints','periodic')
+title('EXAMPLE 3: Periodic boundary conditions')
+
+% Check boundary conditions
+y0 = ppval(pp2,[0,2*pi]);             % y
+y1 = ppval(ppdiff(pp2,1),[0,2*pi]);   % y'
+y2 = ppval(ppdiff(pp2,2),[0,2*pi]);   % y''
+y3 = ppval(ppdiff(pp2,3),[0,2*pi]);   % y'''
+disp('Endpoint derivatives:')
+disp([y0;y1;y2;y3])
+
+
+
+%% EXAMPLE 4: Endpoint conditions
+
+% Data (200 points)
+x = 2*pi*rand(1,200);
+y = sin(2*x) + 0.1*randn(size(x));
+
+% Breaks
+breaks = linspace(0,2*pi,10);
+
+% Clamped endpoints, y = y' = 0
+xc = [0,0,2*pi,2*pi];
+cc = [eye(2),eye(2)];
+con = struct('xc',xc,'cc',cc);
+pp1 = splinefit(x,y,breaks,con);
+
+% Hinged periodic endpoints, y = 0
+con = struct('xc',0);
+pp2 = splinefit(x,y,breaks,con,'p');
+
+% Plot
+figure(4)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+plot(x,y,'.',xx,[y1;y2]), grid on
+legend('data','clamped','hinged periodic')
+title('EXAMPLE 4: Endpoint conditions')
+
+
+
+%% EXAMPLE 5: Airfoil data
+
+% Truncated data
+x = [0,1,2,4,8,16,24,40,56,72,80]/80;
+y = [0,28,39,53,70,86,90,79,55,22,2]/1000;
+xy = [x;y];
+
+% Curve length parameter
+ds = sqrt(diff(x).^2 + diff(y).^2);
+s = [0, cumsum(ds)];
+
+% Constraints at s = 0: (x,y) = (0,0), (dx/ds,dy/ds) = (0,1)
+con = struct('xc',[0 0],'yc',[0 0; 0 1],'cc',eye(2));
+
+% Fit a spline with 4 pieces
+pp = splinefit(s,xy,4,con);
+
+% Plot
+figure(5)
+ss = linspace(0,s(end),400);
+xyfit = ppval(pp,ss);
+xyb = ppval(pp,pp.breaks);
+plot(x,y,'.',xyfit(1,:),xyfit(2,:),'r',xyb(1,:),xyb(2,:),'ro')
+legend('data','spline','breaks')
+grid on, axis equal
+title('EXAMPLE 5: Airfoil data')
+
+
+
+%% EXAMPLE 6: Robust fitting
+
+% Data
+x = linspace(0,2*pi,200);
+y = sin(x) + sin(2*x) + 0.05*randn(size(x));
+
+% Add outliers
+x = [x, linspace(0,2*pi,60)];
+y = [y, -ones(1,60)];
+
+% Fit splines with hinged conditions
+con = struct('xc',[0,2*pi]);
+pp1 = splinefit(x,y,8,con,0.25); % Robust fitting
+pp2 = splinefit(x,y,8,con,0.75); % Robust fitting
+pp3 = splinefit(x,y,8,con); % No robust fitting
+
+% Plot
+figure(6)
+xx = linspace(0,2*pi,400);
+y1 = ppval(pp1,xx);
+y2 = ppval(pp2,xx);
+y3 = ppval(pp3,xx);
+plot(x,y,'.',xx,[y1;y2;y3]), grid on
+legend('data with outliers','robust, beta = 0.25','robust, beta = 0.75',...
+    'no robust fitting')
+title('EXAMPLE 6: Robust fitting')
+
+
+
+##### SOURCE END #####
+--></body></html>
