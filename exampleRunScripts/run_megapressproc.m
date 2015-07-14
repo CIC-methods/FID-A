@@ -405,8 +405,13 @@ set(gca,'XDir','reverse');
 
 
 %Make final fully processed data;
-out1_diff=op_combinesubspecs(out1,'diff');
-out1_sum=op_combinesubspecs(out1,'summ');
+if out1.seq='WIP529'
+    out1_diff=op_combinesubspecs(out1,'summ');
+    out1_sum=op_combinesubspecs(out1,'diff');
+else
+    out1_diff=op_combinesubspecs(out1,'diff');
+    out1_sum=op_combinesubspecs(out1,'summ');
+end
 
 
 %Make final water unsuppressed data
