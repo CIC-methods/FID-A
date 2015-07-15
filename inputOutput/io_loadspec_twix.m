@@ -31,13 +31,16 @@ twix_obj=mapVBVD(filename);
 if isstruct(twix_obj)
     disp('single RAID file detected.');
     RaidLength=1;
-    dOut.data=twix_obj.image();
 elseif iscell(twix_obj)
     disp('multi RAID file detected.');
     RaidLength=length(twix_obj);
     %assume that the data of interest is in the last element of the cell.
-    dOut.data=twix_obj{RaidLength}.image();
+    twix_obj=twix_obj{RaidLength};
 end
+dOut.data=twix_obj.image();
+version=twix_obj.image.softwareVersion;
+sqzDims=twix_obj.image.sqzDims;
+sqzSize=twix_obj.image.sqzSize;
 
 %find out if the data was acquired using the rm_special sequence, which 
 %does not separate the subspectra into separate array dimensions.  Make 
@@ -51,38 +54,39 @@ while isempty(index) || isempty(equals_index)
     index=findstr(line,'tSequenceFileName');
     equals_index=findstr(line,'= ');
 end
-sequence=line(equals_index+1:end);
-isSpecial=~isempty(findstr(sequence,'rm_special'));
+sequence=line(equals_index+2:end-1);
+
+%Try to find out what sequnece this is:
+isSpecial=~isempty(findstr(sequence,'rm_special')); %Is this Ralf Mekle's SPECIAL Sequence?
 isWIP529=~isempty(findstr(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
+isjnseq=~isempty(findstr(sequence,'jn_')); %Is this one of Jamie Near's sequences?
+isMinnMP=~isempty(findstr(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
+
 fclose(fid);
+%Ralf Mekle's SPECIAL sequence does not store the subspectra along a
+%separate dimension of the data array, so we will separate them
+%artifically:
 if isSpecial 
     squeezedData=squeeze(dOut.data);
-    data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
-    data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
+    if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
+        data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
+        data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
+        sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
+    elseif twix_obj.NCol>1 && twixObj.image.NCha==1
+        data(:,:,1)=squeezedData(:,[1:2:end-1]);
+        data(:,:,2)=squeezedData(:,[2:2:end]);
+        sqzSize=[sqzSize(1) sqzSize(2)/2 2];
+    end
+    sqzDims{end+1}='Ida';
 else
     data=dOut.data;
 end
 
 %Make a pulse sequence identifier for the header (out.seq);
-if isSpecial
-    seq='rm_special'
-elseif isWIP529
-    seq='WIP529'
-else
-    seq='';
-end
-
-    
-
+seq=sequence;
+  
+%Squeeze the data to remove singleton dims
 fids=squeeze(data);
-
-%If we are dealing with WIP 529, then we need to swap the order of the 
-%averages and subspecs dimensions:
-if isWIP529
-    fids=permute(fids,[1,2,4,3]);
-end
-
-sz=size(fids);
 
 %Find the magnetic field strength:
 fid=fopen(filename);
@@ -137,87 +141,148 @@ fclose(fid);
 
 %Naverages
 %Ncoils
-%Now create a record of the dimensions of the data array.  
+%Now begin indexing the dimensions of the data array. ie. create the dims
+%structure, which specifies which dimensions of the data array are being
+%used to hold the time-domain data, the multiple coil channels, the
+%average, the sub-spectra, and any additional dimensions.
+sqzDims_update=sqzDims;
+dimsToIndex=[1:length(sqzDims)];
 
-if ndims(fids)==5
-    dims.t=1;
-    dims.coils=2;
-    dims.averages=3;
-    dims.subSpecs=4;
-    dims.extra=5;
-elseif ndims(fids)==4  %Default config when 4 dims are acquired
-    dims.t=1;
-    dims.coils=2;
-    dims.averages=3;
-    dims.subSpecs=4;
-    dims.extra=0;
-elseif ndims(fids)<4  %To many permutations...ask user for dims.
-    if Naverages == 1 && Ncoils == 1
-        if ndims(fids)>1
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=0;
-            dims.subSpecs=2;
-            dims.extra=0;
-        else
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=0;
-            dims.subSpecs=0;
-            dims.extra=0;
-        end
-    elseif Naverages>1 && Ncoils==1
-        if ndims(fids)>2
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=2;
-            dims.subSpecs=3;
-            dims.extra=0;
-        else
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=2;
-            dims.subSpecs=0;
-            dims.extra=0;
-        end
-    elseif Naverages==1 && Ncoils>1
-        if ndims(fids)>2
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=0;
-            dims.subSpecs=3;
-            dims.extra=0;
-        else
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=0;
-            dims.subSpecs=0;
-            dims.extra=0;
-        end
-    elseif Naverages>1 && Ncoils>1
-        if ndims(fids)>3
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=3;
-            dims.subSpecs=4;
-            dims.extra=0;
-        else
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=3;
-            dims.subSpecs=0;
-            dims.extra=0;
-        end
-    end
-%     dims.t=1;
-%     dims.coils=input('Enter the coils Dimension (0 for none):  ');
-%     dims.averages=input('Enter the averages Dimension (0 for none):  ');
-%     dims.subSpecs=input('Enter the subSpecs Dimension (0 for none);  ');
+%First index the dimension of the time-domain data
+dims.t=find(strcmp(sqzDims,'Col'));
+if ~isempty(dims.t)
+    %remove the time dimension from the dimsToIndex vector
+    dimsToIndex=dimsToIndex(dimsToIndex~=dims.t);
+else
+    dims.t=0;
+    error('ERROR:  Spectrom contains no time domain information!!');
 end
 
+%Now index the dimension of the coil channels
+dims.coils=find(strcmp(sqzDims,'Cha'));
+if ~isempty(dims.coils)
+    %remove the coils dimension from the dimsToIndex vector
+    dimsToIndex=dimsToIndex(dimsToIndex~=dims.coils);
+else
+    dims.coils=0;
+end
+
+%Now index the dimension of the averages
+if strcmp(version,'vd') || strcmp(version,'ve')
+    dims.averages=find(strcmp(sqzDims,'Ave'));
+else
+    dims.averages=find(strcmp(sqzDims,'Set'));
+end
+if ~isempty(dims.averages)
+    %remove the averages dimension from the dimsToIndex vector
+    dimsToIndex=dimsToIndex(dimsToIndex~=dims.averages);
+else
+    dims.averages=0;
+end
+
+%Now we have indexed the dimensions containing the timepoints, the coil
+%channels, and the averages.  As we indexed each dimension, we removed the
+%corresponding index from the dimsToIndex vector.  At this point, if there
+%are any values left in the dimsToIndex vector, then there must be some
+%additional dimensions that need indexing.  We assume that if sub-spectra exist,
+%then these must be indexed in either the 'Ida' dimension (for all Jamie
+%Near's VB-version pulse sequences), or the 'Eco' dimension (for the WIP
+%MEGA-PRESS seuqence or the Minnesota MEGA-PRESS sequence). 
+if ~isempty(dimsToIndex)
+    %Now index the dimension of the sub-spectra
+    if isjnseq  || isSpecial
+        if strcmp(version,'vd') || strcmp(version,'ve')
+            dims.subSpecs=find(strcmp(sqzDims,'Set'));
+        else
+            dims.subSpecs=find(strcmp(sqzDims,'Ida'));
+        end
+    elseif isWIP529 || isMinnMP
+        dims.subSpecs=find(strcmp(sqzDims,'Eco'));
+    else
+        dims.subSpecs=dimsToIndex(1);
+    end
+    if ~isempty(dims.subSpecs)
+        %remove the sub-spectra dimension from the dimsToIndex vector
+        dimsToIndex=dimsToIndex(dimsToIndex~=dims.subSpecs);
+    else
+        dims.subSpecs=0;
+    end
+else
+    dims.subSpecs=0;
+end
+
+%And if any further dimensions exist after indexing the sub-spectra, call
+%these the 'extras' dimension.  
+if ~isempty(dimsToIndex)
+    %Now index the 'extras' dimension
+    dims.extras=dimsToIndex(1);
+    if ~isempty(dims.extras)
+        %remove the extras dimension from the dimsToIndex vector
+        dimsToIndex=dimsToIndex(dimsToIndex~=dims.extras);
+    else
+        dims.extras=0;
+    end
+else
+    dims.extras=0;
+end
+
+%Now that we've indexed the dimensions of the data array, we now need to
+%permute it so that the order of the dimensions is standardized:  we want
+%the order to be as follows:  
+%   1) time domain data.  
+%   2) coils.
+%   3) averages.
+%   4) subSpecs.
+%   5) extras.
+if length(sqzDims)==5
+    fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs dims.extras]);
+    dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.extras=5;
+elseif length(sqzDims)==4
+    if dims.extras==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.extras=0;
+    elseif dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.extras=4;
+    elseif dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.extras]);
+        dims.t=1;dims.coils=2;dims;averages=0;dims.subSpecs=3;dims.extras=4;
+    elseif dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.extras=4;
+    end
+elseif length(sqzDims)==3
+    if dims.extras==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.extras=0;
+    elseif dims.extras==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.extras=0;
+    elseif dims.extras==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.extras=0;
+    end
+elseif length(sqzDims)==2
+    if dims.extras==0 && dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.extras=0;
+    elseif dims.extras==0 && dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.extras=0;
+    elseif dims.extras==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.subSpecs]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.extras=0;
+    end
+elseif length(sqzDims)==1
+    fids=permute(fids,[dims.t]);
+    dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.extras=0;
+end
+
+%Now get the size of the data array:
+sz=size(fids);
+
+%Now take fft of time domain to get fid:
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
-
-
     
 
 %Now get relevant scan parameters:*****************************
@@ -339,11 +404,7 @@ out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
 out.seq=seq;
-if RaidLength==1
-    out.pointsToLeftshift=twix_obj.image.freeParam(1);
-elseif RaidLength>1
-    out.pointsToLeftshift=twix_obj{RaidLength}.image.freeParam(1);
-end
+out.pointsToLeftshift=twix_obj.image.freeParam(1);
 
 
 %FILLING IN THE FLAGS
