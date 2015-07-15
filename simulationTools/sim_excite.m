@@ -49,6 +49,12 @@ for n=1:H.nspins
             excite=excite+alpha*H.Iy(:,:,n);
         end
 end
-d_out = expm(-1i*excite) * H.Fz * expm(1i*excite);
 
+[U,D]=eig(excite);D=diag(D);
+d1=diag(exp(-1i*D));
+d2=diag(exp(1i*D));
+
+
+%d_out = expm(-1i*excite) * H.Fz * expm(1i*excite);
+d_out = U*d1*U' * H.Fz * U*d2*U';
 
