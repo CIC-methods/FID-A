@@ -57,7 +57,7 @@ if tau2<tp/1000
 end
 
 %Set water to centre
-centreFreq=4.65;
+centreFreq=2.3;
 sys.shifts=sys.shifts-centreFreq;
 
 %Calculate Hamiltonian matrices and starting density matrix.
