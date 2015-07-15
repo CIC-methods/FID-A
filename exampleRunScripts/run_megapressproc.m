@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out1_diff,out1_sum,outw]=run_megapressproc(filestring,avgAlignDomain,alignSS);
+% [out1_diff,out1_sum,out1,outw,coilcombos]=run_megapressproc(filestring,coilcombos,avgAlignDomain,alignSS);
 % 
 % DESCRIPTION:
 % Processing script for Siemens MEGA-PRESS MRS data in .dat format (twix 
@@ -25,12 +25,17 @@
 % out1_sum           = Fully processed sum spectrum.
 % outw               = Fully processed water unsuppressed spectrum. 
 
-function [out1_diff,out1_sum,outw,out1,out1_cc,out1_rm,out1_aa]=run_megapressproc(filestring,avgAlignDomain,alignSS);
+function [out1_diff,out1_sum,out1,outw,coilcombos]=run_megapressproc(filestring,coilcombos,avgAlignDomain,alignSS);
 
-if nargin<3
+if nargin<4
     alignSS=2;
-    if nargin<2
+    if nargin<3
         avgAlignDomain='f';
+        if nargin<2
+            ccGiven=false;
+        else
+            ccGiven=true;
+        end
     end
 end
 
@@ -60,10 +65,14 @@ end
 %first step should be to combine coil channels.  To do this find the coil
 %phases from the water unsuppressed data.
 if water
-    coilcombos=op_getcoilcombos(raww,1);
+    if ~ccGiven
+        coilcombos=op_getcoilcombos(raww,1);
+    end
     [outw_cc,fidw_pre,specw_pre,phw,sigw]=op_addrcvrs(raww,1,'w',coilcombos);
 else
-    coilcombos=op_getcoilcombos(op_averaging(op_combinesubspecs(raw1,'summ')),1);
+    if ~ccGiven
+        coilcombos=op_getcoilcombos(op_averaging(op_combinesubspecs(raw1,'summ')),1);
+    end
     
 end
 [out1_cc,fid1_pre,spec1_pre,ph1,sig1]=op_addrcvrs(raw1,1,'w',coilcombos);
@@ -108,7 +117,11 @@ pause;
 close all;
 figure('position',[0 50 560 420]);
 subplot(1,2,1);
-plot(out1_cc.ppm,out1_cc.specs(:,:,1));xlim([1 5]);
+%if out1_cc.dims.subSpecs==3
+    plot(out1_cc.ppm,out1_cc.specs(:,:,1));xlim([1 5]);
+%elseif out1_cc.dims.subSpecs==2
+%   plot(out1_cc.ppm,squeeze(out1_cc.specs(:,1,:)));xlim([1 5]);
+%end
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)');
 ylabel('Amplitude(a.u.)');
@@ -321,13 +334,21 @@ else
         if water
             figure('position',[1140 50 560 400]);
             subplot(2,1,1);
-            plot(outw_cc.ppm,outw_cc.specs(:,:,1),outw_cc.ppm,outw_cc.specs(:,:,2));xlim([3 7]);
+            if outw_cc.dims.subSpecs
+                plot(outw_cc.ppm,outw_cc.specs(:,:,1),outw_cc.ppm,outw_cc.specs(:,:,2));xlim([3 7]);
+            else
+                plot(outw_cc.ppm,outw_cc.specs(:,:));xlim([3 7]);
+            end
             set(gca,'XDir','reverse');
             xlabel('Frequency (ppm)');
             ylabel('Amplitude(a.u.)');
             title('Water Unsuppressed spectrum prior to drift correction');
             subplot(2,1,2);
-            plot(outw_aa.ppm,outw_aa.specs(:,:,1),outw_aa.ppm,outw_aa.specs(:,:,2));xlim([3 7]);
+            if outw_aa.dims.subSpecs
+                plot(outw_aa.ppm,outw_aa.specs(:,:,1),outw_aa.ppm,outw_aa.specs(:,:,2));xlim([3 7]);
+            else
+                plot(outw_aa.ppm,outw_aa.specs(:,:));xlim([3 7]);
+            end
             set(gca,'XDir','reverse');
             xlabel('Frequency (ppm)');
             ylabel('Amplitude(a.u.)');
@@ -405,21 +426,25 @@ set(gca,'XDir','reverse');
 
 
 %Make final fully processed data;
-if out1.seq='WIP529'
-    out1_diff=op_combinesubspecs(out1,'summ');
-    out1_sum=op_combinesubspecs(out1,'diff');
-else
-    out1_diff=op_combinesubspecs(out1,'diff');
-    out1_sum=op_combinesubspecs(out1,'summ');
-end
+out1_diff=op_combinesubspecs(out1,'diff');
+out1_sum=op_combinesubspecs(out1,'summ');
+
 
 
 %Make final water unsuppressed data
 if water
-    if strcmp(outw_ls.seq,'WIP529');
-        outw=op_combinesubspecs(outw_ls,'diff');
+    if ~isempty(findstr(outw_ls.seq,'edit_529'));
+        if outw_ls.dims.subSpecs
+            outw=op_combinesubspecs(outw_ls,'diff');
+        else
+            outw=outw_ls;
+        end
     else
-        outw=op_combinesubspecs(outw_ls,'summ');
+        if outw_ls.dims.subSpecs
+            outw=op_combinesubspecs(outw_ls,'summ');
+        else
+            outw=outw_ls;
+        end
     end
     outw=op_addphase(outw,-phase(outw.fids(1))*180/pi,0,4.65,1);
 else
