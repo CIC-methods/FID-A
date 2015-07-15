@@ -33,11 +33,29 @@ fids=fids/in.sz(in.dims.averages); %divide by number of averages;
 %re-calculate Specs using fft
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
-%change the dims variables
-dims.t=in.dims.t;
-dims.coils=in.dims.coils;
+%change the dims variables.  
+if in.dims.t>in.dims.averages
+    dims.t=in.dims.t-1;
+else
+    dims.t=in.dims.t;
+end
+if in.dims.coils>in.dims.averages
+    dims.coils=in.dims.coils-1;
+else
+    dims.coils=in.dims.coils;
+end
 dims.averages=0;
-dims.subSpecs=in.dims.subSpecs-1+((in.dims.subSpecs-1)<0); %Don't let it go negative
+if in.dims.subSpecs>in.dims.averages
+    dims.subSpecs=in.dims.subSpecs-1;
+else
+    dims.subSpecs=in.dims.subSpecs;
+end
+if in.dims.extras>in.dims.averages
+    dims.extras=in.dims.extras-1;
+else
+    dims.extras=in.dims.extras;
+end
+
 
 %re-calculate the sz variable
 sz=size(fids);
