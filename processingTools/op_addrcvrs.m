@@ -98,10 +98,27 @@ fids=squeeze(fids);
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
 %change the dims variables
-dims.t=in.dims.t;
+if in.dims.t>in.dims.coils
+    dims.t=in.dims.t-1;
+else
+    dims.t=in.dims.t;
+end
 dims.coils=0;
-dims.averages=in.dims.averages-1+((in.dims.averages-1)<0); %Don't let it go negative
-dims.subSpecs=in.dims.subSpecs-1+((in.dims.subSpecs-1)<0); %Don't let it go negative
+if in.dims.averages>in.dims.coils
+    dims.averages=in.dims.averages-1;
+else
+    dims.averages=in.dims.averages;
+end
+if in.dims.subSpecs>in.dims.coils
+    dims.subSpecs=in.dims.subSpecs-1;
+else
+    dims.subSpecs=in.dims.subSpecs;
+end
+if in.dims.extras>in.dims.coils
+    dims.extras=in.dims.extras-1;
+else
+    dims.extras=in.dims.extras;
+end
 
 %re-calculate the sz variable
 sz=size(fids);
