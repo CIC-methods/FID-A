@@ -286,11 +286,11 @@ end
 
 wrt=input('write? ','s');
 if wrt=='y' || wrt=='Y'
-    RF=io_writelcm(out,[filestring '/' filestring '_lcm'],8.5);
-    RF=io_writelcm(out_noproc,[filestring '/' filestring '_lcm_unprocessed'],8.5);
+    RF=io_writelcm(out,[filestring '/' filestring '_lcm'],out.te);
+    RF=io_writelcm(out_noproc,[filestring '/' filestring '_lcm_unprocessed'],out_noproc.te);
     if exist(filename2)
-        RF=io_writelcm(out_w,[filestring '_w/' filestring '_w_lcm'],8.5);
-        RF=io_writelcm(out_w_noproc,[filestring '_w/' filestring '_w_unprocessed'],8.5);
+        RF=io_writelcm(out_w,[filestring '_w/' filestring '_w_lcm'],out_w.te);
+        RF=io_writelcm(out_w_noproc,[filestring '_w/' filestring '_w_unprocessed'],out_w_noproc.te);
     end
 end
 

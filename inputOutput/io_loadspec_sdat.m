@@ -22,15 +22,15 @@
 % improvements are most welcome!!
 % 
 % INPUTS:
-% filename   = filename of GE P file to be loaded.
+% filename   = filename of Philips sdat file to be loaded.
 % subspecs   = number of subspectra in the data (from spectral editing, ISIS, etc.)
 
-function [out,out_w]=io_loadspec_sdat(filename,subspecs);
+function out=io_loadspec_sdat(filename,subspecs);
 
 %read in the data using the GELoad.m (adapted from GERead.m)
 philipsOut=philipsLoad(filename);
 
-%As far as I can tell, the data that comes out of the GELoad
+%As far as I can tell, the data that comes out of the philipsLoad
 %function is normally a N x Navgs x Ncoils matrix.  The Navgs dimension
 %contains all the subspectra, so we will split them now:
 %If the data has multiple subspectra 
@@ -65,6 +65,20 @@ spectralwidth = str2num(sparheader{spectralwidth_index+2});
 
 %Calculate the dwell time
 dwelltime=1/spectralwidth;
+
+%Find the echo time
+te_index=find(ismember(sparheader, 'echo_time')==1);
+te=str2num(sparheader{te_index+2});
+
+%Find the repetition time
+tr_index=find(ismember(sparheader, 'repetition_time')==1);
+tr=str2num(sparheader{tr_index+2});
+
+%Find the sequence type
+sequence_index=find(ismember(sparheader, 'examination_name')==1);
+sequence=strtrim(sparheader{sequence_index+2});
+
+
 
 %Philips sdat data has coil elements already combined:
 Ncoils=1;
@@ -153,7 +167,9 @@ out.averages=averages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
-out.seq='';
+out.seq=sequence;
+out.te=te;
+out.tr=tr;
 out.pointsToLeftshift=0;
 
 

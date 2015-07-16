@@ -51,6 +51,8 @@ out.date=date;
 out.dims=dims;
 out.Bo=Bo;
 out.seq='';
+out.te=[];
+out.tr=[];
 out.pointsToLeftshift=0;
 
 %Write flags

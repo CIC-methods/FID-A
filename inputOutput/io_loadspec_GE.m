@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs);
+% [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs,te,tr);
 % 
 % DESCRIPTION:
 % Reads in GE P file (.dat file) using code adapted from GERead.m, provided 
@@ -20,8 +20,17 @@
 % sw         = spectral width (Hz) 
 % Larmor     = Larmor frequency (Hz/ppm, ie.  127 for 3T)
 % subspecs   = number of subspectra in the data (from spectral editing, ISIS, etc.)
+% te         = Echo time (ms).  Optional.  Default is [].
+% tr         = Repetition time (ms).  Optional.  Default is [].
 
-function [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs);
+function [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs,te,tr);
+
+if nargin<6
+    if nargin<5
+        te=[];
+    end
+    tr=[];
+end
 
 %read in the data using the GELoad.m (adapted from GERead.m)
 [GEout,GEout_w]=GELoad(filename);
@@ -186,6 +195,8 @@ out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
 out.seq='';
+out.te=te;
+out.tr=tr;
 out.pointsToLeftshift=0;
 
 
@@ -227,6 +238,8 @@ out_w.rawAverages=rawAverages_w;
 out_w.subspecs=subspecs_w;
 out_w.rawSubspecs=rawSubspecs_w;
 out_w.seq='';
+out_w.te=te;
+out_w.tr=tr;
 out_w.pointsToLeftshift=0;
 
 

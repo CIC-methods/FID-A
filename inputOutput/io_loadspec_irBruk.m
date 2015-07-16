@@ -91,6 +91,45 @@ rawAverages=line(equals_index+1:end);
 rawAverages=str2double(rawAverages);
 fclose(method_fid);
 
+%Now get the TE
+method_fid=fopen([inDir '/method']);
+line=fgets(method_fid);
+index=findstr(line,'$PVM_EchoTime=');
+while isempty(index)
+    line=fgets(method_fid);
+    index=findstr(line,'$PVM_EchoTime=');
+end
+equals_index=findstr(line,'=');
+te=line(equals_index+1:end);
+te=str2double(te);
+fclose(method_fid);
+
+%Now get the TR
+method_fid=fopen([inDir '/method']);
+line=fgets(method_fid);
+index=findstr(line,'$PVM_RepetitionTime=');
+while isempty(index)
+    line=fgets(method_fid);
+    index=findstr(line,'$PVM_RepetitionTime=');
+end
+equals_index=findstr(line,'=');
+tr=line(equals_index+1:end);
+tr=str2double(tr);
+fclose(method_fid);
+
+%Now get the sequence
+method_fid=fopen([inDir '/method']);
+line=fgets(method_fid);
+index=findstr(line,'$Method=');
+while isempty(index)
+    line=fgets(method_fid);
+    index=findstr(line,'$Method=');
+end
+equals_index=findstr(line,'=');
+sequence=line(equals_index+1:end);
+sequence=strtrim(sequence);
+fclose(method_fid);
+
 %Specify the number of subspecs.  For now, this will always be zero.
 subspecs=0;
 rawSubspecs=0;
@@ -128,6 +167,9 @@ out.averages=averages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
+out.seq=sequence;
+out.te=te;
+out.tr=tr;
 out.pointsToLeftshift=0;
 
 

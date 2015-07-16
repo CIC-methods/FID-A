@@ -9,7 +9,6 @@
 % "tau1" and a second echo time of "tau2".  The function calls the function
 % 'sim_Hamiltonian.m' which produces the free evolution Hamiltonian and 
 % rotation Hamiltonians for the specified spin system.
-
 % 
 % INPUTS:
 % n         = number of points in fid/spectrum

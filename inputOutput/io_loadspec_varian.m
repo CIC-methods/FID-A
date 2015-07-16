@@ -20,10 +20,18 @@ function out=io_loadspec_varian(filename);
 
 %read in the data using read_meas_dat
 %dOut=op_read_meas_dat2(filename);
-%[par,img,k,fids]=fidread(filename);
+[par,img,k]=fidread(filename);
 [fids,hdr,block_hdr]=readfid(filename);
 par=readprocpar(filename);
 
+%get the echo time
+te=par.te*1000;
+
+%get the repetition time
+tr=par.tr*1000;
+
+%get the sequence id;
+sequence=par.pslabel{1};
 
 fids=squeeze(fids);
 sz=size(fids);
@@ -43,6 +51,7 @@ dims.t=1;
 dims.coils=0;
 dims.averages=2;
 dims.subSpecs=3;
+dims.extras=0;
 
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
 
@@ -111,7 +120,9 @@ out.txfrq=txfrq;
 out.date=date;
 out.dims=dims;
 out.Bo=out.txfrq/42.577/1e6;
-out.seq='';
+out.seq=sequence;
+out.te=te;
+out.tr=tr;
 out.pointsToLeftshift=0;
 
 %FILLING IN THE FLAGS

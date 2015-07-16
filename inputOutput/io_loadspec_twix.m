@@ -138,6 +138,34 @@ Ncoils=line;
 Ncoils=str2num(Ncoils);
 fclose(fid);
 
+%Find the TE:
+fid=fopen(filename);
+line=fgets(fid);
+index=findstr(line,'alTE[0]');
+equals_index=findstr(line,'= ');
+while isempty(index) || isempty(equals_index)
+    line=fgets(fid);
+    index=findstr(line,'alTE[0]');
+    equals_index=findstr(line,'= ');
+end
+TE=line(equals_index+1:end);
+TE=str2double(TE);
+fclose(fid);
+
+%Find the TR:
+fid=fopen(filename);
+line=fgets(fid);
+index=findstr(line,'alTR[0]');
+equals_index=findstr(line,'= ');
+while isempty(index) || isempty(equals_index)
+    line=fgets(fid);
+    index=findstr(line,'alTR[0]');
+    equals_index=findstr(line,'= ');
+end
+TR=line(equals_index+1:end);
+TR=str2double(TR);
+fclose(fid);
+
 
 %Naverages
 %Ncoils
@@ -404,6 +432,8 @@ out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
 out.seq=seq;
+out.te=TE/1000;
+out.tr=TR/1000;
 out.pointsToLeftshift=twix_obj.image.freeParam(1);
 
 

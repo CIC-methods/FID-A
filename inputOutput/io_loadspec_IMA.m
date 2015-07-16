@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% out=io_loadspec_IMA(filename,Bo,spectralwidth);
+% out=io_loadspec_IMA(filename,Bo,spectralwidth,te,tr);
 % 
 % DESCRIPTION:
 % Loads a siemens .IMA file into matlab structure format.
@@ -11,8 +11,10 @@
 % filename       = Filename of Siemens .IMA file to load.
 % Bo             = Field strength (Tesla).
 % spectralwidth  = spectral width of the input spectrum (Hz).
+% te             = Echo time (ms).  Optional.  Defulat is [].
+% tr             = Repetition time (ms).  Optional.  Default is [].
 
-function out=io_loadspec_IMA(filename,Bo,spectralwidth);
+function out=io_loadspec_IMA(filename,Bo,spectralwidth,te,tr);
 
 %open dicom file:
 fd=dicom_open(filename);
@@ -164,6 +166,8 @@ out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
 out.seq='';
+out.te=te;
+out.tr=tr;
 out.pointsToLeftshift=0;
 
 
