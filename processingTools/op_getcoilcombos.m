@@ -50,3 +50,7 @@ for n=1:in.sz(in.dims.coils);
     end
 end
 
+%Now normalize the coilcombos.sig so that the max amplitude is 1;
+coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
+
+
