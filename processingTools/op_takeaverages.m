@@ -42,6 +42,7 @@ elseif length(index)>1
     dims.averages=in.dims.averages;
 end
 dims.subSpecs=in.dims.subSpecs;
+dims.extras=in.dims.extras;
 
 %re-calculate the sz variable
 sz=size(fids);
