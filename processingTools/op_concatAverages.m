@@ -19,7 +19,7 @@ if in1.dims.averages ~= in2.dims.averages
 end
 
 fids=cat(in1.dims.averages,in1.fids,in2.fids);
-specs=cat(in1.dims.averages,in1.fids,in2.fids);
+specs=cat(in1.dims.averages,in1.specs,in2.specs);
 sz=size(fids);
 
 %FILLING IN DATA STRUCTURE
