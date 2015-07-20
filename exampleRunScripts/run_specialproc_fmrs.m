@@ -149,10 +149,11 @@ else
         iter=1;
         nbadAverages=1;
         nBadAvgTotal=0;
+        allBadAverages=[];
         out_cs2=out_cs;
         while nbadAverages>0;
             [out_rm,metric{iter},badAverages]=op_rmbadaverages(out_cs2,nsd,'t');
-            badAverages;
+            allBadAverages=[allBadAverages; badAverages];
             nbadAverages=length(badAverages)*out_raw.sz(out_raw.dims.subSpecs);
             nBadAvgTotal=nBadAvgTotal+nbadAverages;
             out_cs2=out_rm;
@@ -328,16 +329,19 @@ elseif blochDesign(1)>0
     OFFaverages=OFFaverages(1:sum(abs(blockDesign)));
 end
 
+%Now remove the entries from ONaverages and OFFaverages that correspond to
+%the bad-averages that were removed.
+BadAvgMask=zeros(length(ONaverages),1);
+BadAvgMask(allBadAverages)=1;
+ONaverages=ONaverages(~BadAvgMask);
+OFFaverages=OFFaverages(~BadAvgMask);
 
 %Now use op_takeaverages to make the stimulation ON and stimulation OFF
 %spectra.
-
 ONaverages=ONaverages>0; %ONaverages must be a logical;
 OFFaverages=OFFaverages>0; %OFFaverages must be a logical;
 outON_aa=op_takeaverages(out_aa,ONaverages);
 outOFF_aa=op_takeaverages(out_aa,OFFaverages);
-
-
 
 
 %now do the averaging and left shift to get rid of first order phase:
