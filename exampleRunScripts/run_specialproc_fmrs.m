@@ -138,6 +138,7 @@ title('Water suppressed spectra (all averages)');
 out_cs2=out_cs;
 nBadAvgTotal=0;
 nbadAverages=1;
+allBadAverages=[];
 rmbadav=input('would you like to remove bad averages?  ','s');
 close all;
 if rmbadav=='n' || rmbadav=='N'
@@ -312,7 +313,7 @@ if blockDesign(1)<0
 %If the block design starts with a positive number, then the experiment 
 %started with an ON period.  The ON averages and OFF averages are filled as
 %follows:
-elseif blochDesign(1)>0
+elseif blockDesign(1)>0
     blockDesignTrimmedOFF=blockDesign-leadingAvgsToRmv/2;
     if isrow(blockDesign)
         blockDesignTrimmedON=blockDesign+[0 (leadingAvgsToRmv/2)*ones(1,length(blockDesign)-1)];
