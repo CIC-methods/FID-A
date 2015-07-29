@@ -13,7 +13,7 @@
 
 function out=op_averaging(in);
 
-if in.flags.averaged
+if in.flags.averaged || in.dims.averages==0 || in.averages<2
     error('ERROR:  Averaging has already been performed!  Aborting!');
 end
 
