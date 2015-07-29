@@ -11,6 +11,10 @@
 % INPUTS:
 % in         = input data in matlab structure format.
 % totalDrift = total amount of frequency drift (in Hz) to add over the whole scan.
+%               If totalDrift is a scalar, then a constant slope of drift
+%               will be added.  If totalDrift is a vector with length equal
+%               to the number of averages in the input data, then this
+%               vector specifies the drift applied to each average.
 % noise      = the standard deviation of noise to add to the frequency drift
 %             function.
 
@@ -20,7 +24,11 @@ function [out,fDrift]=op_makeFreqDrift(in,totalDrift,noise);
 %First make the matrices needed for multiplication
 T=repmat(in.t',[1 in.sz(2:end)]);
 if totalDrift
-    f=[0:totalDrift/(in.sz(in.dims.averages)-1):totalDrift];
+    if length(totalDrift)==in.sz(in.dims.averages)
+        f=totalDrift';
+    else
+        f=[0:totalDrift/(in.sz(in.dims.averages)-1):totalDrift];
+    end
 else
     f=zeros(1,in.sz(in.dims.averages));
 end

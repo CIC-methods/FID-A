@@ -11,6 +11,10 @@
 % INPUTS:
 % in         = input data in matlab structure format.
 % totalDrift = total amount of phase drift (in degrees) to add over the whole scan.
+%               If totalDrift is a scalar, then a constant slope of drift
+%               will be added.  If totalDrift is a vector with length equal
+%               to the number of averages in the input data, then this
+%               vector specifies the drift applied to each average.
 % noise      = the standard deviation of noise to add to the phase drift
 %             function.
 
@@ -19,7 +23,11 @@ function [out,phDrift]=op_makePhaseDrift(in,totalDrift,noise);
 
 %First make the matrices needed for multiplication
 if totalDrift
-    ph=[0:totalDrift/(in.sz(in.dims.averages)-1):totalDrift];
+    if length(totalDrift)==in.sz(in.dims.averages)
+        ph=totalDrift';
+    else
+        ph=[0:totalDrift/(in.sz(in.dims.averages)-1):totalDrift];
+    end
 else
     ph=zeros(1,in.sz(in.dims.averages));
 end
