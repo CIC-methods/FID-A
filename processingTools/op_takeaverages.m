@@ -30,19 +30,36 @@ elseif in.dims.averages==5
     fids=in.fids(:,:,:,:,index);
 end
 
+fids=squeeze(fids);
+
 %re-calculate Specs using fft
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
 %change the dims variables
 dims.t=in.dims.t;
-dims.coils=in.dims.coils;
 if length(index)==1
     dims.averages=0;
+    if in.dims.coils > in.dims.averages
+        dims.coils=in.dims.coils-1;
+    else
+        dims.coils=in.dims.coils;
+    end
+    if in.dims.subSpecs > in.dims.averages
+        dims.subSpecs=in.dims.subSpecs-1;
+    else
+        dims.subSpecs=in.dims.subSpecs;
+    end
+    if in.dims.extras > in.dims.averages
+        dims.extras=in.dims.extras-1
+    else
+        dims.extras=in.dims.extras;
+    end
 elseif length(index)>1
+    dims.coils=in.dims.coils;
     dims.averages=in.dims.averages;
+    dims.subSpecs=in.dims.subSpecs;
+    dims.extras=in.dims.extras;
 end
-dims.subSpecs=in.dims.subSpecs;
-dims.extras=in.dims.extras;
 
 %re-calculate the sz variable
 sz=size(fids);
