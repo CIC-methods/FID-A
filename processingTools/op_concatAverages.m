@@ -18,8 +18,14 @@ if in1.dims.averages ~= in2.dims.averages
     error('averages dimensions must be the same for both inputs');
 end
 
-fids=cat(in1.dims.averages,in1.fids,in2.fids);
-specs=cat(in1.dims.averages,in1.specs,in2.specs);
+if in1.dims.averages==0 && in2.dims.averages==0
+    dim=2;
+else
+    dim=in1.dims.averages;
+end
+
+fids=cat(dim,in1.fids,in2.fids);
+specs=cat(dim,in1.specs,in2.specs);
 sz=size(fids);
 
 %FILLING IN DATA STRUCTURE
@@ -29,6 +35,9 @@ out.specs=specs;
 out.sz=sz;   
 out.averages=in1.averages+in2.averages;
 out.rawAverages=in1.rawAverages+in2.rawAverages;
+if in1.dims.averages==0
+    out.dims.averages=dim;
+end
 
 %FILLING IN THE FLAGS
 out.flags=in1.flags;
