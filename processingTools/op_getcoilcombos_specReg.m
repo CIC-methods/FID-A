@@ -59,7 +59,10 @@ for n=begin:B
 %     pause;
     
 end
+
 coilcombos.ph=coilcombos.ph+(phase(in.fids(point,bestSNRindex,1,1)));
+%Now normalize the coilcombos.sig so that the max amplitude is 1;
+coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
 
 
     function y=op_phaseShiftRealNest(pars,input);
@@ -71,5 +74,4 @@ coilcombos.ph=coilcombos.ph+(phase(in.fids(point,bestSNRindex,1,1)));
     end
 end
 
-%Now normalize the coilcombos.sig so that the max amplitude is 1;
-coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
+
