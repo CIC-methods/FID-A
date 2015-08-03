@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out = sim_onepulse_shaped(n,sw,Bfield,linewidth,sys,RF,tp,dwdx,G)
+% out = sim_onepulse_shaped(n,sw,Bfield,linewidth,sys,RF,tp,phCyc,dfdx,G)
 % 
 % DESCRIPTION:
 % %This function simulates the effect of a frequency selective or slice 
@@ -23,18 +23,16 @@
 % sys       = spin system definition structure
 % RF        = radiofrequency pulse array [N x 3].  Phase, Amplitude, Duration.
 % tp        = RF pulse duration in [ms]
-% peakB1    = peak B1 amplitude in [kHz]
-% dwdx      = if simulating a frequency selective pulse, this argument 
-%            should be the frequency offset [Hz].  If simulating a slice
-%            selective pulse, this argument should be the position offset [cm].
+% phCyc     = Phase of excitation rf pulse.
+% dfdx      = if simulating a frequency selective pulse, this argument 
+%             should be the frequency offset [Hz].  If simulating a slice
+%             selective pulse, this argument should be the position offset [cm].
 % G         = gradient strength for slice-selective pulse [G/cm];
 
-function out = sim_onepulse_shaped(n,sw,Bfield,linewidth,sys,RF,tp,dwdx,G,phCyc)
+function out = sim_onepulse_shaped(n,sw,Bfield,linewidth,sys,RF,tp,phCyc,dfdx,G)
 
-if nargin>10 && G~=0
+if nargin>9 && G~=0
     simType='g';
-    G=G*0.01;  %convert from G/cm to [T/m]
-    dwdx=dwdx/100;  %convert from cm to [m]
 else
     simType='f';
 end
@@ -46,11 +44,12 @@ sys.shifts=sys.shifts-centreFreq;
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
+
 %BEGIN PULSE SEQUENCE************
 if simType=='g'
-    d=sim_shapedRF(d,H,RF,tp,90,90+phCyc,G,dwdx);   %slice selective excitation
+    d=sim_shapedRF(d,H,RF,tp,90,90+phCyc,dfdx,G);   %slice selective excitation
 elseif simType=='f'
-    d=sim_shapedRF(d,H,RF,tp,90,90+editPh1);        %frequency selective excitation
+    d=sim_shapedRF(d,H,RF,tp,90,90+phCyc,dfdx);     %frequency selective excitation
 end
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************

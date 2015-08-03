@@ -66,9 +66,9 @@ sys.shifts=sys.shifts-centreFreq;
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                                    %EXCITE
 d=sim_evolve(d,H,tau1/2000);                            %Evolve by tau1/2
-d=sim_shapedRF(d,H,RF,tp,180,90+phCyc1,Gx,dx);          %1st shaped 180 degree refocusing pulse
+d=sim_shapedRF(d,H,RF,tp,180,90+phCyc1,dx,Gx);          %1st shaped 180 degree refocusing pulse
 d=sim_evolve(d,H,(tau1+tau2)/2000);                     %Evolve by (tau1+tau2)/2
-d=sim_shapedRF(d,H,RF,tp,180,90+phCyc2,Gy,dy);          %2nd shaped 180 degree refocusing pulse
+d=sim_shapedRF(d,H,RF,tp,180,90+phCyc2,dy,Gy);          %2nd shaped 180 degree refocusing pulse
 d=sim_evolve(d,H,tau2/2000);                            %Evolve by tau2/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
