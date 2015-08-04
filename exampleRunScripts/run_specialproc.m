@@ -1,8 +1,8 @@
-% run_specialproc_4marie.m
+% run_specialproc.m
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,out_w,out_noproc,out_w_noproc]=run_specialproc_4marie(filestring,aaDomain,tmaxin,iterin);
+% [out,out_w,out_noproc,out_w_noproc]=run_specialproc(filestring,aaDomain,tmaxin,iterin);
 % 
 % DESCRIPTION:
 % Processing script for Siemens SPECIAL MRS data in .dat format (twix raw 
@@ -31,7 +31,7 @@
 % out_w_noproc:  Water unsuppressed output spectrum without pre-
 %                   processing.
 
-function [out,out_w,out_noproc,out_w_noproc]=run_specialproc_4marie(filestring,aaDomain,tmaxin,iterin);
+function [out,out_w,out_noproc,out_w_noproc]=run_specialproc(filestring,aaDomain,tmaxin,iterin);
 
 if nargin<4
     iterin=20;
