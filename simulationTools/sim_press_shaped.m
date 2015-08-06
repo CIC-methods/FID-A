@@ -63,13 +63,21 @@ sys.shifts=sys.shifts-centreFreq;
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
+%Calculate new delays by subtracting the pulse duration from tau1 and tau2;
+delays=zeros(2);
+delays(1)=tau1-tp;
+delays(2)=tau2-tp;
+if sum(delays<0)
+    error(['ERROR! The following taus are too short: ' num2str(find(delays<0)) '.']);
+end
+
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                                    %EXCITE
-d=sim_evolve(d,H,tau1/2000);                            %Evolve by tau1/2
+d=sim_evolve(d,H,delays(1)/2000);                            %Evolve by delays(1)/2
 d=sim_shapedRF(d,H,RF,tp,180,90+phCyc1,dx,Gx);          %1st shaped 180 degree refocusing pulse
-d=sim_evolve(d,H,(tau1+tau2)/2000);                     %Evolve by (tau1+tau2)/2
+d=sim_evolve(d,H,(delays(1)+delays(2))/2000);                     %Evolve by (delays(1)+delays(2))/2
 d=sim_shapedRF(d,H,RF,tp,180,90+phCyc2,dy,Gy);          %2nd shaped 180 degree refocusing pulse
-d=sim_evolve(d,H,tau2/2000);                            %Evolve by tau2/2
+d=sim_evolve(d,H,delays(2)/2000);                            %Evolve by delays(2)/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 

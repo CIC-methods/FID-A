@@ -1,5 +1,7 @@
 %sim_Hamiltonian.m
 %Robin Simpson and Jamie Near, 2014.
+%Kimberly Chan added separate Hamiltonian for J-coupling only, for use
+%during shaped rf pulses (sim_shapedRF.m).
 %
 % USAGE:
 % [H,d] = sim_Hamiltonian(sys,Bfield);
@@ -106,6 +108,7 @@ for q=1:nspins
         %First, the z component of JI.S - only appears on the diagonal
         dotzcomp(:,:) = H.J(q,p)*H.basis(:,:,q).*H.basis(:,:,p);
         H.HAB(:,:) = H.HAB(:,:) + diagonal(:,:).*dotzcomp;
+        H.HABJonly=H.HAB;  %Added by Kimberly Chan.
         
     end
     
@@ -167,6 +170,13 @@ for t=1:nspins
         end
         
         H.HAB(:,:) = H.HAB(:,:) + (deltaterma+deltatermb)*0.5*H.J(t,u).*...
+            ((H.basis(:,:,t)==(H.basis(:,:,t+nspins)+1)).*...
+            (H.basis(:,:,u)==(H.basis(:,:,u+nspins)-1))+ ...
+            (H.basis(:,:,t)==(H.basis(:,:,t+nspins)-1)).*...
+            (H.basis(:,:,u)==(H.basis(:,:,u+nspins)+1)));
+        
+        %Added by Kimberly Chan:
+        H.HABJonly=H.HABJonly + (deltaterma+deltatermb)*0.5*H.J(t,u).*...
             ((H.basis(:,:,t)==(H.basis(:,:,t+nspins)+1)).*...
             (H.basis(:,:,u)==(H.basis(:,:,u+nspins)-1))+ ...
             (H.basis(:,:,t)==(H.basis(:,:,t+nspins)-1)).*...

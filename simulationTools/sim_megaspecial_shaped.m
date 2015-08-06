@@ -52,15 +52,26 @@ sys.shifts=sys.shifts-centreFreq;
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
+%Calculate new delays by subtracting the pulse durations from the taus
+%vector;
+delays=zeros(size(taus));
+delays(1)=taus(1)-(editTp/2);
+delays(2)=taus(2)-((editTp+refTp)/2);
+delays(3)=taus(3)-((refTp+editTp)/2);
+delays(4)=taus(4)-(editTp/2);
+if sum(delays<0)
+    error(['ERROR! The following taus are too short: ' num2str(find(delays<0)) '.']);
+end
+
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                                     %EXCITE
-d=sim_evolve(d,H,taus(1)/1000);                          %Evolve by taus(1)
+d=sim_evolve(d,H,delays(1)/1000);                          %Evolve by delays(1)
 d=sim_shapedRF(d,H,editPulse,editTp,180,90+editPh1);     %1st shaped editing pulse rotation
-d=sim_evolve(d,H,taus(2)/1000);                          %Evolve by taus(2)
+d=sim_evolve(d,H,delays(2)/1000);                          %Evolve by delays(2)
 d=sim_shapedRF(d,H,refPulse,refTp,180,90+refPh,dx,Gx);   %2nd shaped 180 degree refocusing pulse
-d=sim_evolve(d,H,taus(3)/1000);                          %Evolve by taus(3)
+d=sim_evolve(d,H,delays(3)/1000);                          %Evolve by delays(3)
 d=sim_shapedRF(d,H,editPulse,editTp,180,90+editPh2);     %2nd shaped editing pulse rotation
-d=sim_evolve(d,H,taus(4)/1000);                          %Evolve by taus(4)
+d=sim_evolve(d,H,delays(4)/1000);                          %Evolve by delays(4)
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);           %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 

@@ -1,8 +1,9 @@
 %sim_shapedRF.m
 %Jamie Near, 2014.
+%Kimberly Chan, 2015: added J-coupling evolution following step of the rf pulse.
 %
 % USAGE:
-% d_out = sim_shapedRF(d_in,H,RFstruct,flipAngle,phase,dfdx,grad)
+% d_out = sim_shapedRF(d_in,H,RFstruct,flipAngle,phase,grad,pos)
 % 
 % DESCRIPTION:
 % This function simulates the effect of a shaped rf pulse on the density
@@ -26,13 +27,11 @@
 % Tp        = Pulse duration in [ms];
 % flipAngle = RF pulse flip angle [degrees].
 % phase     = Phase of RF pulse [degrees].  Optional.  Default = 0 (x'-axis.  90 degress corresponds to +y' axis)
-% dfdx      = if simulating a frequency selective pulse, this argument 
-%             should be the frequency offset [Hz] (Optional.  Default = 0 Hz).  
-%             If simulating a slice selective pulse, this argument should 
-%             be the position offset [cm].
 % grad      = Gradient strength [G/cm]. Optional (for slice selective pulses only).
+% pos       = Position of spins relative to voxel centre [cm].  Optional (for slice selective pulses only).
 
-function d_out = sim_shapedRF(d_in,H,RF,Tp,flipAngle,phase,dfdx,grad)
+
+function d_out = sim_shapedRF(d_in,H,RF,Tp,flipAngle,phase,grad,pos)
 
 gamma=42577000;
 
@@ -65,25 +64,20 @@ end
    
 %Determine whether this is a frequency selective pulse or a slice selective
 %pulse (depends on whether the gradient and position values were given as input arguments):
-if nargin>7 && grad~=0
-    %Both gradient and position provided.  Pulse is spatially selective.
-    simType='g';
+if nargin<7
+    %disp('No gradient or position provided.  Pulse is Frequency selective.  Using grad=0 and pos=0!');
+    grad=0;
+    pos=0;
 elseif nargin==7
-    %Frequency offset provided but no gradient was provided.  Pulse is frequency selective.
-    grad=0;
-    simType='f';
-elseif nargin<7
-    %Neither offset nor gradient provided.  Pulse is frequency selective.
-    grad=0;
-    dfdx=0;
-    simType='f';
+    %disp('No position was provided.  Using pos=0. ');
+    pos=0;
+else
+    %disp('Both grad and pos were provided.  Pulse is slice selective.  ');
 end
 
 %Convert gradient value into [T/m], lengths to [m], etc...
-if simType=='g'
-    grad=grad*0.01;  %convert from G/cm to [T/m]
-    dfdx=dfdx/100;  %convert from cm to [m]
-end
+grad=grad*0.01;  %convert from G/cm to [T/m]
+pos=pos/100;  %convert from cm to [m]
 
 %Define the properties of the refocusing radiofrequency pulse:
 Tp=Tp/1000; %convert pulse duration from [ms] to seconds [s]
@@ -104,14 +98,10 @@ zeta=repmat(rfph+(phase*pi/180),1,H.nspins);  %Instantaneous phase of the pulse 
 theta=zeros(length(rfB1),H.nspins); %Angle to rotate about Beff1 [Radians]
 %Now calculate the composite rotation matrices for the pulse:
 for y=1:H.nspins
-    if simType=='g'
-        Beff(:,y)=sqrt((rfB1.^2)+(((grad*dfdx)+(H.Bfield*H.shifts(y)/1e6))^2));  %Calculate BeffRef for the pulse
-        alpha(:,y)=atan2((grad*dfdx)+(H.Bfield*H.shifts(y)/1e6),rfB1);  %Calculate alphaRef for the pulse
-    elseif simType=='f'
-        Beff(:,y)=sqrt((rfB1.^2)+(((dfdx/gamma)+(H.Bfield*H.shifts(y)/1e6))^2));
-        alpha(:,y)=atan2(((dfdx/gamma)+(H.Bfield*H.shifts(y)/1e6)),rfB1);
-    end
-    theta(:,y)=2*pi*gamma*Beff(:,y).*dt;  %Calculate theta for the pulse
+    %For the refocusing pulses
+    Beff(:,y)=sqrt((rfB1.^2)+(((grad*pos)+(H.Bfield*H.shifts(y)/1e6))^2));  %Calculate BeffRef for first refoc pulse
+    alpha(:,y)=atan2((grad*pos)+(H.Bfield*H.shifts(y)/1e6),rfB1);  %Calculate alphaRef for first refoc pulse
+    theta(:,y)=2*pi*gamma*Beff(:,y).*dt;  %Calculate theta for first refoc pulse
     for n=1:length(rfB1)
         %Populate X- Y- and Z- rotation matrices for each point in RF
         %waveform.
@@ -124,7 +114,8 @@ end
 d=d_in;
 %Now do the density matrix evolutions for each RF pulse element:
 for n=1:length(rfB1)
-    d = expm(-1i*Rz(:,:,n))*...
+    d = expm(-1i*H.HABJonly*dt(n))*... %Added by Kimberly Chan
+        expm(-1i*Rz(:,:,n))*...
         expm(-1i*Ry(:,:,n))*...
         expm(-1i*Rx(:,:,n))*...
         expm(-1i*-Ry(:,:,n))*...
@@ -134,7 +125,8 @@ for n=1:length(rfB1)
         expm(1i*-Ry(:,:,n))*...     %rotate about y by -alpha
         expm(1i*Rx(:,:,n))*...      %rotate about x by theta
         expm(1i*Ry(:,:,n))*...      %rotate about y by alpha
-        expm(1i*Rz(:,:,n));         %rotate about z by zeta
+        expm(1i*Rz(:,:,n))*...      %rotate about z by zeta
+        expm(1i*H.HABJonly*dt(n));  %J-evolution during dt.  Added by Kimberly Chan.
 end
 
 d_out=d;

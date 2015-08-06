@@ -36,11 +36,17 @@ sys.shifts=sys.shifts-centreFreq;
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
+%Calculate new delay by subtracting the pulse durations from TE;
+delay=TE-Tp;
+if delay<0
+    error(['ERROR!  TE is too short.']);
+end
+
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                            %EXCITE
-d=sim_evolve(d,H,TE/2000);                      %Evolve by TE/2
+d=sim_evolve(d,H,delay/2000);                      %Evolve by delay/2
 d=sim_shapedRF(d,H,RF,Tp,180,90+ph,pos,grad);   %shaped 180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,TE/2000);                      %Evolve by TE/2
+d=sim_evolve(d,H,delay/2000);                      %Evolve by delay/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
