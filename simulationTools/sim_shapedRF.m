@@ -1,5 +1,6 @@
 %sim_shapedRF.m
 %Jamie Near, 2014.
+%Kimberly Chan, 2015:  Added J-evolution during RF pulse.  
 %
 % USAGE:
 % d_out = sim_shapedRF(d_in,H,RFstruct,flipAngle,phase,dfdx,grad)
@@ -124,17 +125,19 @@ end
 d=d_in;
 %Now do the density matrix evolutions for each RF pulse element:
 for n=1:length(rfB1)
-    d = expm(-1i*Rz(:,:,n))*...
+    d = expm(-1i*H.HABJonly*dt(n))*...  %Kimberly Chan, J-evolution for dt.
+        expm(-1i*Rz(:,:,n))*...
         expm(-1i*Ry(:,:,n))*...
         expm(-1i*Rx(:,:,n))*...
         expm(-1i*-Ry(:,:,n))*...
         expm(-1i*-Rz(:,:,n))*...    
-        d*...                       %start with Mz
-        expm(1i*-Rz(:,:,n))*...     %rotate about z by -zeta
-        expm(1i*-Ry(:,:,n))*...     %rotate about y by -alpha
-        expm(1i*Rx(:,:,n))*...      %rotate about x by theta
-        expm(1i*Ry(:,:,n))*...      %rotate about y by alpha
-        expm(1i*Rz(:,:,n));         %rotate about z by zeta
+        d*...                           %start with Mz
+        expm(1i*-Rz(:,:,n))*...         %rotate about z by -zeta
+        expm(1i*-Ry(:,:,n))*...         %rotate about y by -alpha
+        expm(1i*Rx(:,:,n))*...          %rotate about x by theta
+        expm(1i*Ry(:,:,n))*...          %rotate about y by alpha
+        expm(1i*Rz(:,:,n))*...          %rotate about z by zeta
+        expm(1i*H.HABJonly*dt(n));      %Kimberly Chan, J-evolution for dt.
 end
 
 d_out=d;
