@@ -5,8 +5,8 @@
 % RF=io_writepta(rf,outfile);
 % 
 % DESCRIPTION:
-% Write a matlab RF pulse structure (containing 3 x N waveform array field 
-% with rf.waveform(1,:)= phase, rf.waveform(2,:)=amplitude, and rf.waveform(3,:)=timestep), 
+% Write a matlab RF pulse structure (containing N x 3 waveform array field 
+% with rf.waveform(:,1)= phase, rf.waveform(:,2)=amplitude, and rf.waveform(:,3)=timestep), 
 % to a siemens format .pta file.
 % 
 % INPUTS:
