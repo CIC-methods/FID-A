@@ -16,11 +16,19 @@
 
 function out=io_loadspec_IMA(filename,Bo,spectralwidth,te,tr);
 
-%open dicom file:
-fd=dicom_open(filename);
+if nargin<5
+    tr=[];
+    if nargin<4
+        te=[];
+    end
+end
 
-%read in dicom file:
-fids=dicom_get_spectrum_siemens(fd);
+%Load Dicom Info using Chris Rogers' "SiemensCsaParse.m" function:
+info=SiemensCsaParse(filename);
+
+%Read in Dicom file using Chris Rogers' "SiemensCsaReadFid.m" function:
+[fids,info]=SiemensCsaReadFid(info,0);
+
 sz=size(fids);
 
 Naverages=1;
