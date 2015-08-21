@@ -86,6 +86,6 @@ for x=1:size(in,1)
         tempSpec=op_ampScale(tempSpec,scalefactorY);
         
         %Now start plotting
-        plot(ppm,flipud(tempSpec.specs+(y-1)));
+        plot(ppm,real(flipud(tempSpec.specs+(y-1))));
     end
 end
