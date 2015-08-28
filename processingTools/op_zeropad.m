@@ -46,7 +46,7 @@ f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):...
 ppm=-f/(in.Bo*42.577);
 ppm=ppm+4.6082;
 
-t=[0:dwelltime:(sz(1)-1)*dwelltime];
+t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
 
 
 %FILLING IN DATA STRUCTURE
