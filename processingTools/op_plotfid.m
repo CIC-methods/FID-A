@@ -45,6 +45,7 @@ end
 
 
 if isstruct(in)
+    fignum=figure;
     out=plot(in.t,real(in.fids));
     xlim([0 tmax]);
     set(gca,'FontSize',16);
@@ -60,11 +61,12 @@ if isstruct(in)
     title(tit);
     xlabel(xlab,'FontSize',20);
     ylabel(ylab,'FontSize',20);
-    Fig1Ax1 = get(1, 'Children');
+    Fig1Ax1 = get(fignum, 'Children');
     Fig1Ax1Line1 = get(Fig1Ax1, 'Children');
     set(Fig1Ax1Line1, 'LineWidth', 1.2);
     %set(Fig1Ax1Line1,'MarkerSize', 10);
 elseif iscell(in)
+    fignum=figure;
     plot(in{1}.t,real(in{1}.fids));
     ylabel('ARB UNITS');
     disp('Multiple input fids detected!! ')
@@ -89,7 +91,7 @@ elseif iscell(in)
         title(tit);
         xlabel(xlab,'FontSize',20);
         ylabel(ylab,'FontSize',20);
-        Fig1Ax1 = get(1, 'Children');
+        Fig1Ax1 = get(fignum, 'Children');
         Fig1Ax1Line1 = get(Fig1Ax1, 'Children');
         set(Fig1Ax1Line1, 'LineWidth', 1.2);
     end
