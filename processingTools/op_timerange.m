@@ -32,7 +32,7 @@ f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):...
     (in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
 
 ppm=-f/(in.Bo*42.577);
-ppm=ppm+4.6082;
+ppm=ppm+4.65;
 
 %calculate the time scale
 t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];

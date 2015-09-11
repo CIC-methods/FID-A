@@ -172,7 +172,7 @@ end
 %Calculate t and ppm arrays using the calculated parameters:
 f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
 ppm=f/(Bo*42.577);
-ppm=ppm+4.6082;
+ppm=ppm+4.65;
 
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
