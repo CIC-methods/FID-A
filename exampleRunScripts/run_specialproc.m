@@ -110,6 +110,8 @@ pause;
 close all;
 
 %%%%%%%%%%%%%%%%%%%%%OPTIONAL ALIGNMENT OF SUBSPECTRA%%%%%%%%%%%%%%%%
+fs_ai=[];
+phs_ai=[];
 alignISIS=input('would you like to align subspectra?  ','s');
 if strcmp(alignISIS,'y') || strcmp(alignISIS,'Y')
     %What we're actually doing is aligning the averages, then aligning the
@@ -323,7 +325,9 @@ phs_ai=phs_ai(~BadAvgMask);
 driftCorr=input('Would you like to perform the frequency drift correction?  ','s');
 if driftCorr=='n'|| driftCorr=='N'
     out_aa=out_rm;
-    out_w_aa=out_w_cs;
+    if exist(filename2)
+        out_w_aa=out_w_cs;
+    end
 else
     sat='n'
     while sat=='n' || sat=='N'
