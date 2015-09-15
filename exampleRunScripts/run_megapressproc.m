@@ -82,13 +82,13 @@ raw1_av=op_averaging(raw1);
 %plot coil channels before and after phase alignment
 figure('position',[0 50 560 420]);
 subplot(2,1,1);
-plot(raw1_av.ppm,raw1_av.specs(:,:,1,1));xlim([1 5]);
+plot(raw1_av.ppm,real(raw1_av.specs(:,:,1,1)));xlim([1 5]);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)');
 ylabel('Amplitude (a.u.)');
 title('Multi-channel data before phase correction');
 subplot(2,1,2);
-plot(raw1_av.ppm,spec1_av_pre(:,:,1,1));xlim([1 5]);
+plot(raw1_av.ppm,real(spec1_av_pre(:,:,1,1)));xlim([1 5]);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)');
 ylabel('Amplitude(a.u.)');
@@ -97,13 +97,13 @@ title('Multi-channel data after phase correction');
 if water
     figure('position',[0 550 560 420]);
     subplot(2,1,1);
-    plot(raww.ppm,raww.specs(:,:,1,1));xlim([1 5]);
+    plot(raww.ppm,real(raww.specs(:,:,1,1)));xlim([1 5]);
     set(gca,'XDir','reverse');
     xlabel('Frequency (ppm)');
     ylabel('Amplitude (a.u.)');
     title('Multi-channel data before phase correction');
     subplot(2,1,2);
-    plot(raww.ppm,specw_pre(:,:,1,1));xlim([1 5]);
+    plot(raww.ppm,real(specw_pre(:,:,1,1)));xlim([1 5]);
     set(gca,'XDir','reverse');
     xlabel('Frequency (ppm)');
     ylabel('Amplitude(a.u.)');
@@ -118,7 +118,7 @@ close all;
 figure('position',[0 50 560 420]);
 subplot(1,2,1);
 %if out1_cc.dims.subSpecs==3
-    plot(out1_cc.ppm,out1_cc.specs(:,:,1));xlim([1 5]);
+    plot(out1_cc.ppm,real(out1_cc.specs(:,:,1)));xlim([1 5]);
 %elseif out1_cc.dims.subSpecs==2
 %   plot(out1_cc.ppm,squeeze(out1_cc.specs(:,1,:)));xlim([1 5]);
 %end
@@ -127,7 +127,7 @@ xlabel('Frequency (ppm)');
 ylabel('Amplitude(a.u.)');
 title('Edit OFF Spectra (All averages)');
 subplot(1,2,2);
-plot(out1_cc.ppm,out1_cc.specs(:,:,2));xlim([1 5]);
+plot(out1_cc.ppm,real(out1_cc.specs(:,:,2)_);xlim([1 5]);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)');
 ylabel('Amplitude(a.u.)');
@@ -176,25 +176,25 @@ else
         end
         figure('position',[0 50 560 420]);
         subplot(2,2,1);
-        plot(out1_cc.ppm,out1_cc.specs(:,:,1));xlim([1 5]);
+        plot(out1_cc.ppm,real(out1_cc.specs(:,:,1)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
         title('Edit OFF specra prior to Removal of Bad Averages');
         subplot(2,2,2);
-        plot(out1_rm.ppm,out1_rm.specs(:,:,1));xlim([1 5]);
+        plot(out1_rm.ppm,real(out1_rm.specs(:,:,1)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
         title('Edit OFF specra after Removal of Bad Averages');
         subplot(2,2,3);  
-        plot(out1_cc.ppm,out1_cc.specs(:,:,2));xlim([1 5]);
+        plot(out1_cc.ppm,real(out1_cc.specs(:,:,2)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
         title('Edit ON specra prior to Removal of Bad Averages');
         subplot(2,2,4);
-        plot(out1_rm.ppm,out1_rm.specs(:,:,2));xlim([1 5]);
+        plot(out1_rm.ppm,real(out1_rm.specs(:,:,2)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
@@ -292,25 +292,25 @@ else
         end
         figure('position',[0 50 560 420]);
         subplot(2,2,1);
-        plot(out1_rm.ppm,out1_rm.specs(:,:,1));xlim([1 5]);
+        plot(out1_rm.ppm,real(out1_rm.specs(:,:,1)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
         title('Edit ON specra prior to drift correction');
         subplot(2,2,2);
-        plot(out1_aa.ppm,out1_aa.specs(:,:,1));xlim([1 5]);
+        plot(out1_aa.ppm,real(out1_aa.specs(:,:,1)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
         title('Edit ON specra after drift correction');
         subplot(2,2,3);
-        plot(out1_rm.ppm,out1_rm.specs(:,:,2));xlim([1 5]);
+        plot(out1_rm.ppm,real(out1_rm.specs(:,:,2)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
         title('Edit OFF specra prior to drift correction');
         subplot(2,2,4);
-        plot(out1_aa.ppm,out1_aa.specs(:,:,2));xlim([1 5]);
+        plot(out1_aa.ppm,real(out1_aa.specs(:,:,2)));xlim([1 5]);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)');
         ylabel('Amplitude(a.u.)');
@@ -335,9 +335,9 @@ else
             figure('position',[1140 50 560 400]);
             subplot(2,1,1);
             if outw_cc.dims.subSpecs
-                plot(outw_cc.ppm,outw_cc.specs(:,:,1),outw_cc.ppm,outw_cc.specs(:,:,2));xlim([3 7]);
+                plot(outw_cc.ppm,real(outw_cc.specs(:,:,1)),outw_cc.ppm,real(outw_cc.specs(:,:,2)));xlim([3 7]);
             else
-                plot(outw_cc.ppm,outw_cc.specs(:,:));xlim([3 7]);
+                plot(outw_cc.ppm,real(outw_cc.specs(:,:)));xlim([3 7]);
             end
             set(gca,'XDir','reverse');
             xlabel('Frequency (ppm)');
@@ -345,9 +345,9 @@ else
             title('Water Unsuppressed spectrum prior to drift correction');
             subplot(2,1,2);
             if outw_aa.dims.subSpecs
-                plot(outw_aa.ppm,outw_aa.specs(:,:,1),outw_aa.ppm,outw_aa.specs(:,:,2));xlim([3 7]);
+                plot(outw_aa.ppm,real(outw_aa.specs(:,:,1)),outw_aa.ppm,real(outw_aa.specs(:,:,2)));xlim([3 7]);
             else
-                plot(outw_aa.ppm,outw_aa.specs(:,:));xlim([3 7]);
+                plot(outw_aa.ppm,real(outw_aa.specs(:,:)));xlim([3 7]);
             end
             set(gca,'XDir','reverse');
             xlabel('Frequency (ppm)');
@@ -421,7 +421,7 @@ end
 out_filt_diff=op_combinesubspecs(op_filter(out1,5),'diff');
 close all;
 figure('position',[0 50 560 420]);
-plot(out_filt_diff.ppm,out_filt_diff.specs);
+plot(out_filt_diff.ppm,real(out_filt_diff.specs));
 set(gca,'XDir','reverse');
 
 
