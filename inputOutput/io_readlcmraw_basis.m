@@ -1,121 +1,154 @@
 % io_readlcmraw_basis.m
 % Jamie Near, McGill University 2014.
-% 
+%
 % USAGE:
 % out=io_readlcmraw_basis(filename);
-% 
+%
 % DESCRIPTION:
-% Reads LCModel .raw model spectrum file into the FID-A data structure format in MATLAB.
-% 
+% Reads entire LCModel .basis file into multiple FID-A data structures in MATLAB.
+%
 % INPUTS:
-% filename   = filename of LCModel raw file.
+% filename   = filename of LCModel .basis file.
 
 function [out]=io_readlcmraw_basis(filename)
 
-% Begin to read the data.  PTA files have a semicolon marking each
-% line of Data.  Search for the semicolon on each line and read only the 
-%data that preceeds it.  
+% Begin to read the data.
 fid=fopen(filename);
 linenum=1;
 line=fgets(fid);
-        
-sw_index=findstr(line,'Sweep Width');
-while isempty(sw_index);
+
+%look for FWHMBA
+fwhmba_index=findstr(line,'FWHMBA =');
+while isempty(fwhmba_index);
     line=fgets(fid);
-    sw_index=findstr(line,'Sweep Width');
+    fwhmba_index=findstr(line,'FWHMBA =');
 end
-equals_index=findstr(line,'=');
-Hz_index=findstr(line,'Hz');
-spectralwidth=str2num(line(equals_index+2:Hz_index-1));
+linewidth=str2num(line(fwhmba_index+8:end-2));
 
-n_index=findstr(line,'Vector Size');
-while isempty(n_index);
+%look for HZPPM
+hzpppm_index=findstr(line,'HZPPPM =');
+while isempty(hzpppm_index);
     line=fgets(fid);
-    n_index=findstr(line,'Vector Size');
+    hzpppm_index=findstr(line,'HZPPPM =');
 end
-equals_index=findstr(line,'=');
-pts_index=findstr(line,'points');
-vectorsize=str2num(line(equals_index+2:pts_index-1));
+hzpppm=str2num(line(hzpppm_index+8:end-2));
+Bo=hzpppm/42.577;
+linewidth=linewidth*hzpppm;
 
-Bo_index=findstr(line,'B0 Field');
-while isempty(Bo_index)
+%look for TE
+te_index=findstr(line,'ECHOT =');
+while isempty(te_index);
     line=fgets(fid);
-    Bo_index=findstr(line,'B0 Field');
+    te_index=findstr(line,'ECHOT =');
 end
-equals_index=findstr(line,'=');
-T_index=findstr(line,'T');
-Bo=str2num(line(equals_index+2:T_index-1));
-hzpppm=42.577*Bo;
-               
+te=str2num(line(te_index+8:end-2));
 
-hdrEnd_index=findstr(line,'$END');
-while isempty(hdrEnd_index);
+%look for spectral width
+badelt_index=findstr(line,'BADELT =');
+while isempty(badelt_index);
     line=fgets(fid);
-    hdrEnd_index=findstr(line,'$END');
+    badelt_index=findstr(line,'BADELT =');
 end
+dwelltime=str2num(line(badelt_index+8:end-2));
+spectralwidth=1/dwelltime;
 
-line=fgets(fid);
+fileEnd=false;
 
-% If the line is empty skip it
-while line~=-1
-    %dataline=line(1:semicol_index-2);
-    [A,count, errmsg, nextindex] = sscanf(line, '%f', inf);
-    % If read failed, output the error     
-    if ~isempty(errmsg);
-       fclose(fid);
-       error('READLCMRAW_BASIS failed with read error: %s', errmsg);
+while ~feof(fid)
+    %Look for the metabolite name
+    metab_index=findstr(line,'METABO =');
+    while isempty(metab_index);
+        line=fgets(fid);
+        metab_index=findstr(line,'METABO =');
     end
-    % Store the read values into rf array
-    RF(linenum) = A(1)+i*A(2);
-    linenum = linenum + 1;
+    metabName=line(metab_index+10:end-3);
+    
+    hdrEnd_index=findstr(line,'$END');
+    while isempty(hdrEnd_index);
+        line=fgets(fid);
+        hdrEnd_index=findstr(line,'$END');
+    end
+    
     line=fgets(fid);
+    
+    nmused_index=findstr(line,'$NMUSED');
+    linenum=1;
+    RF=[];
+    % If the line is empty skip it
+    while ~isempty(line) && isempty(nmused_index) && ~fileEnd
+        %dataline=line(1:semicol_index-2);
+        [A,count, errmsg, nextindex] = sscanf(line, '%f', inf);
+        % If read failed, output the error
+        if ~isempty(errmsg);
+            fclose(fid);
+            error('READLCMRAW_BASIS failed with read error: %s', errmsg);
+        end
+        % Store the read values into rf array
+        RF = [ RF ; A ];
+        if feof(fid)
+            fileEnd=true;
+        end
+        linenum = linenum + 1;
+        line=fgets(fid);
+        nmused_index=findstr(line,'$NMUSED');
+    end
+    specs=RF(1:2:end) + 1i*RF(2:2:end);
+    specs=fftshift(conj(specs),1);
+    vectorsize=length(specs);
+    sz=[vectorsize 1];
+    if mod(vectorsize,2)==0
+        %disp('Length of vector is even.  Doing normal conversion');
+        fids=fft(fftshift(specs,1),[],1);
+    else
+        %disp('Length of vector is odd.  Doing circshift by 1');
+        fids=fft(circshift(fftshift(specs,1),1),[],1);
+    end
+    f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+    ppm=-f/(Bo*42.577);
+    ppm=ppm+4.65;
+    t=[dwelltime:dwelltime:vectorsize*dwelltime];
+    txfrq=hzpppm*1e6;
+    eval(['out.' metabName '.fids=fids;']);
+    eval(['out.' metabName '.specs=specs;']);
+    eval(['out.' metabName '.sz=[vectorsize 1 1 1];']);
+    eval(['out.' metabName '.n=vectorsize;']);
+    eval(['out.' metabName '.spectralwidth=spectralwidth;']);
+    eval(['out.' metabName '.sz=sz;']);
+    eval(['out.' metabName '.Bo=Bo;']);
+    eval(['out.' metabName '.te=te;']);
+    eval(['out.' metabName '.tr=[];']);
+    eval(['out.' metabName '.dwelltime=1/spectralwidth;']);
+    eval(['out.' metabName '.linewidth=linewidth;']);
+    eval(['out.' metabName '.ppm=ppm;']);
+    eval(['out.' metabName '.t=t;']);
+    eval(['out.' metabName '.txfrq=txfrq;']);
+    eval(['out.' metabName '.date=date;']);
+    eval(['out.' metabName '.seq='''';']);
+    eval(['out.' metabName '.sim='''';']);
+    eval(['out.' metabName '.dims.t=1;']);
+    eval(['out.' metabName '.dims.coils=0;']);
+    eval(['out.' metabName '.dims.averages=0;']);
+    eval(['out.' metabName '.dims.subSpecs=0;']);
+    eval(['out.' metabName '.dims.extras=0;']);
+    eval(['out.' metabName '.averages=1;']);
+    eval(['out.' metabName '.flags.writtentostruct=1;']);
+    eval(['out.' metabName '.flags.gotparams=1;']);
+    eval(['out.' metabName '.flags.leftshifted=1;']);
+    eval(['out.' metabName '.flags.filtered=0;']);
+    eval(['out.' metabName '.flags.zeropadded=0;']);
+    eval(['out.' metabName '.flags.freqcorrected=0;']);
+    eval(['out.' metabName '.flags.phasecorrected=0;']);
+    eval(['out.' metabName '.flags.averaged=1;']);
+    eval(['out.' metabName '.flags.addedrcvrs=1;']);
+    eval(['out.' metabName '.flags.subtracted=1;']);
+    eval(['out.' metabName '.flags.writtentotext=1;']);
+    eval(['out.' metabName '.flags.downsampled=0;']);
+    eval(['out.' metabName '.flags.isISIS=0;']);
+    
 end
-sz=[vectorsize 1];
-out.fids=RF';
-out.specs=fftshift(ifft(out.fids));
-out.sz=[vectorsize 1 1 1];
-out.spectralwidth=spectralwidth;
-out.sz=sz;
-out.Bo=Bo;
-out.dwelltime=1/out.spectralwidth;
-
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
-out.ppm=ppm;
-
-t=[out.dwelltime:out.dwelltime:vectorsize*out.dwelltime];
-out.t=t;
-
-txfrq=hzpppm*1e6;
-out.txfrq=txfrq;
-
-out.date=date;
-out.seq='';
-
-out.dims.t=1;
-out.dims.coils=0;
-out.dims.averages=0;
-out.dims.subSpecs=0;
-
-out.averages=1;
-
-out.flags.writtentostruct=1;
-out.flags.gotparams=1;
-out.flags.leftshifted=1;
-out.flags.filtered=0;
-out.flags.zeropadded=0;
-out.flags.freqcorrected=0;
-out.flags.phasecorrected=0;
-out.flags.averaged=1;
-out.flags.addedrcvrs=1;
-out.flags.subtracted=1;
-out.flags.writtentotext=1;
-out.flags.downsampled=0;
-out.flags.isISIS=0;
 
 fclose(fid);
-   
+
 % RF=RF';
 % rf(:,1)=RF(:,2)*180/pi;
 % rf(:,2)=RF(:,1);
