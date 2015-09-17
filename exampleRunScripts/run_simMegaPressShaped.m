@@ -150,9 +150,11 @@ parfor X=1:length(x);
                 if EP1==1 && EP2==1
                     outON_posxy{X}{Y}=outON_posxy_epc{X}{Y}{EP1}{EP2};
                     outOFF_posxy{X}{Y}=outOFF_posxy_epc{X}{Y}{EP1}{EP2};
+                    outDIFF_posxy{X}{Y}=op_subtractScans(outON_posxy{X}{Y},outOFF_posxy{X}{Y});
                 else
                     outON_posxy{X}{Y}=op_addScans(outON_posxy{X}{Y},outON_posxy_epc{X}{Y}{EP1}{EP2});
                     outOFF_posxy{X}{Y}=op_addScans(outOFF_posxy{X}{Y},outOFF_posxy_epc{X}{Y}{EP1}{EP2});
+                    outDIFF_posxy{X}{Y}=op_subtractScans(outON_posxy{X}{Y},outOFF_posxy{X}{Y});
                 end
                 
             end %end of 1st editing phase cycle loop.
@@ -165,13 +167,15 @@ parfor X=1:length(x);
         
     end %end of spatial loop (parfor) in y direction.
 end %end of spatial loop (parfor) in x direction.
+
+outDIFF=op_subtractScans(outON,outOFF);
         
 figure 
-hold
-for n=1:length(x)
-plot(outON_posxy{n}{1}.ppm,outON_posxy{n}{1}.specs+5*n);
-plot(outOFF_posxy{n}{1}.ppm,outOFF_posxy{n}{1}.specs+5*n);
-end
+sim_make2DSimPlot(outON_posxy,2.75,3.25);
+figure
+sim_make2DSimPlot(outOFF_posxy,2.75,3.25);
+figure
+sim_make2DSimPlot(outDIFF_posxy,2.75,3.25);
 
 
 

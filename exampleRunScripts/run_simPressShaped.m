@@ -51,8 +51,8 @@ lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thkX=1.66; %slice thickness of x refocusing pulse [cm]
 thkY=1.66; %slice thickness of y refocusing pulse [cm]
-x=linspace(-1,1,32); %X positions to simulate [cm]
-y=linspace(-1,1,32); %y positions to simulate [cm]
+x=linspace(-1,1,12); %X positions to simulate [cm]
+y=linspace(-1,1,12); %y positions to simulate [cm]
 %x=0;
 %y=0;
 tau1=30; tau2=78;%timing of the pulse sequence [ms]
@@ -91,8 +91,8 @@ out=struct([]);
 %loop through space: Don't forget to initialize the parallel processing
 %toolbox workers using 'matlabpool open N' (for N workers, 12 max).
 
-for X=1:length(x);
-%parfor X=1:length(x);
+%for X=1:length(x);
+parfor X=1:length(x);
     for Y=1:length(y);
         for RP1=1:length(refPhCyc1)
             for RP2=1:length(refPhCyc2)
@@ -117,10 +117,8 @@ for X=1:length(x);
 end %end of spatial loop (parfor) in x direction.
         
 figure 
-hold
-for n=1:length(x)
-plot(out_posxy{n}{1}.ppm,out_posxy{n}{1}.specs+5*n);
-end
+sim_make2DSimPlot(out_posxy,2,3);
+
 
 
 
