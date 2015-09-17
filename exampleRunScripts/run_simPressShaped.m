@@ -42,7 +42,7 @@
 % refPhCyc2         = vector of phase cycling steps for 2nd refocusing pulse [degrees]
 
 % ************INPUT PARAMETERS**********************************
-refocWaveform='filtSinc_R4p2.pta'; %name of refocusing pulse waveform.
+refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
 refTp=3.5; %duration of refocusing pulses[ms]
 Npts=2048; %number of spectral points
 sw=2000; %spectral width [Hz]
