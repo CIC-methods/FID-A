@@ -543,7 +543,7 @@ elseif makeraw=='n'||makeraw=='N'
 end
 
 if makeraw
-    RF=io_writelcmraw(out_conj,[metab '.RAW'],metab);
+    RF=io_writelcmraw(out,[metab '.RAW'],metab);
 else
     RF=[];
 end
