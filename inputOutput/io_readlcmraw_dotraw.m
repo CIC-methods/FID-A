@@ -5,7 +5,7 @@
 % out=io_readlcmraw_dotraw(filename);
 % 
 % DESCRIPTION:
-% Reads LCModel .raw model spectrum file into the FID-A data structure format in MATLAB.
+% Reads LCModel .RAW model spectrum file into the FID-A data structure format in MATLAB.
 % 
 % INPUTS:
 % filename   = filename of LCModel raw file.

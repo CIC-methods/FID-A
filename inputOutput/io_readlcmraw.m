@@ -5,7 +5,7 @@
 % out=io_readlcmraw(filename,type);
 % 
 % DESCRIPTION:
-% Reads LCModel .RAW format into the FID-A data structure format in MATLAB.
+% Reads LCModel raw data format into the FID-A data structure format in MATLAB.
 % 
 % INPUTS:
 % filename   = filename of LCModel raw file.

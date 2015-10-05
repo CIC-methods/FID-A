@@ -5,7 +5,8 @@
 % d_out = sim_gradSpoil(d_in,H,gradVect,dur,posVect)
 % 
 % DESCRIPTION:
-% This function simulates the effect of a spoiler gradient.
+% This function simulates the effect of a rectangular spoiler gradient 
+% with a given amplitude, direction and duration.  
 % 
 % INPUTS:
 % d_in      = input density matrix structure.

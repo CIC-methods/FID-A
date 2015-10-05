@@ -7,7 +7,7 @@
 % 
 % DESCRIPTION:
 % This function simulates the effect of a shaped rf pulse on the density
-% matrix.  The temporal shape of the refocussing pulses is modelled as a 
+% matrix.  The temporal shape of the refocusing pulses is modelled as a 
 % series of N instantaneous rotations about the effective RF field, where N 
 % is the number of time points in the RF waveform.  The instantaneous 
 % effective RF field can be an arbitrary vector, and can be represented in 

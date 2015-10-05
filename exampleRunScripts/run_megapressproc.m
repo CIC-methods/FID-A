@@ -14,10 +14,15 @@
 % filestring         = String variable for the name of the directory containing
 %                     the water suppressed .dat file.  Water unsuppressed
 %                     .dat file should be contained in [filestring '_w/'];
+% coilcombos         = (Optional).  A structure obtained by running the
+%                      op_getcoilcombos function.  This allows the user to 
+%                      specify the coil phases and amplitudes as an input, 
+%                      rather calculating these from the input data by default.  
 % avgAlignDomain     = (Optional) Perform the spectral registration (drift correction) using
 %                     the full spectrum ('t'), or only a limited frequency
 %                     range ('f').  Default is 'f'.
-% alignSS            = 0 - Do not align the edit-on and edit-off subspectra.
+% alignSS            = (Optional)
+%                     0 - Do not align the edit-on and edit-off subspectra (default).
 %                     2 - Perform manual alignment of edit-on and edit-off subspectra.
 % 
 % OUTPUTS:

@@ -7,7 +7,7 @@
 % DESCRIPTION:
 % %This function simulates the effect of a frequency selective or slice 
 % selective excitation, followed immediately by the acquisition window.  
-% This is mainly an excercise to see if I can get slice selective 
+% This is mainly an exercise to see if I can get slice selective 
 % excitation working.
 % 
 % Note that when simulating a frequency selective pulse, it is okay to
@@ -23,7 +23,7 @@
 % sys       = spin system definition structure
 % RF        = radiofrequency pulse array [N x 3].  Phase, Amplitude, Duration.
 % tp        = RF pulse duration in [ms]
-% phCyc     = Phase of excitation rf pulse.
+% phCyc     = Phase of excitation rf pulse in [degrees].
 % dfdx      = if simulating a frequency selective pulse, this argument 
 %             should be the frequency offset [Hz].  If simulating a slice
 %             selective pulse, this argument should be the position offset [cm].
