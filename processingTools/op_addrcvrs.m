@@ -48,35 +48,69 @@ avfids=av.fids;
 avspecs=av.specs;
 
 %initialize phase matrix and the amplitude maxtrix that are the size of nPoints x Coils
-ph=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
-sig=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
+%ph=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
+%sig=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
 
 %now start finding the relative phases between the channels and populate
 %the ph matrix
 for n=1:in.sz(in.dims.coils)
     if nargin<4
-        ph(:,n)=phase(avfids(point,n,1,1))*ph(:,n);
+        %ph(:,n)=phase(avfids(point,n,1,1))*ph(:,n);
+        phs(n)=phase(avfids(point,n,1,1));
         switch mode
             case 'w'
-                sig(:,n)=abs(avfids(point,n,1,1))*sig(:,n);
+                %sig(:,n)=abs(avfids(point,n,1,1))*sig(:,n);
+                sigs(n)=abs(avfids(point,n,1,1));
             case 'h'
                 S=max(abs(avfids(:,n,1,1)));
                 N=std(avfids(end-100:end,n,1,1));
-                sig(:,n)=(S/(N.^2))*sig(:,n);
+                %sig(:,n)=(S/(N.^2))*sig(:,n);
+                sigs(n)=(S/(N.^2));
         end
     else
-        ph(:,n)=coilcombos.ph(n)*ph(:,n);
-        sig(:,n)=coilcombos.sig(n)*sig(:,n);
+        %ph(:,n)=coilcombos.ph(n)*ph(:,n);
+        phs(n)=coilcombos.ph(n);
+        sigs(n)=coilcombos.sig(n);
     end
 end
 
 %now replicate the phase matrix to equal the size of the original matrix:
-replicate=in.sz;
-replicate(1)=1;
-replicate(2)=1;
-ph=repmat(ph,replicate);
-sig=repmat(sig,replicate);
-sig=sig/max(max(max(max(sig))));
+% replicate=in.sz;
+% replicate(1)=1;
+% replicate(in.dims.coils)=1;
+% ph=repmat(ph,replicate);
+% sig=repmat(sig,replicate);
+sigs=sigs/max(sigs(:));
+
+ph=ones(in.sz);
+sig=ones(in.sz);
+
+if in.dims.coils==1
+    for n=1:in.sz(1)
+        ph(n,:)=phs(n)*ph(n,:);
+        sig(n,:)=sigs(n)*sig(n,:);
+    end
+elseif in.dims.coils==2
+    for n=1:in.sz(2)
+        ph(:,n,:)=phs(n)*ph(:,n,:);
+        sig(:,n,:)=sigs(n)*sig(:,n,:);
+    end
+elseif in.dims.coils==3
+    for n=1:in.sz(3)
+        ph(:,:,n,:)=phs(n)*ph(:,:,n,:);
+        sig(:,:,n,:)=sigs(n)*sig(:,:,n,:);
+    end
+elseif in.dims.coils==4
+    for n=1:in.sz(4)
+        ph(:,:,:,n,:)=phs(n)*ph(:,:,:,n,:);
+        sig(:,:,:,n,:)=sigs(n)*sig(:,:,:,n,:);
+    end
+elseif in.dims.coils==5
+    for n=1:in.sz(5)
+        ph(:,:,:,:,n)=phs(n)*ph(:,:,:,:,n);
+        sig(:,:,:,:,n)=sigs(n)*sig(:,:,:,:,n);
+    end
+end
 
 
 %now apply the phases by multiplying the data by exp(-i*ph);
