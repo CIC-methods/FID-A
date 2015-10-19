@@ -12,6 +12,10 @@
 % INPUTS:
 % lobes      = Number of lobes in the sinc pulse.  
 % n          = number of points in the rf waveform.
+% type       = Type of pulse: 
+%               Refocusing = 'ref'
+%               Inversion  = 'inv'
+%               Excitation = 'exc'
 
 function [rf,AMPINT]=rf_sinc(lobes,n,type);
 
