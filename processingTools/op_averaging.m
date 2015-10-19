@@ -59,6 +59,7 @@ out.fids=fids;
 out.specs=specs;
 out.sz=sz;
 out.dims=dims;
+out.averages=1;
 
 %FILLING IN THE FLAGS
 out.flags=in.flags;
