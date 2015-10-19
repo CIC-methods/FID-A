@@ -14,12 +14,19 @@
 
 function out=op_concatAverages(in1,in2);
 
-if in1.dims.averages ~= in2.dims.averages
+%RULE:  Averages dimenstion must be the same for both inputs UNLESS one of
+%the inputs has an averages dimension of zero:
+ 
+if in1.dims.averages~=0 && in2.dims.averages~=0 && in1.dims.averages ~= in2.dims.averages
     error('averages dimensions must be the same for both inputs');
 end
 
 if in1.dims.averages==0 && in2.dims.averages==0
     dim=2;
+elseif in1.dims.averages==0
+    dim=in2.dims.averages;
+elseif in2.dims.averages==0;
+    dim=in1.dims.averages;
 else
     dim=in1.dims.averages;
 end
@@ -42,6 +49,6 @@ end
 %FILLING IN THE FLAGS
 out.flags=in1.flags;
 out.flags.writtentostruct=1;
-
+out.flags.averaged=0;
 
 
