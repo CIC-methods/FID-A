@@ -132,7 +132,7 @@ xlabel('Frequency (ppm)');
 ylabel('Amplitude(a.u.)');
 title('Edit OFF Spectra (All averages)');
 subplot(1,2,2);
-plot(out1_cc.ppm,real(out1_cc.specs(:,:,2)_);xlim([1 5]);
+plot(out1_cc.ppm,real(out1_cc.specs(:,:,2)));xlim([1 5]);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)');
 ylabel('Amplitude(a.u.)');
