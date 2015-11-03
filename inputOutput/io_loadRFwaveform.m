@@ -33,6 +33,15 @@ if exist(filename)
     elseif filename(end-2:end)=='.RF'
         disp('Varian/Agilent format .RF RF pulse file detected!! Loading waveform now.');
         rf=io_readRF(filename);
+    elseif filename(end-3:end)=='.inv'
+        disp('Bruker format .inv RF pulse file detected!! Loading waveform now.');
+        rf=io_readRFBruk(filename);
+    elseif filename(end-3:end)=='.ref'
+        disp('Bruker format .pta RF pulse file detected!! Loading waveform now.');
+        rf=io_readRFBruk(filename);
+    elseif filename(end-3:end)=='.exc'
+        disp('Bruker format .exc RF pulse file detected!! Loading waveform now.');
+        rf=io_readRFBruk(filename);
     else
         error('ERROR:  RF Pulse file not recognized.  Aborting!');
     end
