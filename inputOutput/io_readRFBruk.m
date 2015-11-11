@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [rf,info]=io_readRFBruk(filename)
+% rf=io_readRFBruk(filename);
 % 
 % DESCRIPTION:
 % Read a Bruker RF pulse file into matlab.  The resulting RF matrix will have 
