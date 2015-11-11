@@ -5,10 +5,12 @@
 % [out1_diff,out1_sum,out1,outw,coilcombos]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
 % 
 % DESCRIPTION:
-% Processing script for Siemens MEGA-PRESS MRS data in .dat format (twix 
-% raw data).  Includes combination of reciever channels, removal of bad 
-% averages, freqeuncy drift correction, manual alignment of edit-on and 
-% edit-off spectra, and leftshifting.
+% Fully automated processing script for Siemens MEGA-PRESS MRS data in .dat 
+% format (twix raw data).  Includes combination of reciever channels, 
+% removal of bad averages, freqeuncy drift correction, manual alignment of 
+% edit-on and edit-off spectra, and leftshifting.  This pipeline requires
+% no user interaction. This function automatically 
+% generates an html report to describe the results of each processing step.
 % 
 % INPUTS:
 % filestring         = String variable for the name of the directory containing
