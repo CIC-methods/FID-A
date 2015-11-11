@@ -5,8 +5,7 @@
 % out=op_median(in);
 % 
 % DESCRIPTION:
-% Combine the averages in a scan by adding the averages together and then 
-% dividing by the number of averages.
+% Combine the averages in a scan by calculating the median of all averages.
 % 
 % INPUTS:
 % in	= input data in matlab structure format.
