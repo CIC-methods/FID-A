@@ -23,10 +23,15 @@ RF.waveform(1,:)=rf.waveform(:,2)/max(rf.waveform(:,2));
 RF.waveform(2,:)=mod(rf.waveform(:,1)*pi/180,2*pi);
 RF.waveform(3,:)=[0:l-1];
 
+%For simplicity:  Make a complex valued version of the RF pulse
+RF_complex=RF.waveform(1,:).*exp(1i*RF.waveform(2,:));
 
-%I copied this from the code in svs_se.cpp... I think it's just integrating
-%under the absolute part of the pulse.  
-POWERINT=sum(RF.waveform(1,:).*(cos(RF.waveform(2,:))+sin(RF.waveform(2,:)))); 
+%Calculate the POWER INTEGRAL (POWERINT).  This is used for calculating the
+%SAR:
+POWERINT=sum((real(RF_complex).^2)+(imag(RF_complex).^2));
+
+%Calculate the MAGNITUDE/ABSOLUTE INTEGRAL (ABSINT):
+ABSINT=sum(abs(RF_complex));
 
 %AMPLITUDE INTEGRAL (AMPINT)...  This is the parameter that is used to
 %calculate the transmitter voltage at runtime, and therefore it determines
@@ -44,21 +49,17 @@ POWERINT=sum(RF.waveform(1,:).*(cos(RF.waveform(2,:))+sin(RF.waveform(2,:))));
 AIcalc=input('Would you like to perform an automatic Amplitude Inegral Calculation?(y or n)  ', 's');
 
 if AIcalc=='y' || AIcalc=='Y'
-    R=sum(RF.waveform(1,:).*cos(RF.waveform(2,:)))
-    I=sum(RF.waveform(1,:).*sin(RF.waveform(2,:)))
-    AMPINT=sqrt((R^2)+(I^2))
-end
-
-
-%If the pulse is not a plane wave (Adiabatic pulses, off resonance pulses, 
-%or dual Band Pulses), you should calculate the Amplitude integral 
-%yourself and input it manually.  For methods of calculating AMPINT in this 
-%case, see the document entitled 
-%"RF_amplitude_integral_in_pulse_sequences.pdf', which can be found in
-%/Users/jnear/Documents/RF pulses/ 
-
-if AIcalc=='n' || AIcalc=='N'
+    AMPINT=sqrt((sum(real(RF_complex)).^2)+(sum(imag(RF_complex)).^2));
+elseif AIcalc=='n' || AIcalc=='N'
+    % If the pulse is not a plane wave (Adiabatic pulses, off resonance pulses,
+    % or dual Band Pulses), you should calculate the Amplitude integral
+    % yourself and input it manually.  For methods of calculating AMPINT in this
+    % case, see the document entitled
+    % "RF_amplitude_integral_in_pulse_sequences.pdf', which can be found in
+    % /Users/jnear/Documents/RF pulses/
     AMPINT=input('Now you must input the Amplitude Integral Manually.  Lets have it?  ');
+else
+    error('ERROR!  You must input a value for AMPINT!  ABORTING!');
 end
 
 
@@ -88,9 +89,15 @@ end
 
 %write to pta file for siemens
 fid=fopen(outfile,'w+');
-fprintf(fid,'REFGRAD: \t%5.6f' ,refgrad);
+fprintf(fid,['PULSENAME: \t' outfile]);
+fprintf(fid,'\nCOMMENT:  \tRF pulse generated using the FID-A toolkit (github.com/CIC-methods/FID-A).');
+fprintf(fid,'\nREFGRAD:  \t%5.6f' ,refgrad);
+fprintf(fid,'\nMINSLICE: \t1.00000000');
+fprintf(fid,'\nMAXSLICE: \t200.00000000');
 fprintf(fid,'\nAMPINT: \t%5.6f',AMPINT);
-fprintf(fid,'\nPOWERINT: \t%5.6f\n',POWERINT);
+fprintf(fid,'\nPOWERINT: \t%5.6f',POWERINT);
+fprintf(fid,'\nABSINT: \t%5.6f',ABSINT);
+fprintf(fid,'\n\n');
 n=0;
-fprintf(fid,'%1.8f\t%1.8f\t;(%2.0f)\n',RF.waveform);
+fprintf(fid,'%1.9f %1.9f ; (%1.0f)\n',RF.waveform);
 fclose(fid);
