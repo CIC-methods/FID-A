@@ -391,7 +391,7 @@ out1_on=op_takesubspec(out1,2);
 
 %Make final water unsuppressed data
 if water
-    if ~isempty(findstr(outw_ls.seq,'edit_529'));
+    if ~isempty(findstr(outw_ls.seq,'edit_529')) || ~isempty(findstr(outw_ls.seq,'jn_svs_special'))
         if outw_ls.dims.subSpecs
             outw=op_combinesubspecs(outw_ls,'diff');
         else
@@ -443,7 +443,7 @@ if writ=='y' || writ=='Y'
      RF=io_writelcm(out1_off,[filestring '/' filestring '_editOFF_lcm'],out1_off.te);
      RF=io_writelcm(out1_on,[filestring '/' filestring '_editON_lcm'],out1_on.te);
     if water
-        RF=io_writejmrui(outw,[filestring '/MPw.txt']);
+        RF=io_writelcm(outw,[filestring '_w/' filestring '_w_lcm'],outw.te);
     end
 end
 
