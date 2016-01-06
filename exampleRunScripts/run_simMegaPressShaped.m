@@ -69,7 +69,7 @@ taus=[5,17,17,17,12]; %timing of the pulse sequence [ms]
 spinSys='GABA'; %spin system to simulate
 centreFreq=3.0; %Centre frequency of MR spectrum [ppm]
 editPhCyc1=[0 90]; %phase cycling steps for 1st editing pulse [degrees]
-editPhCyc2=[0 90 180 270]; %phase cycling steps for 2nd editing pulse [degrees]
+editPhCyc2=[0 90]; %phase cycling steps for 2nd editing pulse [degrees]
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 refPhCyc2=[0,90]; %phase cycling steps for 2nd refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
