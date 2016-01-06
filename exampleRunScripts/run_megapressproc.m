@@ -337,27 +337,29 @@ else
         title('Estimated Phase Drift');
 
         if water
-            figure('position',[1140 50 560 400]);
-            subplot(2,1,1);
-            if outw_cc.dims.subSpecs
-                plot(outw_cc.ppm,real(outw_cc.specs(:,:,1)),outw_cc.ppm,real(outw_cc.specs(:,:,2)));xlim([3 7]);
-            else
-                plot(outw_cc.ppm,real(outw_cc.specs(:,:)));xlim([3 7]);
+            if outw_cc.dims.averages>0
+                figure('position',[1140 50 560 400]);
+                subplot(2,1,1);
+                if outw_cc.dims.subSpecs
+                    plot(outw_cc.ppm,real(outw_cc.specs(:,:,1)),outw_cc.ppm,real(outw_cc.specs(:,:,2)));xlim([3 7]);
+                else
+                    plot(outw_cc.ppm,real(outw_cc.specs(:,:)));xlim([3 7]);
+                end
+                set(gca,'XDir','reverse');
+                xlabel('Frequency (ppm)');
+                ylabel('Amplitude(a.u.)');
+                title('Water Unsuppressed spectrum prior to drift correction');
+                subplot(2,1,2);
+                if outw_aa.dims.subSpecs
+                    plot(outw_aa.ppm,real(outw_aa.specs(:,:,1)),outw_aa.ppm,real(outw_aa.specs(:,:,2)));xlim([3 7]);
+                else
+                    plot(outw_aa.ppm,real(outw_aa.specs(:,:)));xlim([3 7]);
+                end
+                set(gca,'XDir','reverse');
+                xlabel('Frequency (ppm)');
+                ylabel('Amplitude(a.u.)');
+                title('Water Unsuppressed spectrum after drift correction');
             end
-            set(gca,'XDir','reverse');
-            xlabel('Frequency (ppm)');
-            ylabel('Amplitude(a.u.)');
-            title('Water Unsuppressed spectrum prior to drift correction');
-            subplot(2,1,2);
-            if outw_aa.dims.subSpecs
-                plot(outw_aa.ppm,real(outw_aa.specs(:,:,1)),outw_aa.ppm,real(outw_aa.specs(:,:,2)));xlim([3 7]);
-            else
-                plot(outw_aa.ppm,real(outw_aa.specs(:,:)));xlim([3 7]);
-            end
-            set(gca,'XDir','reverse');
-            xlabel('Frequency (ppm)');
-            ylabel('Amplitude(a.u.)');
-            title('Water Unsuppressed spectrum after drift correction');
         end
 
 
