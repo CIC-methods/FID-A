@@ -51,12 +51,12 @@ lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thkX=1.66; %slice thickness of x refocusing pulse [cm]
 thkY=1.66; %slice thickness of y refocusing pulse [cm]
-x=linspace(-1,1,12); %X positions to simulate [cm]
-y=linspace(-1,1,12); %y positions to simulate [cm]
-%x=0;
-%y=0;
+%x=linspace(-1,1,12); %X positions to simulate [cm]
+%y=linspace(-1,1,12); %y positions to simulate [cm]
+x=0;
+y=0;
 tau1=30; tau2=78;%timing of the pulse sequence [ms]
-spinSys='Glu'; %spin system to simulate
+spinSys='Lac'; %spin system to simulate
 centreFreq=3.0; %Centre frequency of MR spectrum [ppm]
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 refPhCyc2=[0,90]; %phase cycling steps for 2nd refocusing pulse [degrees]
@@ -117,8 +117,11 @@ parfor X=1:length(x);
 end %end of spatial loop (parfor) in x direction.
         
 figure 
-sim_make2DSimPlot(out_posxy,2,3);
-
+if length(x)>1 && length(y)>1
+    sim_make2DSimPlot(out_posxy,2,3);
+else
+    plot(out.ppm,out.specs);
+end
 
 
 
