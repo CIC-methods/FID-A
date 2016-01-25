@@ -90,6 +90,7 @@ out.dims.t=1;
 out.dims.coils=0;
 out.dims.averages=0;
 out.dims.subSpecs=0;
+out.dims.extras=0;
 out.averages=1;
 out.rawAverages=1;
 out.subspecs=1;
