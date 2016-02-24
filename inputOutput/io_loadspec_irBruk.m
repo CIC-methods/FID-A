@@ -18,29 +18,102 @@
 
 function out=io_loadspec_irBruk(inDir)
 
-real_fileID=fopen([inDir '/pdata/1/1r']);
-imag_fileID=fopen([inDir '/pdata/1/1i']);
+%%%%%%%%chathu mod starts
 
-real=fread(real_fileID,'int');
-imag=fread(imag_fileID,'int');
+%get the original number of Repetitions (all repatitions from scanner is generated as
+%a 1D vector. Need to split before further processing
+averages=1; %Because Bruker does the averaging online.
+method_fid=fopen([inDir '/method']);
+line=fgets(method_fid);
+index=findstr(line,'$PVM_DigNp=');
+while isempty(index)
+    line=fgets(method_fid);
+    index=findstr(line,'$PVM_DigNp=');
+end
+equals_index=findstr(line,'=');
+rawDataPoints=line(equals_index+1:end);
+rawDataPoints=str2double(rawDataPoints);
+fclose(method_fid);
 
-specs=real-1i*imag;
 
-%convert back to time domain
-%if the length of Fids is odd, then you have to do a circshift of one to
-%make sure that you don't introduce a small frequency shift into the fids
-%vector.
-if mod(length(specs),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fids=fft(fftshift(specs,1),[],1);
-else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fids=fft(circshift(fftshift(specs,1),1),[],1);
+
+try
+    real_fileID=fopen([inDir '/pdata/1/1r']);
+    imag_fileID=fopen([inDir '/pdata/1/1i']);
+
+    real=fread(real_fileID,'int');
+    imag=fread(imag_fileID,'int');
+    specs=real-1i*imag;
+    rawAverages=size(real,1)./rawDataPoints;
+
+    if mod(size(real,1),rawDataPoints) ~=0
+        display 'number of repetitions cannot be accurately found';
+    end
+    specs=reshape(specs,rawDataPoints,[]);
+    %convert back to time domain
+    %if the length of Fids is odd, then you have to do a circshift of one to
+    %make sure that you don't introduce a small frequency shift into the fids
+    %vector.
+    if mod(length(specs),2)==0
+        %disp('Length of vector is even.  Doing normal conversion');
+        fids=fft(fftshift(specs,1),[],1);
+    else
+        %disp('Length of vector is odd.  Doing circshift by 1');
+        fids=fft(circshift(fftshift(specs,1),1),[],1);
+    end
+
+
+    %calculate the size;
+    sz=size(fids);
+    out.flags.averaged=1;
+    %specify the dims
+    dims.t=1;
+    dims.coils=0;
+    dims.averages=0;
+    dims.subSpecs=0;
+    dims.extras=0;
+    
+catch
+    ADC_OFFSET=70;      %(offset between ADC on and ADC acquire, empirically determined)
+    
+    %specs=fread(fopen([inDir '/pdata/1/2dseq']),'int');
+    fid_data=fread(fopen([inDir '/fid']),'int');
+    real_fid = fid_data(2:2:length(fid_data));
+    imag_fid = fid_data(1:2:length(fid_data));
+    fids_raw=real_fid-1i*imag_fid;
+    
+    rawAverages=size(real_fid,1)./rawDataPoints;
+
+    if mod(size(real_fid,1),rawDataPoints) ~=0
+        display 'number of repetitions cannot be accurately found';
+    end
+    fids_raw=reshape(fids_raw,rawDataPoints,[]);
+    
+    fids_trunc=fids_raw(ADC_OFFSET:end,:);
+    fids=padarray(fids_trunc, [ADC_OFFSET-1,0],'post');
+    %convert back to time domain
+    %if the length of Fids is odd, then you have to do a circshift of one to
+    %make sure that you don't introduce a small frequency shift into the fids
+    %vector.
+    specs=fftshift(ifft(fids,[],1),1);
+
+
+
+    %calculate the size;
+    sz=size(specs);
+    out.flags.averaged=0;
+    %specify the dims
+    dims.t=1;
+    dims.coils=0;
+    dims.averages=2;
+    dims.subSpecs=0;
+    dims.extras=0;
 end
 
 
-%calculate the size;
-sz=size(fids);
+
+%%%%%Chathu mod ends
+
 
 %Now get some of the relevent spectral parameters
 
@@ -77,31 +150,33 @@ Bo=txfrq/42577000;
 %Spectral width in PPM
 spectralwidthppm=spectralwidth/(txfrq/1e6);
 
-%Now get the original number of averages
-averages=1; %Because Bruker does the averaging online.
-method_fid=fopen([inDir '/method']);
-line=fgets(method_fid);
-index=findstr(line,'$PVM_NAverages=');
-while isempty(index)
-    line=fgets(method_fid);
-    index=findstr(line,'$PVM_NAverages=');
-end
-equals_index=findstr(line,'=');
-rawAverages=line(equals_index+1:end);
-rawAverages=str2double(rawAverages);
-fclose(method_fid);
+
 
 %Now get the TE
 method_fid=fopen([inDir '/method']);
 line=fgets(method_fid);
 index=findstr(line,'$PVM_EchoTime=');
-while isempty(index)
+%%%%%CHATHU MOD for FIDS with Pulse acquire
+loop_count=0;
+TE_present=true;
+while isempty(index) && TE_present
     line=fgets(method_fid);
     index=findstr(line,'$PVM_EchoTime=');
+    loop_count=loop_count+1;
+    if loop_count>10000
+        TE_present=false;
+    end
 end
-equals_index=findstr(line,'=');
-te=line(equals_index+1:end);
-te=str2double(te);
+
+if TE_present
+    equals_index=findstr(line,'=');
+    te=line(equals_index+1:end);
+    te=str2double(te);
+else
+    te=0;
+end
+
+%%%%%CHATHU MOD for FIDS with Pulse acquire END
 fclose(method_fid);
 
 %Now get the TR
@@ -144,12 +219,7 @@ dwelltime=1/spectralwidth;
 %calculate the time scale
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
-%specify the dims
-dims.t=1;
-dims.coils=0;
-dims.averages=0;
-dims.subSpecs=0;
-dims.extra=0;
+
 
 %FILLING IN DATA STRUCTURE
 out.fids=fids;
@@ -163,7 +233,7 @@ out.txfrq=txfrq;
 out.date=date;
 out.dims=dims;
 out.Bo=Bo;
-out.averages=averages;
+out.averages=rawAverages;
 out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
@@ -181,7 +251,7 @@ out.flags.filtered=0;
 out.flags.zeropadded=0;
 out.flags.freqcorrected=0;
 out.flags.phasecorrected=0;
-out.flags.averaged=1;
+
 out.flags.addedrcvrs=1;
 out.flags.subtracted=0;
 out.flags.writtentotext=0;
