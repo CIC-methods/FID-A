@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2015.
 % 
 % USAGE:
-% out=op_ppmref(in,ppmmin,ppmmax,ppmrefval);
+% [out,frqshift]=op_ppmref(in,ppmmin,ppmmax,ppmrefval);
 % 
 % DESCRIPTION:
 % Search for the peak located between ppmmin and ppmmax, and then give that
