@@ -26,10 +26,14 @@ end
 if ~in.flags.addedrcvrs
     error('ERROR:  must have added receivers in order to do this!  ABORTING');
 end
-specs=addphase(addphase1(in.specs,ph1),ph0);
+specs=op_addphase(in,ph0,ph1);
+specs=specs.specs;
 
-ppm=in.ppm((in.ppm>4.6)&(in.ppm<4.85));
-spec=specs(((in.ppm>4.6)&(in.ppm<4.85)));
+ppmmin=2.9;
+ppmmax=3.15;
+
+ppm=in.ppm((in.ppm>ppmmin)&(in.ppm<ppmmax));
+spec=specs(((in.ppm>ppmmin)&(in.ppm<ppmmax)));
 
 plot(ppm,spec);
 
@@ -37,7 +41,7 @@ plot(ppm,spec);
 parsGuess=zeros(1,4);
 parsGuess(1)=max(real(spec)); %Amplitude
 parsGuess(2)=3/(42.577*in.Bo); %Linewidth [Hz]
-parsGuess(3)= 3; %Frequency [ppm];
+parsGuess(3)= 3.02; %Frequency [ppm];
 parsGuess(4)=(real(spec(1))-real(spec(end)))/(ppm(1)-ppm(end));  %Baseline slope
 parsGuess(5)=real(spec(1))-(parsGuess(:,4)*ppm(1));   %Baseline Offset
 
