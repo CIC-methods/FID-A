@@ -15,7 +15,7 @@
 % ppmmin     = min of frequncy range (in ppm) in which to calculate integral.
 % ppmmax     = max of frequncy range (in ppm) in which to calculate integral.
 % mode       = mode (optional): 
-%                        -'re' (integral performed on real part).
+%                        -'re' (integral performed on real part (default)).
 %                        -'im' (integral performed on imaginary part).
 %                        -'mag' (integral performed on magnitude part).
 
