@@ -29,6 +29,7 @@ dims.t=1;
 dims.coils=0;
 dims.averages=0;
 dims.subSpecs=0;
+dims.extras=0;
 
 
 fids=RF(:,1);
