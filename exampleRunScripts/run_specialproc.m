@@ -43,23 +43,29 @@ if nargin<4
     end
 end
 
-%Find the filename of the first MEGA_GABA dataset
+%Find the filename of the SPECIAL dataset
 close all
-unixString=['ls ' filestring '/*.dat'];
-[status, filename1]=unix(unixString);
-filename1=filename1(1:end-1);
+unixString1=[filestring '/*.dat'];
+[filename]=dir(unixString1);
+filename=filename.name(1:end);
 
-unixStringw=['ls ' filestring '_w/*.dat'];
-[status,filename2]=unix(unixStringw);
-filename2=filename2(1:end-1);
-
+unixStringw=[filestring '_w/*.dat'];
+[filenamew]=dir(unixStringw);
+if ~isempty(filenamew)
+    filenamew=filenamew.name(1:end);
+    water=true
+else
+    water=false
+    out_w=struct();
+    out_w_noproc=struct();
+end
 %read in the data:
-out_raw=io_loadspec_twix(filename1);
+out_raw=io_loadspec_twix([filestring '/' filename]);
 
 %load water unsuppressed data and find the coil phases:
-if exist(filename2)
+if water
     disp('***FOUND WATER UNSUPPRESSED DATA***');
-    out_w_raw=io_loadspec_twix(filename2);
+    out_w_raw=io_loadspec_twix([filestring '_w/' filenamew]);
     coilcombos=op_getcoilcombos(op_combinesubspecs(out_w_raw,'diff'),2);
 else
     disp('***WATER UNSUPPRESSED DATA NOT FOUND***');
@@ -70,13 +76,13 @@ end
 
 %now combine the coil channels:
 [out_cc,fid_pre,spec_pre,ph,sig]=op_addrcvrs(out_raw,2,'w',coilcombos);
-if exist(filename2)
+if water
     [out_w_cc,fid_w_pre,spec_w_pre,ph_w,sig_w]=op_addrcvrs(out_w_raw,2,'w',coilcombos);
 end
 
 %make the un-processed spectra, which may be optionally output from this function:
 out_noproc=op_combinesubspecs(op_averaging(out_cc),'diff');
-if exist(filename2)
+if water
     out_w_noproc=op_combinesubspecs(op_averaging(out_w_cc),'diff');
 end
 
@@ -93,7 +99,7 @@ xlabel('Frequency (ppm)');
 ylabel('Amplitude (a.u.)');
 title('Multi-channel (water supp.) data after phase correction');
 
-if exist(filename2)
+if water
     figure('position',[0 550 560 420]);
     subplot(2,1,1);
     plot(out_w_raw.ppm,out_w_raw.specs(:,:,1,1));xlim([4 5]);
@@ -134,7 +140,7 @@ if strcmp(alignISIS,'y') || strcmp(alignISIS,'Y')
     fs_ai=mean(fs_ai,2);
     phs_ai=mean(phs_ai,2);
     
-    if exist(filename2)
+    if water
         %Now repeat above for water unsuppressed data:
         [out_w_ai,fs_w_temp,phs_w_temp]=op_alignAverages(out_w_cc,0.4,'y');
         fs_w_ai=fs_w_temp;
@@ -158,7 +164,7 @@ if strcmp(alignISIS,'y') || strcmp(alignISIS,'Y')
     %First make combined subspecs plots:
     out_cc_temp=op_combinesubspecs(out_cc,'diff');
     out_ai_cc_temp=op_combinesubspecs(out_ai,'diff');
-    if exist(filename2)
+    if water
         out_w_cc_temp=op_combinesubspecs(out_w_cc,'diff');
         out_w_ai_cc_temp=op_combinesubspecs(out_w_ai,'diff');
     end
@@ -179,7 +185,7 @@ if strcmp(alignISIS,'y') || strcmp(alignISIS,'Y')
     ylabel('Amplitude (a.u.)');
     title('Subspecs aligned: (all averages)');
     
-    if exist(filename2)
+    if water
         figure('position',[0 550 560 420]);
         subplot(1,2,1);
         plot(out_w_cc_temp.ppm,out_w_cc_temp.specs);
@@ -211,7 +217,7 @@ if strcmp(alignISIS,'y') || strcmp(alignISIS,'Y')
     sat=input('are you satisfied with alignment of subspecs? ','s');
     if strcmp(sat,'n') || strcmp(sat,'N')
         out_ai=out_cc;
-        if exist(filename2)
+        if water
             out_w_ai=out_w_cc;
         end
     end
@@ -226,7 +232,7 @@ end
 
 %Now combine the subspecs
 out_cs=op_combinesubspecs(out_ai,'diff');
-if exist(filename2)
+if water
     out_w_cs=op_combinesubspecs(out_w_ai,'diff');
 end
 
@@ -328,7 +334,7 @@ phs_ai=phs_ai(~BadAvgMask);
 driftCorr=input('Would you like to perform the frequency drift correction?  ','s');
 if driftCorr=='n'|| driftCorr=='N'
     out_aa=out_rm;
-    if exist(filename2)
+    if water
         out_w_aa=out_w_cs;
     end
 else
@@ -352,7 +358,7 @@ else
                 fmax=fmaxarray(randi(6,1))
                 [out_aa,fs,phs]=op_alignAverages_fd(out_rm2,fmin,fmax,tmax,'n');
             end
-            if exist(filename2)
+            if water
                 [out_w_aa,fs_w,phs_w]=op_alignAverages(out_w_cs,5*tmax,'n');
             end
             
@@ -362,7 +368,7 @@ else
             phsPoly=polyfit([1:out_aa.sz(out_aa.dims.averages)]',phs,1)
             iter
             out_rm2=out_aa;
-            if exist(filename2);
+            if water;
                 out_w_cs=out_w_aa;
             end
             iter=iter+1;
@@ -401,7 +407,7 @@ end
 
 %now do the averaging and left shift to get rid of first order phase:
 out_av=op_leftshift(op_averaging(out_aa),out_aa.pointsToLeftshift);
-if exist(filename2)
+if water
     out_w_av=op_leftshift(op_averaging(out_w_aa),out_w_aa.pointsToLeftshift);
 end
 
@@ -415,7 +421,7 @@ out_noproc=op_addphase(out_noproc,ph0,ph1);
 
 
 %Now do a manual phase correction on the water unsuppressed data:
-if exist(filename2)
+if water
     SpecTool(out_w_av,0.05,-2,7);
     ph0=input('input 0 order phase correction: ');
     ph1=input('input 1st order phase correction: ');
@@ -429,7 +435,7 @@ wrt=input('write? ','s');
 if wrt=='y' || wrt=='Y'
     RF=io_writelcm(out,[filestring '/' filestring '_lcm'],out.te);
     RF=io_writelcm(out_noproc,[filestring '/' filestring '_lcm_unprocessed'],out_noproc.te);
-    if exist(filename2)
+    if water
         RF=io_writelcm(out_w,[filestring '_w/' filestring '_w_lcm'],out_w.te);
         RF=io_writelcm(out_w_noproc,[filestring '_w/' filestring '_w_unprocessed'],out_w_noproc.te);
     end
