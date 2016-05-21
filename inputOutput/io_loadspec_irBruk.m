@@ -2,13 +2,13 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% out=io_loadspec_irBruk(filename);
+% out=io_loadspec_irBruk(inDir);
 % 
 % DESCRIPTION:
 % Reads in Bruker MRS data (1i and 1r files).  Generally with this data,
 % the averages and coil channels have already been combined.
 %
-% op_loadspec_brukIR outputs the data in structure format, with fields corresponding to time
+% op_loadspec_irBruk outputs the data in structure format, with fields corresponding to time
 % scale, fids, frequency scale, spectra, and header fields containing
 % information about the acquisition.  The resulting matlab structure can be
 % operated on by the other functions in this MRS toolbox.
@@ -149,7 +149,7 @@ dims.t=1;
 dims.coils=0;
 dims.averages=0;
 dims.subSpecs=0;
-dims.extra=0;
+dims.extras=0;
 
 %FILLING IN DATA STRUCTURE
 out.fids=fids;
