@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out1_diff,out1_sum,out1,outw,coilcombos]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
+% [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
 % 
 % DESCRIPTION:
 % Fully automated processing script for Siemens MEGA-PRESS MRS data in .dat 
@@ -28,11 +28,11 @@
 %                     2 - Perform manual alignment of edit-on and edit-off subspectra.
 % 
 % OUTPUTS:
-% out1_diff          = Fully processed difference spectrum.
-% out1_sum           = Fully processed sum spectrum.
+% diffSpec          = Fully processed difference spectrum.
+% sumSpec           = Fully processed sum spectrum.
 % outw               = Fully processed water unsuppressed spectrum. 
 
-function [out1_diff,out1_sum,out1_off,out1_on,out1_cc,out1_rm,out1_aa,out1_noproc,nBadAvgTotal1,totalFreqDrift,totalPhaseDrift]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
+function [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
 
 if nargin<4
     alignSS=2;
@@ -50,27 +50,27 @@ end
 mkdir([filestring '/report']);
 mkdir([filestring '/report/figs']);
 
-%Find the filename of the first MEGA_GABA dataset
+%Find the filename of the MEGA_GABA dataset
 close all
-unixString1=[filestring '/*.dat'];
-[filename1]=dir(unixString1);
-filename1=filename1.name(1:end);
+unixString=[filestring '/*.dat'];
+[filename]=dir(unixString);
+filename=filename.name(1:end);
 
-unixStringw=['ls ' filestring(1:end) '_w/*.dat'];
-[status,filenamew]=unix(unixStringw);
-filenamew=filenamew(1:end-1);
-
-if exist(filenamew);
+unixStringw=[filestring '_w/*.dat'];
+[filenamew]=dir(unixStringw);
+if ~isempty(filenamew)
+    filenamew=filenamew.name(1:end);
     water=true
 else
     water=false
+    outw=struct();
+    outw_noproc=struct();
 end
 
-
 % %read in both datasets:
-raw1=io_loadspec_twix([filestring '/' filename1]);
+raw=io_loadspec_twix([filestring '/' filename]);
 if water
-    raww=io_loadspec_twix(filenamew);
+    raww=io_loadspec_twix([filestring '_w/' filenamew]);
 end
 
 %first step should be to combine coil channels.  To do this find the coil
@@ -82,31 +82,31 @@ if water
     [outw_cc,fidw_pre,specw_pre,phw,sigw]=op_addrcvrs(raww,1,'w',coilcombos);
 else
     if ~ccGiven
-        coilcombos=op_getcoilcombos(op_averaging(op_combinesubspecs(raw1,'summ')),1);
+        coilcombos=op_getcoilcombos(op_averaging(op_combinesubspecs(raw,'summ')),1);
     end
     
 end
-[out1_cc,fid1_pre,spec1_pre,ph1,sig1]=op_addrcvrs(raw1,1,'w',coilcombos);
-[out1_av_cc,fid1_av_pre,spec1_av_pre]=op_addrcvrs(op_averaging(raw1),1,'w',coilcombos);
-raw1_av=op_averaging(raw1);
+[out_cc,fid_pre,spec_pre,ph,sig]=op_addrcvrs(raw,1,'w',coilcombos);
+[out_av_cc,fid_av_pre,spec_av_pre]=op_addrcvrs(op_averaging(raw),1,'w',coilcombos);
+raw_av=op_averaging(raw);
 
 %generate unprocessed spectrum:
-out1_noproc=op_combinesubspecs(op_averaging(out1_cc),'diff');
+out_noproc=op_combinesubspecs(op_averaging(out_cc),'diff');
 
 
 %Generate plots showing coil channels before and after phase alignment
 %figure('position',[0 50 560 420]);
 h=figure('visible','off');
 subplot(1,2,1);
-plot(raw1_av.ppm,real(raw1_av.specs(:,:,1,1)));xlim([1 5]);
-set(gca,'FontSize',8);
+plot(raw_av.ppm,real(raw_av.specs(:,:,1,1)));xlim([1 5]);
+set(gca,'FontSize',12);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)','FontSize',10);
 ylabel('Amplitude (a.u.)','FontSize',10);
 title('Before correction','FontSize',12);
 box off;
 subplot(1,2,2);
-plot(raw1_av.ppm,real(spec1_av_pre(:,:,1,1)));xlim([1 5]);
+plot(raw_av.ppm,real(spec_av_pre(:,:,1,1)));xlim([1 5]);
 set(gca,'FontSize',12);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)','FontSize',10);
@@ -120,40 +120,40 @@ saveas(h,[filestring '/report/figs/coilReconFig'],'fig');
 close(h);
 
 
-%%%%%%%%OPTIONAL REMOVAL OF BAD AVERAGES FROM FIRST DATASET%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%OPTIONAL REMOVAL OF BAD AVERAGES%%%%%%%%%%%%%%%%%%%%
 close all;
-out1_cc2=out1_cc;
-nBadAvgTotal1=0;
-nbadAverages1=1;
-rmbadav1='y';
+out_cc2=out_cc;
+nBadAvgTotal=0;
+nbadAverages=1;
+rmbadav='y';
 close all;
-if rmbadav1=='n' || rmbadav1=='N'
-    out1_rm=out1_cc;
-    nsd1='N/A';
+if rmbadav=='n' || rmbadav=='N'
+    out_rm=out_cc;
+    nsd='N/A';
 else
-    sat1='n'
-    while sat1=='n' || sat1=='N'
-        nsd1=3.2; %Setting the number of standard deviations to 3.2;
+    sat='n'
+    while sat=='n' || sat=='N'
+        nsd=4; %Setting the number of standard deviations;
         iter=1;
-        nbadAverages1=1;
-        nBadAvgTotal1=0;
-        out1_cc2=out1_cc;
-        while nbadAverages1>0
-            [out1_rm,metric1{iter},badAverages1]=op_rmbadaverages(out1_cc2,nsd1,'t');
-            badAverages1;
-            nbadAverages1=length(badAverages1)*raw1.sz(raw1.dims.subSpecs);
-            nBadAvgTotal1=nBadAvgTotal1+nbadAverages1;
-            out1_cc2=out1_rm;
+        nbadAverages=1;
+        nBadAvgTotal=0;
+        out_cc2=out_cc;
+        while nbadAverages>0
+            [out_rm,metric{iter},badAverages]=op_rmbadaverages(out_cc2,nsd,'t');
+            badAverages;
+            nbadAverages=length(badAverages)*raw.sz(raw.dims.subSpecs);
+            nBadAvgTotal=nBadAvgTotal+nbadAverages;
+            out_cc2=out_rm;
             iter=iter+1;
-            disp([num2str(nbadAverages1) ' bad averages removed on this iteration.']);
-            disp([num2str(nBadAvgTotal1) ' bad averages removed in total.']);
+            disp([num2str(nbadAverages) ' bad averages removed on this iteration.']);
+            disp([num2str(nBadAvgTotal) ' bad averages removed in total.']);
             close all;
         end
         %figure('position',[0 50 560 420]);
         %Make figure to show pre-post removal of averages
         h=figure('visible','off');
         subplot(2,2,1);
-        plot(out1_cc.ppm,real(out1_cc.specs(:,:,1)));xlim([1 5]);
+        plot(out_cc.ppm,real(out_cc.specs(:,:,1)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -161,7 +161,7 @@ else
         title('Edit-OFF Before','FontSize',12);
         box off;
         subplot(2,2,2);
-        plot(out1_rm.ppm,real(out1_rm.specs(:,:,1)));xlim([1 5]);
+        plot(out_rm.ppm,real(out_rm.specs(:,:,1)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -169,7 +169,7 @@ else
         title('Edit-OFF After','FontSize',12);
         box off;
         subplot(2,2,3);  
-        plot(out1_cc.ppm,real(out1_cc.specs(:,:,2)));xlim([1 5]);
+        plot(out_cc.ppm,real(out_cc.specs(:,:,2)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -177,7 +177,7 @@ else
         title('Edit-ON Before','FontSize',12);
         box off;
         subplot(2,2,4);
-        plot(out1_rm.ppm,real(out1_rm.specs(:,:,2)));xlim([1 5]);
+        plot(out_rm.ppm,real(out_rm.specs(:,:,2)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -192,7 +192,7 @@ else
         
         %figure('position',[0 550 560 420]);
         h=figure('visible','off');
-        plot([1:length(metric1{1})],metric1{1},'.r',[1:length(metric1{iter-1})],metric1{iter-1},'x','MarkerSize',16);
+        plot([1:length(metric{1})],metric{1},'.r',[1:length(metric{iter-1})],metric{iter-1},'x','MarkerSize',16);
         set(gca,'FontSize',8);
         xlabel('Scan Number','FontSize',10);
         ylabel('Deviation Metric','FontSize',10);
@@ -207,7 +207,7 @@ else
         close(h);
         
         %sat1=input('are you satisfied with the removal of bad averages? ','s');
-        sat1='y';
+        sat='y';
                      
     end
 end
@@ -216,25 +216,25 @@ end
 %NOW ALIGN AVERAGES:  A.K.A. Frequency Drift Correction.
 driftCorr='y';
 if driftCorr=='n' || driftCorr=='N'
-    out1_av=op_averaging(out1_rm);
+    out_av=op_averaging(out_rm);
     if water
         outw_av=op_averaging(outw_cc);
     end
-    fs1=0;
-    phs1=0;
+    fs=0;
+    phs=0;
 else
     if water
         outw_aa=op_alignAverages(outw_cc,0.2,'n');
     end
-    sat1='n';
-    out1_rm2=out1_rm;
-    while sat1=='n' || sat1=='N'
+    sat='n';
+    out_rm2=out_rm;
+    while sat=='n' || sat=='N'
         iter=0;
         iterin=20;
-        p1=100;
-        fs1cum=zeros(out1_rm.sz(2:end));
-        phs1cum=zeros(out1_rm.sz(2:end));
-        while (abs(p1(1))>0.0003 && iter<iterin)
+        p=100;
+        fscum=zeros(out_rm.sz(2:end));
+        phscum=zeros(out_rm.sz(2:end));
+        while (abs(p(1))>0.0003 && iter<iterin)
             iter=iter+1
             close all
             tmax=0.25+0.03*randn(1);
@@ -243,26 +243,26 @@ else
             ppmmax=ppmmaxarray(randi(6,1));
             switch avgAlignDomain
                 case 't'
-                    [out1_aa,fs1,phs1]=op_alignAverages(out1_rm2,tmax,'y');
+                    [out_aa,fs,phs]=op_alignAverages(out_rm2,tmax,'y');
                 case 'f'
-                    [out1_aa,fs1,phs1]=op_alignAverages_fd(out1_rm2,ppmmin,ppmmax,tmax,'y');
+                    [out_aa,fs,phs]=op_alignAverages_fd(out_rm2,ppmmin,ppmmax,tmax,'y');
                 otherwise
                     error('ERROR: avgAlignDomain not recognized!');
             end
             
-            x1=repmat([1:size(fs1,1)]',1,out1_aa.sz(out1_aa.dims.subSpecs));
-            p1=polyfit(x1,fs1,1)
+            x=repmat([1:size(fs,1)]',1,out_aa.sz(out_aa.dims.subSpecs));
+            p=polyfit(x,fs,1)
             
-            fs1cum=fs1cum+fs1;
-            phs1cum=phs1cum+phs1;
+            fscum=fscum+fs;
+            phscum=phscum+phs;
             
             if driftCorr=='y' || driftCorr=='Y'
-                out1_rm2=out1_aa;
+                out_rm2=out_aa;
             end
         end
         h=figure('visible','off');
         subplot(2,2,1);
-        plot(out1_rm.ppm,real(out1_rm.specs(:,:,1)));xlim([1 5]);
+        plot(out_rm.ppm,real(out_rm.specs(:,:,1)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -270,7 +270,7 @@ else
         title('Edit-OFF Before','FontSize',12);
         box off;
         subplot(2,2,2);
-        plot(out1_aa.ppm,real(out1_aa.specs(:,:,1)));xlim([1 5]);
+        plot(out_aa.ppm,real(out_aa.specs(:,:,1)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -278,7 +278,7 @@ else
         title('Edit-OFF After','FontSize',12);
         box off;
         subplot(2,2,3);
-        plot(out1_rm.ppm,real(out1_rm.specs(:,:,2)));xlim([1 5]);
+        plot(out_rm.ppm,real(out_rm.specs(:,:,2)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -286,7 +286,7 @@ else
         title('Edit-ON Before','FontSize',12);
         box off;
         subplot(2,2,4);
-        plot(out1_aa.ppm,real(out1_aa.specs(:,:,2)));xlim([1 5]);
+        plot(out_aa.ppm,real(out_aa.specs(:,:,2)));xlim([1 5]);
         set(gca,'FontSize',8);
         set(gca,'XDir','reverse');
         xlabel('Frequency (ppm)','FontSize',10);
@@ -300,7 +300,7 @@ else
         close(h);
         
         h=figure('visible','off');
-        plot([1:out1_aa.sz(out1_aa.dims.averages)],fs1cum,'.-','LineWidth',2);
+        plot([1:out_aa.sz(out_aa.dims.averages)],fscum,'.-','LineWidth',2);
         set(gca,'FontSize',8);
         xlabel('Scan Number','FontSize',10);
         ylabel('Frequency Drift [Hz]','FontSize',10);
@@ -315,7 +315,7 @@ else
         close(h);
         
         h=figure('visible','off');
-        plot([1:out1_aa.sz(out1_aa.dims.averages)],phs1cum,'.-','LineWidth',2);
+        plot([1:out_aa.sz(out_aa.dims.averages)],phscum,'.-','LineWidth',2);
         set(gca,'FontSize',8);
         xlabel('Scan Number','FontSize',10);
         ylabel('Phase Drift [Deg.]','FontSize',10);
@@ -329,64 +329,83 @@ else
         saveas(h,[filestring '/report/figs/phaseDriftFig'],'fig');
         close(h);
 
-        sat1='y';
-        if sat1=='n'
+        sat='y';
+        if sat=='n'
             iter=0;
-            p1=100;
-            fs1cum=zeros(out1_rm.sz(2:end));
-            phs1cum=zeros(out1_rm.sz(2:end));
-            fs2cum=zeros(out1_cc.sz(2:end));
-            phs2cum=zeros(out1_cc.sz(2:end));
-            out1_rm2=out1_rm;
-            out1_cc2=out1_cc;
+            p=100;
+            fscum=zeros(out_rm.sz(2:end));
+            phscum=zeros(out_rm.sz(2:end));
+            fs2cum=zeros(out_cc.sz(2:end));
+            phs2cum=zeros(out_cc.sz(2:end));
+            out_rm2=out_rm;
+            out_cc2=out_cc;
         end
-        totalFreqDrift=mean(max(fs1cum)-min(fs1cum));
-        totalPhaseDrift=mean(max(phs1cum)-min(phs1cum));
+        totalFreqDrift=mean(max(fscum)-min(fscum));
+        totalPhaseDrift=mean(max(phscum)-min(phscum));
         close all
     end
     %now combine the averages averages
-    out1_av=op_averaging(out1_aa);
+    out_av=op_averaging(out_aa);
     if water
         outw_av=op_averaging(outw_aa);
     end
 end
 
 %now leftshift
-out1_ls=op_leftshift(out1_av,out1_av.pointsToLeftshift);
+out_ls=op_leftshift(out_av,out_av.pointsToLeftshift);
 if water
     outw_ls=op_leftshift(outw_av,outw_av.pointsToLeftshift);
 end
 
-%now do automatic zero-order phase correction:
-ph0=-phase(out1_ls.fids(1,1))*180/pi;
-out1_ph=op_addphase(out1_ls,ph0+180);
+%now do automatic zero-order phase correction (Use Creatine Peak):
+out_ls_zp=op_zeropad(out_ls,16);
+index=find(abs(out_ls_zp.specs)==max(abs(out_ls_zp.specs(out_ls_zp.ppm>2.9 & out_ls_zp.ppm<3.1,1))));
+ph0=-phase(out_ls_zp.specs(index,1))*180/pi;
+out_ph=op_addphase(out_ls,ph0+180);
 
 %do same phase corection on unprocessed data
-out1_noproc=op_addphase(out1_noproc,ph0+180);
+out_noproc=op_addphase(out_noproc,ph0+180);
 
 %Now align subspecs if desired:
 switch alignSS    
     
     case 2
-        out1=op_alignMPSubspecs(out1_ph);
+        out=op_alignMPSubspecs(out_ph);
+        
+%         figure('position',[0 50 560 420]);
+%         out1_ph_filt=op_filter(out1_ph,5);
+%         subSpecTool(out1_ph_filt,0,7);
+%         disp('***************************************************************************************');
+%         disp('Use GUI interface to align edit-ON and edit-OFF scans by adjusting Phase and Frequency.');
+%         disp('Try to minimize the residual water, residual Creatine, and residual Choline peaks!');
+%         disp('***NOTE If you are using the Siemens MEGA_PRESS WIP (WIP529), then you will');
+%         disp('have to add about 180 degrees of phase to the subspectrum!***');
+%         disp('*************************************************************');
+%         fprintf('\n');
+%         phshft1=input('Input Desired Phase Shift (Degrees) for first spectrum: ');
+%         frqshft1=input('Input Desired Frequncy Shift (Hz) for first spectrum: ');
+%         out1=op_freqshiftSubspec(op_addphaseSubspec(out1_ph,phshft1),frqshft1);
+%         close all;
         
     case 0
-        out1=out1_ph;        
+        out=out_ph;        
   
     otherwise
         error('ERROR: alignSS value not valid! ');
 end
 
+%Make fully processed data;
+diffSpec=op_combinesubspecs(out,'diff');
+sumSpec=op_combinesubspecs(out,'summ');
+subSpec1=op_takesubspec(out,1);
+subSpec1=op_addphase(subSpec1,180);
+subSpec2=op_takesubspec(out,2);
 
-out_filt_diff=op_combinesubspecs(op_filter(out1,5),'diff');
-
-%Make final fully processed data;
-out1_diff=op_combinesubspecs(out1,'diff');
-out1_sum=op_combinesubspecs(out1,'summ');
-
-out1_off=op_takesubspec(out1,1);
-out1_off=op_addphase(out1_off,180);
-out1_on=op_takesubspec(out1,2);
+%Frequency shift all spectra so that Creatine appears at 3.027 ppm:
+[subSpec1,frqShift]=op_ppmref(subSpec1,2.9,3.1,3.027);
+diffSpec=op_freqshift(diffSpec,frqShift);
+sumSpec=op_freqshift(sumSpec,frqShift);
+subSpec2=op_freqshift(subSpec2,frqShift);
 
 
 %Make final water unsuppressed data
@@ -412,7 +431,7 @@ end
 %Make figure to show the final spectrum:
 h=figure('visible','off');
 subplot(1,2,1);
-plot(out1_off.ppm,out1_off.specs,out1_on.ppm,out1_on.specs,'linewidth',2);xlim([0.2 5.2]);
+plot(subSpec1.ppm,subSpec1.specs,subSpec2.ppm,subSpec2.specs,'linewidth',2);xlim([0.2 5.2]);
 set(gca,'FontSize',8);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)','FontSize',10);
@@ -422,7 +441,7 @@ legend boxoff;
 box off;
 title('Result: Subspecs','FontSize',12);
 subplot(1,2,2);
-plot(out1_diff.ppm,out1_diff.specs,'linewidth',2);xlim([0.2 5.2]);
+plot(diffSpec.ppm,diffSpec.specs,'linewidth',2);xlim([0.2 5.2]);
 set(gca,'FontSize',8);
 set(gca,'XDir','reverse');
 xlabel('Frequency (ppm)','FontSize',10);
@@ -439,9 +458,9 @@ saveas(h,[filestring '/report/figs/finalSpecFig'],'fig');
 % writ=input('Write? (y or n):  ','s');
 writ='y';
 if writ=='y' || writ=='Y'
-     RF=io_writelcm(out1_diff,[filestring '/' filestring '_diff_lcm'],out1_diff.te);
-     RF=io_writelcm(out1_off,[filestring '/' filestring '_editOFF_lcm'],out1_off.te);
-     RF=io_writelcm(out1_on,[filestring '/' filestring '_editON_lcm'],out1_on.te);
+     RF=io_writelcm(diffSpec,[filestring '/' filestring '_diff_lcm'],diffSpec.te);
+     RF=io_writelcm(subSpec1,[filestring '/' filestring '_editOFF_lcm'],subSpec1.te);
+     RF=io_writelcm(subSpec2,[filestring '/' filestring '_editON_lcm'],subSpec2.te);
     if water
         RF=io_writelcm(outw,[filestring '_w/' filestring '_w_lcm'],outw.te);
     end
@@ -453,26 +472,28 @@ close all;
 fid=fopen([filestring '/report/report.html'],'w+');
 fprintf(fid,'<!DOCTYPE html>');
 fprintf(fid,'\n<html>');
-fprintf(fid,'\n<img src= " /Users/jnear/Documents/data/studies/jn_1501_copy/FID-A/FID-A_Documentation/LOGO48.jpg " width="120" height="120"></body>');
+logoPath=which('FID-A_LOGO.jpg');
+fprintf(fid,'\n<img src= " %s " width="120" height="120"></body>',logoPath);
 fprintf(fid,'\n<h1>FID-A Processing Report</h1>');
 fprintf(fid,'\n<h2>Processing pipeline applied to MEGA-PRESS data using run_megapressproc.m</h2>');
-fprintf(fid,'\n<p>FILENAME: %s/%s/%s </p>',pwd,filestring,filename1);
+fprintf(fid,'\n<p>FILENAME: %s/%s/%s </p>',pwd,filestring,filename);
 fprintf(fid,'\n<p>DATE: %s </p>',date);
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Results of multi-coil combination:</h2>');
 fprintf(fid,'\n<img src= " %s/%s/report/figs/coilReconFig.jpg " width="800" height="400"></body>',pwd,filestring);
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Results of removal of bad averages:</h2>');
-fprintf(fid,'\n<p>Original number of averages: \t%5.6f </p>',raw1.sz(raw1.dims.averages)*raw1.sz(raw1.dims.subSpecs));
-fprintf(fid,'\n<p>Number of bad Averages removed:  \t%5.6f </p>',nBadAvgTotal1);
-fprintf(fid,'\n<p>Number of remaining averages in processed dataset:  \t%5.6f </p>',out1_rm.sz(out1_rm.dims.averages)*raw1.sz(raw1.dims.subSpecs));
-fprintf(fid,'\n<p>Bad Averages Removal Threshold was:  \t%2.2f </p>',nsd1);
+fprintf(fid,'\n<p>Original number of averages: \t%5.6f </p>',raw.sz(raw.dims.averages)*raw.sz(raw.dims.subSpecs));
+fprintf(fid,'\n<p>Number of bad Averages removed:  \t%5.6f </p>',nBadAvgTotal);
+fprintf(fid,'\n<p>Number of remaining averages in processed dataset:  \t%5.6f </p>',out_rm.sz(out_rm.dims.averages)*raw.sz(raw.dims.subSpecs));
+fprintf(fid,'\n<p>Bad Averages Removal Threshold was:  \t%2.2f </p>',nsd);
 fprintf(fid,'\n<img src= " %s/%s/report/figs/rmBadAvg_prePostFig.jpg " width="800" height="600"><img src= " %s/%s/report/figs/rmBadAvg_scatterFig.jpg " width="800" height="400">',pwd,filestring,pwd,filestring);
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Results of spectral registration:</h2>');
 fprintf(fid,'\n<p>Total frequency drift was: \t%5.6f </p>',max(totalFreqDrift));
 fprintf(fid,'\n<p>Total phase drift was: \t%5.6f </p>',max(totalPhaseDrift));
 fprintf(fid,'\n<img src= " %s/%s/report/figs/alignAvgs_prePostFig.jpg " width="800" height="600">',pwd,filestring);
+fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n<img src= " %s/%s/report/figs/freqDriftFig.jpg " width="400" height="400"><img src="%s/%s/report/figs/phaseDriftFig.jpg " width="400" height="400">',pwd,filestring,pwd,filestring);
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Final Result:</h2>');
