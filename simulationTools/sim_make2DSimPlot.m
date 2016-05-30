@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2015.
 % 
 % USAGE:
-% sim_make2DSimPlot(in,ppmmin,ppmmax,plotDiff)
+% sim_make2DSimPlot(in,ppmmin,ppmmax)
 % 
 % DESCRIPTION:
 % This function takes the output of a spatially resolved simulation, and
@@ -11,7 +11,7 @@
 % from one spatial position in the spatially resolved simulation.  Each
 % element of the array is also in FID-A data struture format.  By including
 % the optional input arguement ppmmin and ppmmax, only a the corresponding
-% range of each spectrum will be plotted.  If the 
+% range of each spectrum will be plotted.
 % 
 % INPUTS:
 % in          = input cell array of simulated spectra from a spatially resolved simulation
