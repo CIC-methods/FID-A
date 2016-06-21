@@ -44,8 +44,8 @@ else
 end
 
 %Find the ppm of the maximum peak magnitude within the given range:
-ppmindex=find(abs(in.specs(in.ppm>ppmmin & in.ppm<ppmmax,dimNum))==max(abs(in.specs(in.ppm>ppmmin & in.ppm<ppmmax,dimNum))));
-ppmrange=in.ppm(in.ppm>ppmmin & in.ppm<ppmmax);
+ppmindex=find(abs(in_zp.specs(in_zp.ppm>ppmmin & in_zp.ppm<ppmmax,dimNum))==max(abs(in_zp.specs(in_zp.ppm>ppmmin & in_zp.ppm<ppmmax,dimNum))));
+ppmrange=in_zp.ppm(in_zp.ppm>ppmmin & in_zp.ppm<ppmmax);
 ppmmax=ppmrange(ppmindex);
 
 %Now frequency shift the dataset so that the max peak appears at ppmrefval:
