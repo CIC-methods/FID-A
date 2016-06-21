@@ -106,7 +106,7 @@ else
     plot(sc,mv(3,:));
     xlabel('w1 (kHz)');
     ylabel('mz');
-    w1max=input('Input desired w1max in kHz:  ');
+    w1max=input('Input desired w1max in kHz (for 5.00 ms pulse):  ');
     w1max=w1max*1000; %convert w1max to [Hz]
     tw1=Tp*w1max;
 end
