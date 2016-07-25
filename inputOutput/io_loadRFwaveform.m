@@ -14,7 +14,9 @@
 % 
 % INPUTS:
 % filename  = filename of RF pulse waveform text file.  Can be in Siemens
-%             format (.pta) or Varian/Agilent format (.RF).
+%             format (.pta), Varian/Agilent format (.RF), Bruker format 
+%             (.inv, .ref or .exc) or a plain text file (.txt, with two columns 
+%             (amplitued and phase).
 % type      = Excitation ('exc'), Refocusing ('ref') or Inversion ('inv')
 % f0        = centre frequency of the rf pulse [Hz].  Optional. Default=0.
 
@@ -42,6 +44,9 @@ if exist(filename)
     elseif filename(end-3:end)=='.exc'
         disp('Bruker format .exc RF pulse file detected!! Loading waveform now.');
         rf=io_readRFBruk(filename);
+    elseif filename(end-3:end)=='.txt'
+        disp('Basic .txt format RF pulse file detected!! Loading waveform now.');
+        rf=io_readRFtxt(filename);
     else
         error('ERROR:  RF Pulse file not recognized.  Aborting!');
     end
@@ -77,8 +82,8 @@ for n=1:length(jumpIndex)
     RF_struct.waveform(jumpIndex(n)+1:end,1)=RF_struct.waveform(jumpIndex(n)+1:end,1)-(360*(jumps(jumpIndex(n))/abs(jumps(jumpIndex(n)))));
 end
 
-
-
+%scale amplitude function so that maximum value is 1:
+rf(:,2)=rf(:,2)./max(rf(:,2));
 
 Tp=0.005;  %assume a 5 ms rf pulse;
 if ~isPhsMod
