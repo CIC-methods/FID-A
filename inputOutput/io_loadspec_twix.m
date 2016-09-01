@@ -42,25 +42,42 @@ version=twix_obj.image.softwareVersion;
 sqzDims=twix_obj.image.sqzDims;
 sqzSize=twix_obj.image.sqzSize;
 
-%find out if the data was acquired using the rm_special sequence, which 
-%does not separate the subspectra into separate array dimensions.  Make 
-%changes accordingly.
+%find out what sequence, the data were acquired with.  If this is a
+%multi-raid file, then the header may contain multiple instances of
+%'tSequenceFileName' for different scans (including a pre-scan).
+%Therefore, if multi-raid file, we will need to do a bit of extra digging 
+%to find the correct sequence name.  
 fid=fopen(filename);
-line=fgets(fid);
-index=findstr(line,'tSequenceFileName');
-equals_index=findstr(line,'= ');
-while isempty(index) || isempty(equals_index)
+if RaidLength<2
     line=fgets(fid);
-    index=findstr(line,'tSequenceFileName');
-    equals_index=findstr(line,'= ');
-end
-sequence=line(equals_index+2:end-1);
+    index=strfind(line,'tSequenceFileName');
+    equals_index=strfind(line,'= ');
+    while isempty(index) || isempty(equals_index)
+        line=fgets(fid);
+        index=strfind(line,'tSequenceFileName');
+        equals_index=strfind(line,'= ');
+    end
+    sequence=line(equals_index+2:end-1);
+else
+    sequence='';
+    while isempty(sequence) || ~isempty(strfind(sequence,'AdjustSeq'))
+        line=fgets(fid);
+        index=strfind(line,'tSequenceFileName');
+        equals_index=strfind(line,'= ');
+        while isempty(index) || isempty(equals_index)
+            line=fgets(fid);
+            index=strfind(line,'tSequenceFileName');
+            equals_index=strfind(line,'= ');
+        end
+        sequence=line(equals_index+2:end-1);
+    end
+end 
 
 %Try to find out what sequnece this is:
-isSpecial=~isempty(findstr(sequence,'rm_special')); %Is this Ralf Mekle's SPECIAL Sequence?
-isWIP529=~isempty(findstr(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
-isjnseq=~isempty(findstr(sequence,'jn_')); %Is this one of Jamie Near's sequences?
-isMinnMP=~isempty(findstr(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
+isSpecial=~isempty(strfind(sequence,'rm_special')); %Is this Ralf Mekle's SPECIAL Sequence?
+isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
+isjnseq=~isempty(strfind(sequence,'jn_')); %Is this one of Jamie Near's sequences?
+isMinnMP=~isempty(strfind(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
 
 fclose(fid);
 %Ralf Mekle's SPECIAL sequence does not store the subspectra along a
@@ -91,12 +108,12 @@ fids=squeeze(data);
 %Find the magnetic field strength:
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'sProtConsistencyInfo.flNominalB0');
-equals_index=findstr(line,'= ');
+index=strfind(line,'sProtConsistencyInfo.flNominalB0');
+equals_index=strfind(line,'= ');
 while isempty(index) || isempty(equals_index)
     line=fgets(fid);
-    index=findstr(line,'sProtConsistencyInfo.flNominalB0');
-    equals_index=findstr(line,'= ');
+    index=strfind(line,'sProtConsistencyInfo.flNominalB0');
+    equals_index=strfind(line,'= ');
 end
 Bo=line(equals_index+1:end);
 Bo=str2double(Bo);
@@ -105,15 +122,15 @@ fclose(fid);
 %Find the number of averages:
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'<ParamLong."lAverages">');
+index=strfind(line,'<ParamLong."lAverages">');
 if isempty(index);
-    instancesFound=0;
+    instancesFound=0;  %Ignore first instance becuase of multi_raid issue
 else
     instancesFound=1;
 end
 while isempty(index) || instancesFound<RaidLength
     line=fgets(fid);
-    index=findstr(line,'<ParamLong."lAverages">');
+    index=strfind(line,'<ParamLong."lAverages">');
     if ~isempty(index)
         instancesFound=instancesFound+1;
     end
@@ -127,10 +144,10 @@ fclose(fid);
 %Find out if multiple coil elements were used:
 fid=fopen(filename);
 line=fgets(fid);
-coil_index=findstr(line,'ParamLong."iMaxNoOfRxChannels"');
+coil_index=strfind(line,'ParamLong."iMaxNoOfRxChannels"');
 while isempty(coil_index)
     line=fgets(fid);
-    coil_index=findstr(line,'ParamLong."iMaxNoOfRxChannels"');
+    coil_index=strfind(line,'ParamLong."iMaxNoOfRxChannels"');
 end
 line=fgets(fid);
 line=fgets(fid);
@@ -141,12 +158,20 @@ fclose(fid);
 %Find the TE:
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'alTE[0]');
-equals_index=findstr(line,'= ');
-while isempty(index) || isempty(equals_index)
+index=strfind(line,'alTE[0]');
+if isempty(index);
+    instancesFound=0;  %Ignore first instance becuase of multi_raid issue
+else
+    instancesFound=1;
+end
+equals_index=strfind(line,'= ');
+while isempty(index) || isempty(equals_index) || instancesFound<RaidLength
     line=fgets(fid);
-    index=findstr(line,'alTE[0]');
-    equals_index=findstr(line,'= ');
+    index=strfind(line,'alTE[0]');
+    equals_index=strfind(line,'= ');
+    if ~isempty(index)
+        instancesFound=instancesFound+1;
+    end
 end
 TE=line(equals_index+1:end);
 TE=str2double(TE);
@@ -155,12 +180,20 @@ fclose(fid);
 %Find the TR:
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'alTR[0]');
-equals_index=findstr(line,'= ');
-while isempty(index) || isempty(equals_index)
+index=strfind(line,'alTR[0]');
+if isempty(index);
+    instancesFound=0;  %Ignore first instance becuase of multi_raid issue
+else
+    instancesFound=1;
+end
+equals_index=strfind(line,'= ');
+while isempty(index) || isempty(equals_index) || instancesFound<RaidLength
     line=fgets(fid);
-    index=findstr(line,'alTR[0]');
-    equals_index=findstr(line,'= ');
+    index=strfind(line,'alTR[0]');
+    equals_index=strfind(line,'= ');
+    if ~isempty(index)
+        instancesFound=instancesFound+1;
+    end
 end
 TR=line(equals_index+1:end);
 TR=str2double(TR);
@@ -318,8 +351,8 @@ specs=fftshift(ifft(fids,[],dims.t),dims.t);
 %Get Spectral width and Dwell Time
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'sRXSPEC.alDwellTime[0]');
-equals_index=findstr(line,'= ');
+index=strfind(line,'sRXSPEC.alDwellTime[0]');
+equals_index=strfind(line,'= ');
 if isempty(index) || isempty(equals_index);
     instancesFound=0;
 elseif ~isempty(index) && ~isempty(equals_index)
@@ -327,8 +360,8 @@ elseif ~isempty(index) && ~isempty(equals_index)
 end
 while (isempty(index) || isempty(equals_index)) || instancesFound<RaidLength
     line=fgets(fid);
-    index=findstr(line,'sRXSPEC.alDwellTime[0]');
-    equals_index=findstr(line,'= ');
+    index=strfind(line,'sRXSPEC.alDwellTime[0]');
+    equals_index=strfind(line,'= ');
     if ~isempty(index) && ~isempty(equals_index)
         instancesFound=instancesFound+1;
     end
@@ -341,12 +374,12 @@ fclose(fid);
 %Get TxFrq
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'sTXSPEC.asNucleusInfo[0].lFrequency');
-equals_index=findstr(line,'= ');
+index=strfind(line,'sTXSPEC.asNucleusInfo[0].lFrequency');
+equals_index=strfind(line,'= ');
 while isempty(index) || isempty(equals_index)
     line=fgets(fid);
-    index=findstr(line,'sTXSPEC.asNucleusInfo[0].lFrequency');
-    equals_index=findstr(line,'= ');
+    index=strfind(line,'sTXSPEC.asNucleusInfo[0].lFrequency');
+    equals_index=strfind(line,'= ');
 end
 txfrq=line(equals_index+1:end);
 txfrq=str2double(txfrq);
@@ -355,15 +388,15 @@ fclose(fid);
 %Get Date
 fid=fopen(filename);
 line=fgets(fid);
-index=findstr(line,'ParamString."atTXCalibDate">');
-%quotes_index=findstr(line,'  "');
+index=strfind(line,'ParamString."atTXCalibDate">');
+%quotes_index=strfind(line,'  "');
 while isempty(index) %|| isempty(equals_index)
     line=fgets(fid);
-    index=findstr(line,'ParamString."atTXCalibDate">');
+    index=strfind(line,'ParamString."atTXCalibDate">');
     if ~isempty(index)
         line=fgets(fid);
         line=fgets(fid);
-        quote_index=findstr(line,'  "');
+        quote_index=strfind(line,'  "');
     end
 end
 date=line(quote_index+3:quote_index+10);
