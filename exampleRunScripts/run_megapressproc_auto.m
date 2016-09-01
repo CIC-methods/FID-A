@@ -358,13 +358,14 @@ if water
 end
 
 %now do automatic zero-order phase correction (Use Creatine Peak):
-out_ls_zp=op_zeropad(out_ls,16);
-index=find(abs(out_ls_zp.specs)==max(abs(out_ls_zp.specs(out_ls_zp.ppm>2.9 & out_ls_zp.ppm<3.1,1))));
-ph0=-phase(out_ls_zp.specs(index,1))*180/pi;
-out_ph=op_addphase(out_ls,ph0+180);
+out_ls_ss2=op_takesubspec(out_ls,2);
+%SpecTool(out_ls_ss2,0.2,1,3.5);
+[out_ls_ss2_ph,ph0]=op_autophase(out_ls_ss2,2.9,3.1);
+%ph0=input('Input zero-order phase:');
+out_ph=op_addphase(out_ls,ph0);
 
 %do same phase corection on unprocessed data
-out_noproc=op_addphase(out_noproc,ph0+180);
+out_noproc=op_addphase(out_noproc,ph0);
 
 %Now align subspecs if desired:
 switch alignSS    
@@ -373,8 +374,8 @@ switch alignSS
         out=op_alignMPSubspecs(out_ph);
         
 %         figure('position',[0 50 560 420]);
-%         out1_ph_filt=op_filter(out1_ph,5);
-%         subSpecTool(out1_ph_filt,0,7);
+%         out_ph_filt=op_filter(out_ph,5);
+%         subSpecTool(out_ph_filt,0,7);
 %         disp('***************************************************************************************');
 %         disp('Use GUI interface to align edit-ON and edit-OFF scans by adjusting Phase and Frequency.');
 %         disp('Try to minimize the residual water, residual Creatine, and residual Choline peaks!');
@@ -384,7 +385,7 @@ switch alignSS
 %         fprintf('\n');
 %         phshft1=input('Input Desired Phase Shift (Degrees) for first spectrum: ');
 %         frqshft1=input('Input Desired Frequncy Shift (Hz) for first spectrum: ');
-%         out1=op_freqshiftSubspec(op_addphaseSubspec(out1_ph,phshft1),frqshft1);
+%         out=op_freqshiftSubspec(op_addphaseSubspec(out_ph,phshft1),frqshft1);
 %         close all;
         
     case 0
