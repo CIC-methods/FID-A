@@ -17,6 +17,12 @@
 %                     operate on that structure.
 % point              = The index of the datapoint in the fid that is used
 %                     for determination of signal intensity and phase.
+% mode               = -'w' performs amplitude weighting of channels based on the
+%                     maximum signal of each coil channel.
+%                      -'h' performs amplitude weighting of channels based on the
+%                     maximum signal of each coil channel divided by the square of
+%                     the noise in each coil channel (as described by Hall et al.
+%                     Neuroimage 2014). 
 
 function coilcombos=op_getcoilcombos(file_or_struct,point,mode);
 
