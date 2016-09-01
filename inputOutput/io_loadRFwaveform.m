@@ -38,7 +38,7 @@ if exist(filename)
     elseif filename(end-3:end)=='.inv'
         disp('Bruker format .inv RF pulse file detected!! Loading waveform now.');
         rf=io_readRFBruk(filename);
-    elseif filename(end-3:end)=='.ref'
+    elseif filename(end-3:end)=='.rfc'
         disp('Bruker format .pta RF pulse file detected!! Loading waveform now.');
         rf=io_readRFBruk(filename);
     elseif filename(end-3:end)=='.exc'
