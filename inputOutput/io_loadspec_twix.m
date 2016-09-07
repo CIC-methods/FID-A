@@ -230,7 +230,11 @@ end
 
 %Now index the dimension of the averages
 if strcmp(version,'vd') || strcmp(version,'ve')
-    dims.averages=find(strcmp(sqzDims,'Ave'));
+    if isMinnMP
+        dims.averages=find(strcmp(sqzDims,'Set'));
+    else
+        dims.averages=find(strcmp(sqzDims,'Ave'));
+    end
 else
     dims.averages=find(strcmp(sqzDims,'Set'));
 end
