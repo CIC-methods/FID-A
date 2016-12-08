@@ -90,12 +90,20 @@ switch size(RF, 2)
       RF(:,3) = 1;
       RF(:,4) = 0;
    case 2
-      % Two columns are phase and magnitude, add duration and gradient
+      % Two columns are phase and magnitude, add duration.
+      % Add the desired phase to the waveform:
+      RF(:,1) = RF(:,1) + phase;
       RF(:,3) = 1;
+   case 3
+      % Three columns are phase, magnitude and duration.
+      % Add the desired phase to the waveform:
+      RF(:,1) = RF(:,1) + phase;
    case 4
       % Convert from G/cm to kHz/cm
       RF(:,4) = RF(:,4) .* 4.25763888;
       grad_flag = 1;
+      % Add the desired phase to the waveform:
+      RF(:,1) = RF(:,1) + phase;
 end
       
 % Convert phase to radians
