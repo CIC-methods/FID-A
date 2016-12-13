@@ -97,18 +97,19 @@ catch
     
     %calculate the size;
     sz=size(specs);
-    out.flags.averaged=0;
+    out.flags.averaged=1;
     %specify the dims
     dims.t=1;
     dims.coils=0;
-    dims.averages=2;
+    dims.averages=0;
     dims.subSpecs=0;
     dims.extras=0;
 end
 
 %NOW TRY LOADING IN THE REFERENCE SCAN DATA (IF IT EXISTS)
+isRef=false;
 if exist([inDir '/fid.ref'])
-
+    isRef=true;
     ref_data=fread(fopen([inDir '/fid.ref']),'int');
     real_ref = ref_data(2:2:length(ref_data));
     imag_ref = ref_data(1:2:length(ref_data));
@@ -282,44 +283,46 @@ else
 end
 
 
-%FILLING IN DATA STRUCTURE FOR THE FID.REF DATA
-ref.fids=reffids;
-ref.specs=refspecs;
-ref.sz=sz;
-ref.ppm=ppm;  
-ref.t=t;    
-ref.spectralwidth=spectralwidth;
-ref.dwelltime=dwelltime;
-ref.txfrq=txfrq;
-ref.date=date;
-ref.dims=dims;
-ref.Bo=Bo;
-ref.averages=rawAverages;
-ref.rawAverages=rawAverages;
-ref.subspecs=subspecs;
-ref.rawSubspecs=rawSubspecs;
-ref.seq=sequence;
-ref.te=te;
-ref.tr=tr;
-ref.pointsToLeftshift=0;
-
-
-%FILLING IN THE FLAGS FOR THE FID.REF DATA
-ref.flags.writtentostruct=1;
-ref.flags.gotparams=1;
-ref.flags.leftshifted=0;
-ref.flags.filtered=0;
-ref.flags.zeropadded=0;
-ref.flags.freqcorrected=0;
-ref.flags.phasecorrected=0;
-
-ref.flags.addedrcvrs=1;
-ref.flags.subtracted=0;
-ref.flags.writtentotext=0;
-ref.flags.downsampled=0;
-ref.flags.avgNormalized=0;
-if ref.dims.subSpecs==0
-    ref.flags.isISIS=0;
-else
-    ref.flags.isISIS=(ref.sz(ref.dims.subSpecs)==4);
+if isRef
+    %FILLING IN DATA STRUCTURE FOR THE FID.REF DATA
+    ref.fids=reffids;
+    ref.specs=refspecs;
+    ref.sz=sz;
+    ref.ppm=ppm;
+    ref.t=t;
+    ref.spectralwidth=spectralwidth;
+    ref.dwelltime=dwelltime;
+    ref.txfrq=txfrq;
+    ref.date=date;
+    ref.dims=dims;
+    ref.Bo=Bo;
+    ref.averages=rawAverages;
+    ref.rawAverages=rawAverages;
+    ref.subspecs=subspecs;
+    ref.rawSubspecs=rawSubspecs;
+    ref.seq=sequence;
+    ref.te=te;
+    ref.tr=tr;
+    ref.pointsToLeftshift=0;
+    
+    
+    %FILLING IN THE FLAGS FOR THE FID.REF DATA
+    ref.flags.writtentostruct=1;
+    ref.flags.gotparams=1;
+    ref.flags.leftshifted=0;
+    ref.flags.filtered=0;
+    ref.flags.zeropadded=0;
+    ref.flags.freqcorrected=0;
+    ref.flags.phasecorrected=0;
+    
+    ref.flags.addedrcvrs=1;
+    ref.flags.subtracted=0;
+    ref.flags.writtentotext=0;
+    ref.flags.downsampled=0;
+    ref.flags.avgNormalized=0;
+    if ref.dims.subSpecs==0
+        ref.flags.isISIS=0;
+    else
+        ref.flags.isISIS=(ref.sz(ref.dims.subSpecs)==4);
+    end
 end
