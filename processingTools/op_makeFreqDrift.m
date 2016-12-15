@@ -23,7 +23,7 @@ function [out,fDrift]=op_makeFreqDrift(in,totalDrift,noise);
 
 %First make the matrices needed for multiplication
 T=repmat(in.t',[1 in.sz(2:end)]);
-if totalDrift
+if any(totalDrift)
     if length(totalDrift)==in.sz(in.dims.averages)
         f=totalDrift';
     else
