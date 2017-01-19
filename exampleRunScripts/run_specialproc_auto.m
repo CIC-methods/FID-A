@@ -461,7 +461,7 @@ else
         close(h);
         
         %figure('position',[0 50 560 420]);
-        figure('visible','off');
+        h=figure('visible','off');
         plot([1:out_aa.sz(out_aa.dims.averages)],phsCum);
         set(gca,'FontSize',8);
         xlabel('Scan Number','FontSize',10);
@@ -477,7 +477,7 @@ else
         close(h);
         
         %figure('position',[570 50 560 420]);
-        figure('visible','off');
+        h=figure('visible','off');
         plot([1:out_aa.sz(out_aa.dims.averages)],fsCum);
         set(gca,'FontSize',8);
         xlabel('Scan Number','FontSize',10);
