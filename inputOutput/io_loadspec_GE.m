@@ -78,11 +78,13 @@ if subspecs>1
 else
     dims.subSpecs=0;
 end
+dims.extras=0;
 
 dims_w.t=1;
 dims_w.coils=2;
 dims_w.averages=3;
 dims_w.subSpecs=0;
+dims_w.extras=0;
 
 
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
