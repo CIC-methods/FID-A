@@ -224,7 +224,9 @@ if strcmp(alignISIS,'y') || strcmp(alignISIS,'Y')
     
 else
     out_ai=out_cc;
-    out_w_ai=out_w_cc;
+    if water
+        out_w_ai=out_w_cc;
+    end
     fs_ai=zeros(size(out_cc.fids,out_cc.dims.averages),1);
     phs_ai=zeros(size(out_cc.fids,out_cc.dims.averages),1);
 end
