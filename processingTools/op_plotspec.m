@@ -65,13 +65,13 @@ if isstruct(in)
     set(Fig1Ax1Line1, 'LineWidth', 1.2);
     %set(Fig1Ax1Line1,'MarkerSize', 10);
 elseif iscell(in)
-    fignum=figure;
+    figure;
     plot(in{1}.ppm,real(in{1}.specs));
     ylabel('ARB UNITS');
     disp('Multiple input spectra detected!! ')
     stagger=input('Please enter the desired vertical spacing of the spectra in ARB UNITS:  ');
     close;
-    figure
+    fignum=figure;
     hold
     colours=distinguishable_colors(length(in));
     for n=1:length(in)

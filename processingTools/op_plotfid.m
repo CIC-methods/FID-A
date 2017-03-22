@@ -66,13 +66,13 @@ if isstruct(in)
     set(Fig1Ax1Line1, 'LineWidth', 1.2);
     %set(Fig1Ax1Line1,'MarkerSize', 10);
 elseif iscell(in)
-    fignum=figure;
+    figure;
     plot(in{1}.t,real(in{1}.fids));
     ylabel('ARB UNITS');
     disp('Multiple input fids detected!! ')
     stagger=input('please enter the desired vertical spacing of the fids in ARB UNITS (0 for none):  ');
     close;
-    figure
+    fignum=figure;
     hold
     colours=distinguishable_colors(length(in));
     for n=1:length(in)
