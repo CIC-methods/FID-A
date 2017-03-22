@@ -12,7 +12,7 @@
 % in     = input data in matlab structure format.
 % lb     = line broadening factor in Hz.
 
-function out=op_filter(in,lb);
+function [out,lor]=op_filter(in,lb);
 
 if lb==0
     out=in;
