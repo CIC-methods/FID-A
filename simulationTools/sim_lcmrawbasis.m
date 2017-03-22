@@ -394,6 +394,8 @@ switch metab
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
         
+        out1=op_ampScale(out1,0.36);
+        out2=op_ampScale(out2,0.64);
         out=op_addScans(out1,out2);
         
     case 'NAAG'
