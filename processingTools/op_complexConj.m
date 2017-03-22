@@ -41,4 +41,3 @@ out.t=t;
 %FILLING IN THE FLAGS
 out.flags=in.flags;
 out.flags.writtentostruct=1;
-out.flags.leftshifted=1;
