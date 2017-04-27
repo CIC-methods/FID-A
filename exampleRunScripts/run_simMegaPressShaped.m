@@ -61,10 +61,10 @@ lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thkX=3; %slice thickness of x refocusing pulse [cm]
 thkY=3; %slice thickness of y refocusing pulse [cm]
-%x=[-2.0125:0.175:2.0125]; %X positions to simulate [cm]
-%y=[-2.0125:0.175:2.0125]; %y positions to simulate [cm]
-x=0;
-y=0;
+x=linspace(-2.5,2.5,8); %X positions to simulate [cm]
+y=linspace(-2.5,2.5,8); %y positions to simulate [cm]
+%x=0;
+%y=0;
 taus=[5,17,17,17,12]; %timing of the pulse sequence [ms]
 spinSys='GABA'; %spin system to simulate
 centreFreq=3.0; %Centre frequency of MR spectrum [ppm]
@@ -110,8 +110,10 @@ outON_posxy_epc=cell(length(x),length(y),length(editPhCyc1),length(editPhCyc2));
 outOFF_posxy_epc=cell(length(x),length(y),length(editPhCyc1),length(editPhCyc2));
 outON_posxy=cell(length(x),length(y));
 outOFF_posxy=cell(length(x),length(y));
+outDIFF_posxy=cell(length(x),length(y));
 outON=struct([]);
 outOFF=struct([]);
+outDIFF=struct([]);
 
 
 %loop through space: Don't forget to initialize the parallel processing
@@ -170,11 +172,8 @@ end %end of spatial loop (parfor) in x direction.
 
 outDIFF=op_subtractScans(outON,outOFF);
         
-figure 
 sim_make2DSimPlot(outON_posxy,2.75,3.25);
-figure
 sim_make2DSimPlot(outOFF_posxy,2.75,3.25);
-figure
 sim_make2DSimPlot(outDIFF_posxy,2.75,3.25);
 
 
