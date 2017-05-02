@@ -56,7 +56,6 @@ refTp=5; %duration of refocusing pulses[ms]
 editTp=14; %duration of editing pulses[ms]
 Npts=2048; %number of spectral points
 sw=2000; %spectral width [Hz]
-Bfield=3; %magnetic field strength [Tesla]
 lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thkX=3; %slice thickness of x refocusing pulse [cm]
@@ -65,7 +64,11 @@ x=linspace(-2.5,2.5,8); %X positions to simulate [cm]
 y=linspace(-2.5,2.5,8); %y positions to simulate [cm]
 %x=0;
 %y=0;
-taus=[5,17,17,17,12]; %timing of the pulse sequence [ms]
+taus=[5,...  %time between excitation and 1st refoc pulse [ms]
+    17,...   %time between 1st refoc pulse and 1st editing pulse [ms]
+    17,...   %time between 1st editing pulse and 2nd refoc pulse [ms]
+    17,...   %time between 2nd refoc pulse and 2nd editing pulse [ms]
+    12];     %time between 2nd editing pulse and ADC onset [ms]
 spinSys='GABA'; %spin system to simulate
 centreFreq=3.0; %Centre frequency of MR spectrum [ppm]
 editPhCyc1=[0 90]; %phase cycling steps for 1st editing pulse [degrees]

@@ -44,8 +44,8 @@ sw=2000; %spectral width [Hz]
 lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thk=3; %slice thickness of x refocusing pulse [cm]
-pos=[-3:0.3:3]; %X positions to simulate [cm]
-TE=68; %timing of the pulse sequence [ms]
+pos=linspace(-3,3,12); %X positions to simulate [cm]
+TE=68; %Echo time of the pulse sequence [ms]
 spinSys='Cr'; %spin system to simulate
 phCyc=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************

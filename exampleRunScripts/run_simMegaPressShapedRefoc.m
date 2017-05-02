@@ -51,11 +51,13 @@ Bfield=3; %magnetic field strength [Tesla]
 lw=2; %linewidth of the output spectrum [Hz]
 thkX=3; %slice thickness of x refocusing pulse [cm]
 thkY=3; %slice thickness of y refocusing pulse [cm]
-%x=[-2.0125:0.175:2.0125]; %X positions to simulate [cm]
-%y=[-2.0125:0.175:2.0125]; %y positions to simulate [cm]
-x=0;
-y=0;
-taus=[5,17,17,17,12]; %timing of the pulse sequence [ms]
+x=linspace(-2.1,2.1,8);  %X positions to simulate [cm]
+y=linspace(-2.1,2.1,8);  %Y positions to simulate [cm]
+taus=[5,... %Time from excitation to 1st refoc pulse [ms]
+    17,...  %Time from 1st refoc pulse to 1st editing pulse [ms]
+    17,...  %Time from 1st editing pulse to 2nd refoc pulse [ms]
+    17,...  %Time from 2nd refoc pulse to 2nd editing pulse [ms]
+    12];    %Time from 2nd editing pulse to ADC onset [ms]
 spinSys='GABA'; %spin system to simulate
 editFlipON=[0 0 180 180 0 0];
 editFlipOFF=[0 0 0 0 0 0];

@@ -55,17 +55,24 @@ refTp=5.2; %duration of refocusing pulses[ms]
 editTp=14; %duration of editing pulses[ms]
 Npts=2048; %number of spectral points
 sw=2000; %spectral width [Hz]
-Bfield=3; %magnetic field strength [Tesla]
 lw=2; %linewidth of the output spectrum [Hz]
 Bfield=2.89; %Magnetic field strength in [T]
 thkX=3.5; %slice thickness of x refocusing pulse [cm]
 thkY=3.5; %slice thickness of y refocusing pulse [cm]
-%x=[-2.0125:0.175:2.0125]; %X positions to simulate [cm]
-%y=[-2.0125:0.175:2.0125]; %y positions to simulate [cm]
-x=0;
-y=0;
-taus_inv=[4.9,67.4885,33.5115,33.4885,62.6115]; %timing of J-inv scan [ms]
-taus_ref=[4.9,50.4885,50.5115,50.4885,45.6115]; %timing of J-refoc scan [ms]
+x=linspace(-2.0125,2.0125,12); %X positions to simulate [cm]
+y=linspace(-2.0125,2.0125,12); %y positions to simulate [cm]
+taus_inv=...  %Timing for J-Inverted scan
+        [4.9,...    %time from excitation to 1st refoc pulse [ms]
+        67.4885,... %time from 1st refoc pulse to 1st editing pulse [ms]
+        33.5115,... %time from 1st editing pulse to 2nd refoc pulse [ms]
+        33.4885,... %time from 2nd refoc pulse to 2nd editing pulse [ms]
+        62.6115];   %time from 2nd editing pulse to ADC onset [ms]
+taus_ref=... %Timing for J-refocused scan
+        [4.9,...    %time from excitation to 1st refoc pulse [ms]
+        50.4885,... %time from 1st refoc pulse to 1st editing pulse [ms]
+        50.5115,... %time from 1st editing pulse to 2nd refoc pulse [ms]
+        50.4885,... %time from 2nd refoc pulse to 2nd editing pulse [ms]
+        45.6115];   %time from 2nd editing pulse to ADC onset [ms]
 spinSys='GABA'; %spin system to simulate
 centreFreq=3.0; %Centre frequency of MR spectrum [ppm]
 editPhCyc1=[0 90]; %phase cycling steps for 1st editing pulse [degrees]
