@@ -19,6 +19,7 @@
 % shape     = line broadening function.  Optional,
 %                'L' = lorentzian (default) 
 %                'G' = gaussian 
+%                'LG' = Lorentz-Gauss (50% mixture)
 
 function [out,d_out] = sim_readout(d_in,H,n,sw,linewidth,rcvPhase,shape);
 
@@ -34,11 +35,16 @@ deltat = 1/sw;
 points = n;
 out.fids = zeros(1,points);
 Bfield=H.Bfield;
-if shape=='L' || shape =='l'
+if strcmp(shape,'L') || strcmp(shape,'l')
     t2 = 1/(pi*linewidth);
-elseif shape=='G' || shape=='g'
+elseif strcmp(shape,'G') || strcmp(shape,'g')
     thalf=log(0.5)/(pi*0.5*linewidth);
     sigma=sqrt((thalf^2)/(-2*log(0.5)));
+elseif strcmp(shape,'LG') || strcmp(shape,'lg')
+    t2 = 1/(pi*linewidth);
+    thalf=log(0.5)/(pi*0.5*linewidth);
+    sigma=sqrt((thalf^2)/(-2*log(0.5)));
+    R=0.5;
 else 
     error('ERROR:  Shape not recognized!  ABORTING!');
 end
@@ -51,10 +57,12 @@ k=1;
 while k<(points+1);
     d1=diag(exp(-1i*(k-1)*D*deltat));
     d2=diag(exp(1i*(k-1)*D*deltat));
-    if shape=='L' || shape=='l'
+    if strcmp(shape,'L') || strcmp(shape,'l')
         out.fids(k)=val*exp(-((k-1)*deltat)/t2)*trace(U*d1*U'*d_in*U*d2*U'*(H.Fx+1i*H.Fy)*exp(1i*rcvPhase*pi/180));
-    elseif shape=='G' || shape=='g'
+    elseif strcmp(shape,'G') || strcmp(shape,'g')
         out.fids(k)=val*exp(-(((k-1)*deltat)^2)/(2*(sigma^2)))*trace(U*d1*U'*d_in*U*d2*U'*(H.Fx+1i*H.Fy)*exp(1i*rcvPhase*pi/180));
+    elseif strcmp(shape,'LG') || strcmp(shape,'lg')
+        out.fids(k)=val*((R*exp(-((k-1)*deltat)/t2))+(R*exp(-(((k-1)*deltat)^2)/(2*(sigma^2)))))*trace(U*d1*U'*d_in*U*d2*U'*(H.Fx+1i*H.Fy)*exp(1i*rcvPhase*pi/180));
     end  
     k = k+1;
 end
