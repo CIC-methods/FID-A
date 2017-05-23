@@ -12,8 +12,8 @@
 % in         = input data in matlab structure format.
 % totalDrift = total amount of phase drift (in degrees) to add over the whole scan.
 %               If totalDrift is a scalar, then a constant slope of drift
-%               will be added.  If totalDrift is a vector with length equal
-%               to the number of averages in the input data, then this
+%               will be added.  If totalDrift is a vector or matrix with dimensions
+%               equal to the dimensions of the input data, then this
 %               vector specifies the drift applied to each average.
 % noise      = the standard deviation of noise to add to the phase drift
 %             function.
@@ -22,18 +22,22 @@ function [out,phDrift]=op_makePhaseDrift(in,totalDrift,noise);
 %out=op_makedrift(in,totalDrift);
 
 %First make the matrices needed for multiplication
-if totalDrift
-    if length(totalDrift)==in.sz(in.dims.averages)
-        ph=totalDrift';
+if any(totalDrift)
+    if isequal(size(totalDrift),[in.averages,in.subspecs])
+        ph=totalDrift;
     else
-        ph=[0:totalDrift/(in.sz(in.dims.averages)-1):totalDrift];
+        ph=linspace(0,totalDrift,in.averages*in.subspecs);
+        ph=reshape(ph,in.subspecs,in.averages);
+        ph=ph';
     end
 else
-    ph=zeros(1,in.sz(in.dims.averages));
+    ph=zeros(in.averages,in.subspecs);
 end
-phnoise=[0 noise*randn(1,length(ph)-1)];
+phnoise=noise*randn(size(ph));
 phDrift=ph+phnoise;
-PH=repmat(phDrift,in.sz(1),1);
+%PH=repmat(phDrift',in.sz(1),1);
+phDrift_shft=shiftdim(phDrift,-1);
+PH=repmat(phDrift_shft,in.sz(1),1,1);
 
 %Now apply the drift to the fids;
 fids=in.fids.*exp(-1i*PH*pi/180);
