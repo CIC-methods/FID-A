@@ -21,6 +21,8 @@ end
 %if subspecs dimension is zero, make a new dimension for them
 if in1.dims.subSpecs==0
     newSubspecsDim=max([in1.dims.t in1.dims.coils in1.dims.averages in1.dims.subSpecs in1.dims.extras])+1;
+else
+    newSubspecsDim=in1.dims.subSpecs;
 end
 
 fids=cat(newSubspecsDim,in1.fids,in2.fids);
@@ -36,6 +38,7 @@ out.dims=in1.dims;
 out.dims.subSpecs=newSubspecsDim;
     
 out.rawSubspecs=in1.rawSubspecs+in2.rawSubspecs;
+out.subspecs=in1.subspecs+in2.subspecs;
 
 %FILLING IN THE FLAGS
 out.flags=in1.flags;
