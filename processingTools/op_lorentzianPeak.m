@@ -29,7 +29,7 @@ f=[(-sw/2+(df/2)):df:(sw/2-(df/2))];
 ppm=f/(Bo*42.577);
 ppm=4.65-ppm;
 
-fids=amp * exp(-t/decay) .* exp(-i*f0*t);
+fids=amp * exp(-t/decay) .* exp(-1i*f0*t);
 fids=fids';
 
 specs=fftshift(ifft(fids));
