@@ -34,10 +34,15 @@ philipsOut=philipsLoad(filename);
 %function is normally a N x Navgs x Ncoils matrix.  The Navgs dimension
 %contains all the subspectra, so we will split them now:
 %If the data has multiple subspectra 
-if subspecs>1 
+if subspecs==2
     %Split the subspectra out of the "averages" dimension:
     data(:,:,1)=philipsOut(:,[1:2:end-1],:);
     data(:,:,2)=philipsOut(:,[2:2:end],:);
+elseif subspecs==4
+    data(:,:,1)=philipsOut(:,[1:4:end-3],:);
+    data(:,:,2)=philipsOut(:,[2:4:end-2],:);
+    data(:,:,3)=philipsOut(:,[3:4:end-1],:);
+    data(:,:,4)=philipsOut(:,[4:4:end],:);
 else
     data=philipsOut;
 end
@@ -123,6 +128,7 @@ else
         rawAverages=1;
     end
 end
+dims.extras=0;
 
 
 
@@ -182,7 +188,7 @@ out.flags.zeropadded=0;
 out.flags.freqcorrected=0;
 out.flags.phasecorrected=0;
 out.flags.averaged=0;
-out.flags.addedrcvrs=0;
+out.flags.addedrcvrs=1;
 out.flags.subtracted=0;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
