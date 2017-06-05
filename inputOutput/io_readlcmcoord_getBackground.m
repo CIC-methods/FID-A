@@ -50,7 +50,7 @@ switch part
     case 'sp'
         bgstr='NY phased data points follow'
     case 'fit'
-        bgstr='NY points of the fit to the follow'
+        bgstr='NY points of the fit to the data follow'
     otherwise
         error('ERROR:  part not found');
 end
