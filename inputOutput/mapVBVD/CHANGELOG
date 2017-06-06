@@ -1,0 +1,37 @@
+Philipp Ehses 11.02.07, original version
+[..]
+Philipp Ehses 22.03.11, port to VD11
+Felix Breuer  31.03.11, added support for noise & ref scans, speed fixes
+Philipp Ehses 19.08.11, complete reorganization of code, added
+                        siemens_data_obj class to improve readability
+Wolf Blecher  15.05.12, readout of slice position parameters for VB Data sets
+Wolf Blecher  11.06.12, added distinction between PATREF and PATREF PHASCOR
+Philipp Ehses 02.08.12, again massive code reorganization. The new class
+                        twix_map_obj.m now stores the memory position of
+                        each dataset (coils are included - size: NCol*NCha)
+                        The actual data is not read until it is demanded
+                        by a "data_obj()" call. This makes it possible
+                        to selectively read in only parts of the data
+                        (e.g. to preserve memory).
+Philipp Ehses 27.08.12, speed optimizations (avoiding of .-subsref calls)
+07.09.12 Thanks to Stephen Yutzy for implementing support for raw data
+         correction (currently only supported for VB software version).
+15.01.13 Thanks to Zhitao Li for proper handling of SYNCDATA.
+Philipp Ehses 28.08.13, added support for VD13 multi-raid files
+Michael Völker May-Aug 15 * Better error tolerance with incomplete files.
+                        * Swapped out parsing loop into a separate function
+                          without access to twix object (no thousands of subsref calls).
+                        * For parsing, use an as-minimalistic-as-possible loop
+                          to gather all mdhs in binary form. They are all stored
+                          in one array "mdh_blob".
+                        * Translation of mdhs from binary to struct is vectorized
+                          and almost instant. It's done in evalMDH(), replacing
+                          evalMDHvb() and evalMDHvd(), no more freads inside!
+                        * vectorized readMDH(), quasi-instant
+                        * When parsing, actually read the entire file without jumps.
+                          This is weirdly faster than fseek(), plus the entire file is
+                          kept in the file system cache, if possible. Next read
+                          is therefore faster, too.
+                        * => Parsing speed improved by factor 3...7 or so
+                        * Speed increase for reading data, esp. when slicing,
+                          os-removal or reflected lines. Also for random acquisitions.

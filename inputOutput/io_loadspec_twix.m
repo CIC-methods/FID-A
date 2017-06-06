@@ -1,5 +1,6 @@
 %io_loadspec_twix.m
 %Jamie Near, McGill University 2014.
+%Edits from Franck Lamberton, 2017.
 %
 % USAGE:
 % out=io_loadspec_twix(filename);
@@ -39,47 +40,24 @@ elseif iscell(twix_obj)
 end
 dOut.data=twix_obj.image();
 version=twix_obj.image.softwareVersion;
+sqzSize=twix_obj.image.sqzSize; 
 sqzDims=twix_obj.image.sqzDims;
-sqzSize=twix_obj.image.sqzSize;
+
 
 %find out what sequence, the data were acquired with.  If this is a
 %multi-raid file, then the header may contain multiple instances of
 %'tSequenceFileName' for different scans (including a pre-scan).
 %Therefore, if multi-raid file, we will need to do a bit of extra digging 
 %to find the correct sequence name.  
-fid=fopen(filename);
-if RaidLength<2
-    line=fgets(fid);
-    index=strfind(line,'tSequenceFileName');
-    equals_index=strfind(line,'= ');
-    while isempty(index) || isempty(equals_index)
-        line=fgets(fid);
-        index=strfind(line,'tSequenceFileName');
-        equals_index=strfind(line,'= ');
-    end
-    sequence=line(equals_index+2:end-1);
-else
-    sequence='';
-    while isempty(sequence) || ~isempty(strfind(sequence,'AdjustSeq'))
-        line=fgets(fid);
-        index=strfind(line,'tSequenceFileName');
-        equals_index=strfind(line,'= ');
-        while isempty(index) || isempty(equals_index)
-            line=fgets(fid);
-            index=strfind(line,'tSequenceFileName');
-            equals_index=strfind(line,'= ');
-        end
-        sequence=line(equals_index+2:end-1);
-    end
-end 
+sequence=twix_obj.hdr.Config.SequenceFileName;  
 
 %Try to find out what sequnece this is:
-isSpecial=~isempty(strfind(sequence,'rm_special')); %Is this Ralf Mekle's SPECIAL Sequence?
+isSpecial=~isempty(strfind(sequence,'rm_special')) || ~isempty(strfind(sequence,'vq_special')); %Is this Ralf Mekle's SPECIAL sequence or the CIBM SPECIAL sequence?
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
+isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
 isjnseq=~isempty(strfind(sequence,'jn_')); %Is this one of Jamie Near's sequences?
 isMinnMP=~isempty(strfind(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
 
-fclose(fid);
 %Ralf Mekle's SPECIAL sequence does not store the subspectra along a
 %separate dimension of the data array, so we will separate them
 %artifically:
@@ -106,102 +84,20 @@ seq=sequence;
 fids=squeeze(data);
 
 %Find the magnetic field strength:
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'sProtConsistencyInfo.flNominalB0');
-equals_index=strfind(line,'= ');
-while isempty(index) || isempty(equals_index)
-    line=fgets(fid);
-    index=strfind(line,'sProtConsistencyInfo.flNominalB0');
-    equals_index=strfind(line,'= ');
-end
-Bo=line(equals_index+1:end);
-Bo=str2double(Bo);
-fclose(fid);
+Bo=twix_obj.hdr.Dicom.flMagneticFieldStrength;
 
 %Find the number of averages:
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'<ParamLong."lAverages">');
-if isempty(index);
-    instancesFound=0;  %Ignore first instance becuase of multi_raid issue
-else
-    instancesFound=1;
-end
-while isempty(index) || instancesFound<RaidLength
-    line=fgets(fid);
-    index=strfind(line,'<ParamLong."lAverages">');
-    if ~isempty(index)
-        instancesFound=instancesFound+1;
-    end
-end
-line=fgets(fid);
-line=fgets(fid);
-Naverages=line;
-Naverages=str2num(Naverages);
-fclose(fid);
+Naverages=twix_obj.hdr.Meas.Averages;
 
 %Find out if multiple coil elements were used:
-fid=fopen(filename);
-line=fgets(fid);
-coil_index=strfind(line,'ParamLong."iMaxNoOfRxChannels"');
-while isempty(coil_index)
-    line=fgets(fid);
-    coil_index=strfind(line,'ParamLong."iMaxNoOfRxChannels"');
-end
-line=fgets(fid);
-line=fgets(fid);
-Ncoils=line;
-Ncoils=str2num(Ncoils);
-fclose(fid);
+Ncoils=twix_obj.hdr.Meas.iMaxNoOfRxChannels;  
 
 %Find the TE:
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'alTE[0]');
-if isempty(index);
-    instancesFound=0;  %Ignore first instance becuase of multi_raid issue
-else
-    instancesFound=1;
-end
-equals_index=strfind(line,'= ');
-while isempty(index) || isempty(equals_index) || instancesFound<RaidLength
-    line=fgets(fid);
-    index=strfind(line,'alTE[0]');
-    equals_index=strfind(line,'= ');
-    if ~isempty(index)
-        instancesFound=instancesFound+1;
-    end
-end
-TE=line(equals_index+1:end);
-TE=str2double(TE);
-fclose(fid);
+TE = twix_obj.hdr.MeasYaps.alTE{1};  %Franck Lamberton
 
 %Find the TR:
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'alTR[0]');
-if isempty(index);
-    instancesFound=0;  %Ignore first instance becuase of multi_raid issue
-else
-    instancesFound=1;
-end
-equals_index=strfind(line,'= ');
-while isempty(index) || isempty(equals_index) || instancesFound<RaidLength
-    line=fgets(fid);
-    index=strfind(line,'alTR[0]');
-    equals_index=strfind(line,'= ');
-    if ~isempty(index)
-        instancesFound=instancesFound+1;
-    end
-end
-TR=line(equals_index+1:end);
-TR=str2double(TR);
-fclose(fid);
+TR = twix_obj.hdr.MeasYaps.alTR{1};  %Franck Lamberton
 
-
-%Naverages
-%Ncoils
 %Now begin indexing the dimensions of the data array. ie. create the dims
 %structure, which specifies which dimensions of the data array are being
 %used to hold the time-domain data, the multiple coil channels, the
@@ -251,8 +147,10 @@ end
 %are any values left in the dimsToIndex vector, then there must be some
 %additional dimensions that need indexing.  We assume that if sub-spectra exist,
 %then these must be indexed in either the 'Ida' dimension (for all Jamie
-%Near's VB-version pulse sequences), or the 'Eco' dimension (for the WIP
-%MEGA-PRESS seuqence or the Minnesota MEGA-PRESS sequence). 
+%Near's VB-version pulse sequences), the 'Set' dimension (for all Jamie 
+%Near's VD/VE-version pulse sequences), the 'Eco' dimension (for the WIP
+%529 MEGA-PRESS sequence or the Minnesota MEGA-PRESS sequence), or the 'Ide' 
+% dimension (for the WIP 859 MEGA-PRESS sequence). 
 if ~isempty(dimsToIndex)
     %Now index the dimension of the sub-spectra
     if isjnseq  || isSpecial
@@ -263,6 +161,8 @@ if ~isempty(dimsToIndex)
         end
     elseif isWIP529 || isMinnMP
         dims.subSpecs=find(strcmp(sqzDims,'Eco'));
+    elseif isWIP859
+        dims.subSpecs=find(strcmp(sqzDims,'Ide'));
     else
         dims.subSpecs=dimsToIndex(1);
     end
@@ -353,59 +253,15 @@ specs=fftshift(ifft(fids,[],dims.t),dims.t);
 %Now get relevant scan parameters:*****************************
 
 %Get Spectral width and Dwell Time
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'sRXSPEC.alDwellTime[0]');
-equals_index=strfind(line,'= ');
-if isempty(index) || isempty(equals_index);
-    instancesFound=0;
-elseif ~isempty(index) && ~isempty(equals_index)
-    instancesFound=1;
-end
-while (isempty(index) || isempty(equals_index)) || instancesFound<RaidLength
-    line=fgets(fid);
-    index=strfind(line,'sRXSPEC.alDwellTime[0]');
-    equals_index=strfind(line,'= ');
-    if ~isempty(index) && ~isempty(equals_index)
-        instancesFound=instancesFound+1;
-    end
-end
-dwelltime=line(equals_index+1:end);
-dwelltime=str2double(dwelltime)*1e-9;
+dwelltime = twix_obj.hdr.MeasYaps.sRXSPEC.alDwellTime{1}*1e-9;  %Franck Lamberton
 spectralwidth=1/dwelltime;
-fclose(fid);
     
 %Get TxFrq
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'sTXSPEC.asNucleusInfo[0].lFrequency');
-equals_index=strfind(line,'= ');
-while isempty(index) || isempty(equals_index)
-    line=fgets(fid);
-    index=strfind(line,'sTXSPEC.asNucleusInfo[0].lFrequency');
-    equals_index=strfind(line,'= ');
-end
-txfrq=line(equals_index+1:end);
-txfrq=str2double(txfrq);
-fclose(fid);
+txfrq=twix_obj.hdr.Meas.Frequency;
 
 %Get Date
-fid=fopen(filename);
-line=fgets(fid);
-index=strfind(line,'ParamString."atTXCalibDate">');
-%quotes_index=strfind(line,'  "');
-while isempty(index) %|| isempty(equals_index)
-    line=fgets(fid);
-    index=strfind(line,'ParamString."atTXCalibDate">');
-    if ~isempty(index)
-        line=fgets(fid);
-        line=fgets(fid);
-        quote_index=strfind(line,'  "');
-    end
-end
-date=line(quote_index+3:quote_index+10);
-date=str2double(date);
-fclose(fid);
+date = getfield(regexp(twix_obj.hdr.MeasYaps.tReferenceImage0, ...
+'^".*\.(?<DATE>\d{8})\d*"$', 'names'), 'DATE');  %Franck Lamberton
 
 %Find the number of averages.  'averages' will specify the current number
 %of averages in the dataset as it is processed, which may be subject to
