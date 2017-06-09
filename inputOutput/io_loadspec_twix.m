@@ -138,7 +138,19 @@ if ~isempty(dims.averages)
     %remove the averages dimension from the dimsToIndex vector
     dimsToIndex=dimsToIndex(dimsToIndex~=dims.averages);
 else
-    dims.averages=0;
+    %If no Averages dimension was found, then check for a "Repetitions"
+    %dimension.  If that is found, store it under "averages".  If both
+    %"Averages" and "Repetitions" dimensions are found, "Repetitions" will
+    %be indexed under "Extras", since "Repetitions is not currently an
+    %option in FID-A.
+    dims.averages=find(strcmp(sqzDims,'Rep'));
+    if ~isempty(dims.averages)
+        dimsToIndex=dimsToIndex(dimsToIndex~=dims.averages);
+    else
+        %If neither an "Averages" or a "Repetitions" dimension is found,
+        %then set the FID-A "Averages" dimension to zero.
+        dims.averages=0;
+    end
 end
 
 %Now we have indexed the dimensions containing the timepoints, the coil
