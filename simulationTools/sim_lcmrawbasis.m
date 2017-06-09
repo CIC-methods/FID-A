@@ -16,11 +16,11 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % tau1      = first echo time in [s] (if seq='st', tau1 = TE)
-% tau2      = second echo time in [s].  (Used in Press, but not used in SE.
+% tau2      = second echo time in [s].  (Used in Press, but not used in SE or LASER.
 %     (If seq='st', tau2=TM).
 % addref    = add reference at 0ppm (for use in LCModel makebasis) ['y' or 'n']
 % makeraw   = make output file for lcmodel ['y' or 'n']
-% seq       = pulse sequence ['se' for Spin Echo or 'p' for Press]
+% seq       = pulse sequence ['se' for Spin Echo, 'p' for Press, 'st' for Steam, or 'l' for LASER]
 % metab     = one of the following choices
 %   'H2O'    = Water
 %   'Ala'    = Alanine
@@ -64,6 +64,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -79,6 +81,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -93,6 +97,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -106,6 +112,8 @@ switch metab
                 out1 = sim_press(n,sw,Bfield,linewidth,sys1,tau1,tau2);
             case 'st'
                 out1 = sim_steam(n,sw,Bfield,linewidth,sys1,tau1,tau2);
+            case 'l'
+                out1 = sim_laser(n,sw,Bfield,linewidth,sys1,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -119,6 +127,8 @@ switch metab
                 out2 = sim_press(n,sw,Bfield,linewidth,sys2,tau1,tau2);
             case 'st'
                 out2 = sim_steam(n,sw,Bfield,linewidth,sys2,tau1,tau2);
+            case 'l'
+                out2 = sim_laser(n,sw,Bfield,linewidth,sys2,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -134,6 +144,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -147,6 +159,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -160,6 +174,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -173,6 +189,8 @@ switch metab
                 out1 = sim_press(n,sw,Bfield,linewidth,sys1,tau1,tau2);
             case 'st'
                 out1 = sim_steam(n,sw,Bfield,linewidth,sys1,tau1,tau2);
+            case 'l'
+                out1 = sim_laser(n,sw,Bfield,linewidth,sys1,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -186,6 +204,8 @@ switch metab
                 out2 = sim_press(n,sw,Bfield,linewidth,sys2,tau1,tau2);
             case 'st'
                 out2 = sim_steam(n,sw,Bfield,linewidth,sys2,tau1,tau2);
+            case 'l'
+                out2 = sim_laser(n,sw,Bfield,linewidth,sys2,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -201,6 +221,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -214,6 +236,8 @@ switch metab
                 out1 = sim_press(n,sw,Bfield,linewidth,sys1,tau1,tau2);
             case 'st'
                 out1 = sim_steam(n,sw,Bfield,linewidth,sys1,tau1,tau2);
+            case 'l'
+                out1 = sim_laser(n,sw,Bfield,linewidth,sys1,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -227,6 +251,8 @@ switch metab
                 out2 = sim_press(n,sw,Bfield,linewidth,sys2,tau1,tau2);
             case 'st'
                 out2 = sim_steam(n,sw,Bfield,linewidth,sys2,tau1,tau2);
+            case 'l'
+                out2 = sim_laser(n,sw,Bfield,linewidth,sys2,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -240,6 +266,8 @@ switch metab
                 out3 = sim_press(n,sw,Bfield,linewidth,sys3,tau1,tau2);
             case 'st'
                 out3 = sim_steam(n,sw,Bfield,linewidth,sys3,tau1,tau2);
+            case 'l'
+                out3 = sim_laser(n,sw,Bfield,linewidth,sys3,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -257,6 +285,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -270,6 +300,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -283,6 +315,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -296,6 +330,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -309,6 +345,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -325,6 +363,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -338,6 +378,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -351,6 +393,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -364,6 +408,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -377,6 +423,8 @@ switch metab
                 out1 = sim_press(n,sw,Bfield,linewidth,sys1,tau1,tau2);
             case 'st'
                 out1 = sim_steam(n,sw,Bfield,linewidth,sys1,tau1,tau2);
+            case 'l'
+                out1 = sim_laser(n,sw,Bfield,linewidth,sys1,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -390,6 +438,8 @@ switch metab
                 out2 = sim_press(n,sw,Bfield,linewidth,sys2,tau1,tau2);
             case 'st'
                 out2 = sim_steam(n,sw,Bfield,linewidth,sys2,tau1,tau2);
+            case 'l'
+                out2 = sim_laser(n,sw,Bfield,linewidth,sys2,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -408,6 +458,8 @@ switch metab
                 out1 = sim_press(n,sw,Bfield,linewidth,sys1,tau1,tau2);
             case 'st'
                 out1 = sim_steam(n,sw,Bfield,linewidth,sys1,tau1,tau2);
+            case 'l'
+                out1 = sim_laser(n,sw,Bfield,linewidth,sys1,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -421,6 +473,8 @@ switch metab
                 out2 = sim_press(n,sw,Bfield,linewidth,sys2,tau1,tau2);
             case 'st'
                 out2 = sim_steam(n,sw,Bfield,linewidth,sys2,tau1,tau2);
+            case 'l'
+                out2 = sim_laser(n,sw,Bfield,linewidth,sys2,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -434,6 +488,8 @@ switch metab
                 out3 = sim_press(n,sw,Bfield,linewidth,sys3,tau1,tau2);
             case 'st'
                 out3 = sim_steam(n,sw,Bfield,linewidth,sys3,tau1,tau2);
+            case 'l'
+                out3 = sim_laser(n,sw,Bfield,linewidth,sys3,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -451,6 +507,8 @@ switch metab
                 out1 = sim_press(n,sw,Bfield,linewidth,sys1,tau1,tau2);
             case 'st'
                 out1 = sim_steam(n,sw,Bfield,linewidth,sys1,tau1,tau2);
+            case 'l'
+                out1 = sim_laser(n,sw,Bfield,linewidth,sys1,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -464,6 +522,8 @@ switch metab
                 out2 = sim_press(n,sw,Bfield,linewidth,sys2,tau1,tau2);
             case 'st'
                 out2 = sim_steam(n,sw,Bfield,linewidth,sys2,tau1,tau2);
+            case 'l'
+                out2 = sim_laser(n,sw,Bfield,linewidth,sys2,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -477,6 +537,8 @@ switch metab
                 out3 = sim_press(n,sw,Bfield,linewidth,sys3,tau1,tau2);
             case 'st'
                 out3 = sim_steam(n,sw,Bfield,linewidth,sys3,tau1,tau2);
+            case 'l'
+                out3 = sim_laser(n,sw,Bfield,linewidth,sys3,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -495,6 +557,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -508,6 +572,8 @@ switch metab
                 out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2);
             case 'st'
                 out = sim_steam(n,sw,Bfield,linewidth,sys,tau1,tau2);
+            case 'l'
+                out = sim_laser(n,sw,Bfield,linewidth,sys,tau1);
             otherwise
                 disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
         end
@@ -532,6 +598,8 @@ if addref
             ref = sim_press(n,sw,Bfield,linewidth,sysRef,tau1,tau2);
         case 'st'
             ref = sim_steam(n,sw,Bfield,linewidth,sysRef,tau1,tau2);
+        case 'l'
+            ref = sim_laser(n,sw,Bfield,linewidth,sysRef,tau1);
         otherwise
             disp(['ERROR:  Sequence ' seq 'not recognized!!!']);
     end
