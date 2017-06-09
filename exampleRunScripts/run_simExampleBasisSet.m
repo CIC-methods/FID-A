@@ -28,10 +28,10 @@
  np=8192;      %Spectral points
  sw=4000;      %Spectral width (Hz)
  Bo=7;         %Magnetic Field Strength (Tesla)
- te1=0.0055;    %First PRESS echo time, or SPECIAL echo time (s)
- te2=0.0055;    %Second PRESS echo time (if applicable) (s).
- seq='p'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
- ref='y'       %Add reference peak at 0ppm (used in LCModel, y or n);
+ te1=0.135;    %First PRESS echo time, or SPECIAL echo time (s)
+ te2=0.010;    %Second PRESS echo time (if applicable) (s).
+ seq='st'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
+ ref='n'       %Add reference peak at 0ppm (used in LCModel, y or n);
 % *************END OF INPUT PARAMETERS**************************
 
     [RF,H2O]=sim_lcmrawbasis(np,sw,Bo,lb,'H2O',te1,te2,ref,'y',seq);
