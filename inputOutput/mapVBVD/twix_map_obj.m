@@ -53,11 +53,11 @@ end
 properties(Dependent=true)
     dataSize % this is the current output size, depends on fullSize + some flags
     sqzSize
+    sqzDims
 end
 
 properties(GetAccess='public', SetAccess='protected')
     dataDims
-    sqzDims
 
     NCol  % mdh information
     NCha  % mdh information
@@ -800,10 +800,10 @@ methods
     
     
     function versiontime = get.readerVersion(~)
-        % returns gmt-unixtime of last commit (from file precommit-unixtime)
+        % returns utc-unixtime of last commit (from file precommit-unixtime)
         p = fileparts(mfilename('fullpath'));
         fid = fopen(fullfile(p, 'precommit_unixtime'));
-        versiontime = uint32(str2double(fgetl(fid)));
+        versiontime = uint64(str2double(fgetl(fid)));
         fclose(fid);
     end
     
@@ -824,19 +824,13 @@ methods
     end
     
     
+    function out = get.sqzDims(this)
+        out = this.dataDims(this.dataSize>1);
+    end
+    
+    
     function out = get.sqzSize(this)
-        % calculate sqzSize and sqzDims
-        out = this.dataSize(1);
-        this.sqzDims    = [];
-        this.sqzDims{1} = 'Col';
-        c = 1;
-        for k=2:numel(this.dataSize)
-            if this.dataSize(k)>1
-                c = c+1;
-                out(c) = this.dataSize(k);
-                this.sqzDims{c} = this.dataDims{k};
-            end
-        end
+        out = this.dataSize(this.dataSize>1);
     end
     
         

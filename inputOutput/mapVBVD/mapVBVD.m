@@ -395,7 +395,15 @@ for s=1:NScans
     
     % print reader version information
     if s==1
-        fprintf('Reader version (unixtime): %d\n', twix_obj{s}.image.readerVersion);
+        fprintf('Reader version: %d', twix_obj{s}.image.readerVersion);
+        isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+        if isOctave
+            date_str = ctime(twix_obj{s}.image.readerVersion);
+            date_str = date_str(1:end-1);
+        else
+            date_str = datetime(twix_obj{s}.image.readerVersion, 'ConvertFrom','posixtime');
+        end
+        fprintf(' (UTC: %s)\n', date_str);
     end
     
     % jump to first mdh
