@@ -111,6 +111,8 @@ elseif iscell(in)
             disp(['     Enter: ''' num2str(in{1}.dims.extras) ''' to display signal from the ''extras'' dimension.']);
         end
         dim=input('............ ');
+    else
+        dim=0;
     end
     figure;
     if ~dim
