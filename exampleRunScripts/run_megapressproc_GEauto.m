@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2017.
 % 
 % USAGE:
-% [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_GEauto(filestring,coilcombos,avgAlignDomain,alignSS);
+% [diffSpec,sumSpec,subSpec1,subSpec2,outw]=run_megapressproc_GEauto(filestring,coilcombos,avgAlignDomain,alignSS);
 % 
 % DESCRIPTION:
 % Fully automated processing script for GE MEGA-PRESS MRS data in P-file 
@@ -28,10 +28,12 @@
 % OUTPUTS:
 % diffSpec          = Fully processed difference spectrum.
 % sumSpec           = Fully processed sum spectrum.
+% subSpec1          = First MEGA-PRESS subspectrum.
+% subSpec2          = Second MEGA-PRESS subspectrum.
 % outw               = Fully processed water unsuppressed spectrum. 
 %
 
-function [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_GEauto(filestring,coilcombos,avgAlignDomain,alignSS);
+function [diffSpec,sumSpec,subSpec1,subSpec2,outw]=run_megapressproc_GEauto(filestring,coilcombos,avgAlignDomain,alignSS);
 
 if nargin<4
     alignSS=2;
