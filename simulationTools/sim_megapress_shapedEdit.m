@@ -35,11 +35,14 @@
 % sys        = Metabolite spin system definition structure;
 % editPh1    = the phase of the first editing pulse in [degrees];
 % editPh2    = the phase of the second editing pulse in [degrees];
+% centreFreq = the centre frequency of the experiment in [ppm];
 
-function out = sim_megapress_shapedEdit(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2)
+function out = sim_megapress_shapedEdit(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2,centreFreq)
 
-%Set 3ppm GABA resonance to centre
-centreFreq=3;
+if nargin<11
+    %Set 3ppm GABA resonance to centre
+    centreFreq=3;
+end
 sys.shifts=sys.shifts-centreFreq;
 
 %Calculate Hamiltonian matrices and starting density matrix.
