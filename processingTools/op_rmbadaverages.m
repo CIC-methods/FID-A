@@ -27,6 +27,13 @@ if ~in.flags.addedrcvrs
     error('ERROR:  Receivers should be combined first!  Aborting!');
 end
 
+if nargin<3
+    domain='t';
+    if nargin<2
+        nsd=3;
+    end
+end
+
 %first, make a metric by subtracting all averages from the first average, 
 %and then taking the sum of all all the spectral points.  
 if in.dims.subSpecs>0
