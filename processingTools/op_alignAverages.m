@@ -10,11 +10,18 @@
 % correction of magnetic resonance spectroscopy data by spectral 
 % registration in the time domain. Magn Reson Med. 2014 Jan 16. 
 % doi: 10.1002/mrm.25094. [Epub ahead of print]
+%
+% June 15th 2017:  Made the tmax and avg arguments optional.  If tmax is 
+% not specified, the value is determined automatically by finding the time
+% at which the SNR of the FID drops permanently below 5.  This idea
+% was suggested by Mark Mikkelsen.  Thanks Mark!!
 % 
 % INPUTS:
 % in        = Input data structure.
 % tmax      = Maximum time (s) in time domain to use for alignment.
+%             (Optional.  Default is the time at which SNR drops below 3)
 % avg       = Align averages to the average of the averages? (y or n)
+%             (Optional.  Default = 'n')
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
 
 function [out,fs,phs]=op_alignAverages(in,tmax,avg,initPars)
@@ -34,6 +41,25 @@ else
 
     if nargin<4
         parsFit=[0,0];
+        if nargin<3
+            avg='n'
+            if nargin<2
+                %if tmax is not specified, find the time at which the SNR
+                %drops below 5
+                disp('tmax not supplied.  Calculating tmax....');
+                sig=abs(in.fids);
+                noise=std(real(in.fids(ceil(0.75*end):end,:,:)),[]);
+                noise=mean(mean(mean(noise,2),3),4);
+                snr=sig/noise;
+                
+                for n=1:(numel(snr)/size(snr,1))
+                    N=find(snr(:,n)>5);
+                    tmax_est(n)=in.t(N(end));
+                end
+                tmax=median(tmax_est); 
+                disp(['tmax = ' num2str(tmax*1000) 'ms.']);
+            end
+        end
     else
         parsFit=initPars;
     end
