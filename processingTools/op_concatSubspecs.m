@@ -12,7 +12,7 @@
 % in1    = first input in matlab structure format.
 % in2    = second input in matlab structure format.
 
-function out=op_concatAverages(in1,in2);
+function out=op_concatSubspecs(in1,in2);
 
 if in1.dims.subSpecs ~= in2.dims.subSpecs || in1.dims.t ~= in2.dims.t || in1.dims.coils ~= in2.dims.coils || in1.dims.averages ~=in2.dims.averages
     error('subSpecs dimensions must be the same for both inputs');
@@ -43,6 +43,7 @@ out.subspecs=in1.subspecs+in2.subspecs;
 %FILLING IN THE FLAGS
 out.flags=in1.flags;
 out.flags.writtentostruct=1;
+out.flags.subtracted=0;
 
 
 
