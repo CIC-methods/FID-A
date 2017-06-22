@@ -120,13 +120,18 @@ if (nechoes == 1)
     out.p.Nwateravg = 8; %moved from MRSGABAinstunits RE 110726
     ShapeData = reshape(raw_data,[2 out.p.npoints totalframes nreceivers]);
     ZeroData = ShapeData(:,:,1,:);
-    WaterData = ShapeData(:,:,2:9,:);
-    FullData = ShapeData(:,:,10:end,:);
+    %WaterData = ShapeData(:,:,2:9,:);
+    %FullData = ShapeData(:,:,10:end,:);
+    WaterData = ShapeData(:,:,2:3,:);  %JN - should be only 2 water reference scans
+    FullData = ShapeData(:,:,4:end,:);  %JN - The rest should be water suppressed scans
+
     
-    totalframes = totalframes-9;
+    %totalframes = totalframes-9;
+    totalframes = totalframes-3; %JN - only 3 non-water suppressed scans.
     out.p.nrows=totalframes;
     
-    Frames_for_Water = 8;
+    %Frames_for_Water = 8;
+    Frames_for_Water = 2;  %JN - only 2 non-water suppressed scans.
 else
     dataframes = f_hdr_value(59)/navs
     refframes = f_hdr_value(74)
