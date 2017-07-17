@@ -1,0 +1,28 @@
+% op_combineRcvrs.m
+% Jamie Near, McGill University 2017.
+% 
+% USAGE:
+% [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
+% 
+% DESCRIPTION:
+% Perform weighted coil recombination on both water suppressed and water 
+% unsuppressed MRS data acquired with a reciever coil array.
+% 
+% INPUTS:
+% in            = Water suppressed input spectrum in matlab structure format.
+% inw           = Water unsuppressed input spectrum in matlab structure format.
+
+function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
+
+%first find the weights using the water unsuppressed data:
+weights=op_getcoilcombos(inw,1,'w');
+
+%now apply the weights to both the water unsuppressed and water suppressed
+%data, but don't combine the averages:
+out_presum=op_alignrcvrs(in,1,'w',weights);
+outw_presum=op_alignrcvrs(inw,1,'w',weights);
+
+%now apply the weights and combine the averages:
+out=op_addrcvrs(in,1,'w',weights);
+outw=op_addrcvrs(inw,1,'w',weights);
+

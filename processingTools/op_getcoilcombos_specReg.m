@@ -19,11 +19,12 @@
 %                     that filename.  If the input is a structure, it will
 %                     operate on that structure.
 % tmin               = The earliest timepoint in the fid to be used for 
-%                     spectral registration.
+%                     spectral registration.  (Optional.  Default=0 sec);
 % tmax               = The latest timepoint in the fid to be used for 
-%                     spectral registration.
+%                     spectral registration.  (Optional.  Default=0.2 sec);
 % point              = The index of the datapoint in the fid that is used
-%                     for determination of Signal intensity.
+%                     for determination of Signal intensity. (Optional.
+%                     Default = 1);
 
 function coilcombos=op_getcoilcombos_specReg(file_or_struct,tmin,tmax,point);
 
@@ -36,6 +37,16 @@ end
 
 if in.flags.addedrcvrs
     error('ERROR:  must provide data prior to coil combination!!  ABORTING!!');
+end
+
+if nargin<4
+    point=1;
+    if nargin<3
+        tmax=0.2;
+        if nargin<2
+            tmin=0;
+        end
+    end
 end
 
 B=in.sz(in.dims.coils);

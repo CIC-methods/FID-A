@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% coilcombos=op_getcoilcombos(file_or_struct,point);
+% coilcombos=op_getcoilcombos(file_or_struct,point,mode);
 % 
 % DESCRIPTION:
 % This funciton finds the relative coil phases and amplitudes.  Coil phases
@@ -17,7 +17,9 @@
 %                     operate on that structure.
 % point              = The index of the datapoint in the fid that is used
 %                     for determination of signal intensity and phase.
-% mode               = -'w' performs amplitude weighting of channels based on the
+%                     (Optional.  Default = 1).
+% mode               = Method for estimating the coil weights and phases (optional.  Default = 'w').
+%                      -'w' performs amplitude weighting of channels based on the
 %                     maximum signal of each coil channel.
 %                      -'h' performs amplitude weighting of channels based on the
 %                     maximum signal of each coil channel divided by the square of
@@ -35,6 +37,9 @@ end
 
 if nargin<3
     mode='w';
+    if nargin<2
+        point=1;
+    end
 end
 
 if in.flags.addedrcvrs
