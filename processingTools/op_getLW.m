@@ -2,10 +2,11 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [FWHM]=op_getLW(in,zpfactor,Refppmmin,Refppmmax);
+% [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor);
 % 
 % DESCRIPTION:
-% Estimates the linewidth of a reference peak in the spectrum.  Two methods are
+% Estimates the linewidth of a reference peak in the spectrum.  By default, 
+% the reference peak is water, between 4.4 and 5.0 ppm.  Two methods are
 % used to estimate the linewidth:  1.  FWHM is measured by simply taking the
 % full width at half max of the reference peak.  2.  The FWHM is measured by
 % fitting the reference peak to a lorentzian lineshape and determine the FWHM of the
@@ -13,11 +14,24 @@
 % 
 % INPUTS:
 % in         = input spectrum in structure format.
-% zpfactor   = zero-padding factor (used for method 1.)
 % Refppmmin  = Min of frequency range (ppm) in which to search for reference peak.
+%                  (Optional.  Default = 4.4 ppm);
 % Refppmmax  = Max of frequency range to (ppm) in which search for reference peak
+%                  (Optional.  Default = 5.0 ppm);
+% zpfactor   = zero-padding factor (used for method 1.)
+%                  (Optional.  Default = 8);
 
-function [FWHM]=op_getLW(in,zpfactor,Refppmmin,Refppmmax);
+function [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor);
+
+if nargin<4
+    zpfactor=8;
+    if nargin<3
+        Refppmmax=5.0;
+        if nargin<2
+            Refppmmin=4.4;
+        end
+    end
+end
 
 %in=io_readlcmraw(filestring,'dat');
 in=op_zeropad(in,zpfactor);

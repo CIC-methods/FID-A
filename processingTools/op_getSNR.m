@@ -10,11 +10,29 @@
 % INPUTS:
 % in             = input data in matlab structure format
 % NAAppmmin      = min of frequncy range in which to search for NAA peak.
+%                  (Optional.  Default = 1.8 ppm);
 % NAAppmmax      = max of frequncy range in which to search for NAA peak.
+%                  (Optional.  Default = 2.2 ppm);
 % noiseppmmin    = min of frequency range in which to measure noise.
+%                  (Optional.  Default = -2 ppm);
 % noiseppmmax    = max of frequency range in which to measure noise.
+%                  (Optional.  Default = 0 ppm);
 
 function [SNR]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
+
+
+if nargin<5
+    noiseppmmax=0;
+    if nargin<4
+        noiseppmmin=-2;
+        if nargin<3
+            NAAppmmax=2.2;
+            if nargin<2
+                NAAppmmin=1.8;
+            end
+        end
+    end
+end
 
 
 %FIRST FIND THE NAA PEAK HEIGHT:
