@@ -19,6 +19,9 @@
 % axis      = Axis of rotation ('x', 'y' or 'z'); (A z-rotation technically
 %               doesn't correspond to an rf pulse roatation, but it is included here
 %               anyway).  
+%
+% OUTPUTS:
+% d_out     = output density matrix following rf rotation.
 
 function d_out = sim_rotate(d_in,H,angle,axis)
 

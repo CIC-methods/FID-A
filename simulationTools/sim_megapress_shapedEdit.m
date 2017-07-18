@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% sim_megapress_shapedEdit(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2)
+% sim_megapress_shapedEdit(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2,centreFreq)
 % 
 % DESCRIPTION:
 % This function simulates the MEGA-PRESS sequence with instantaneous
@@ -36,6 +36,10 @@
 % editPh1    = the phase of the first editing pulse in [degrees];
 % editPh2    = the phase of the second editing pulse in [degrees];
 % centreFreq = the centre frequency of the experiment in [ppm];
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using MEGA-PRESS 
+%             sequence.
 
 function out = sim_megapress_shapedEdit(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2,centreFreq)
 

@@ -11,8 +11,12 @@
 % used in other functions to simulate NMR experiments.
 % 
 % INPUTS:
-% sys            = spin system definition structure.
-% Bfield         = magnetic field strength (Tesla).
+% sys     = spin system definition structure.
+% Bfield  = magnetic field strength (Tesla).
+%
+% OUTPUTS:
+% H       = n x n Hamiltonian matrix for spin system.
+% d       = Equilibrium density matrix. 
 
 function [H,d] = sim_Hamiltonian(sys,Bfield)
 

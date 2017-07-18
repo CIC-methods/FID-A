@@ -18,6 +18,10 @@
 % sys       = spin system definition structure
 % tau1      = Echo time in [s] of first press Spin Echo
 % tau2      = Echo time in [s] of second press Spin Echo
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using PRESS 
+%             sequence.
 
 function out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2)
 

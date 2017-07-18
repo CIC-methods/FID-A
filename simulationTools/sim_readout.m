@@ -2,7 +2,7 @@
 %Jamie Near, 2014.
 %
 % USAGE:
-% d_out = sim_readout(d_in,H,n,sw,linewidth,rcvPhase,shape)
+% [out,d_out] = sim_readout(d_in,H,n,sw,linewidth,rcvPhase,shape)
 % 
 % DESCRIPTION:
 % This function simulates an ADC readout of the transverse magnetization
@@ -20,6 +20,10 @@
 %                'L' = lorentzian (default) 
 %                'G' = gaussian 
 %                'LG' = Lorentz-Gauss (50% mixture)
+%
+% OUTPUTS:
+% out       = simulated spectrum resulting from readout.
+% d_out     = output density matrix following readout.
 
 function [out,d_out] = sim_readout(d_in,H,n,sw,linewidth,rcvPhase,shape);
 

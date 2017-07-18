@@ -26,6 +26,11 @@
 % grad       = gradient strength for the selective refocusing pulse [G/cm]
 % pos        = position offset in the direction corresponding to the refocusing pulse [cm]
 % ph         = the phase of the refocusing pulse in [degrees];
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using spin-echo 
+%             sequence.
+
 
 function out = sim_spinecho_shaped(n,sw,Bfield,linewidth,sys,TE,RF,Tp,grad,pos,ph)
 

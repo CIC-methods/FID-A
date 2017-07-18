@@ -18,6 +18,11 @@
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
 % ph        = excitation pulse phase (in degrees)
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using
+%             pulse-acquire sequence.
+
 
 function out = sim_onepulse_arbPh(n,sw,Bfield,linewidth,sys,ph)
 

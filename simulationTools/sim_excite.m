@@ -13,11 +13,14 @@
 % H         = Hamiltonian operator structure.
 % axis      = Axis of rotation ('x' or 'y');
 % angle     = Flip angle of excitation (degrees).  Optional.  Default=90.
-% If angle is a scalar, then the same flip angle is applied to all spins 
-% in the spin system.  If angle is a vector, then the elements of the 
-% vector specify the flip angles to apply to each spin in the system.  In 
-% this case, the length of the vector must be the same as the number of 
-% spins in the spin system.  
+%             If angle is a scalar, then the same flip angle is applied to 
+%             all spins in the spin system.  If angle is a vector, then the 
+%             elements of the vector specify the flip angles to apply to 
+%             each spin in the system.  In this case, the length of the 
+%             vector must be the same as the number of spins in the spin system.  
+%
+% OUTPUTS:
+% d_out     = output density matrix following excitation pulse.
 
 function d_out = sim_excite(H,axis,angle)
 

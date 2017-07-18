@@ -16,6 +16,10 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using pulse-acquire 
+%             sequence.
 
 function out = sim_onepulse(n,sw,Bfield,linewidth,sys)
 

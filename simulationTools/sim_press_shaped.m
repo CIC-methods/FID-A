@@ -46,6 +46,10 @@
 % Gy        = gradient strength for second selective refocusing pulse [G/cm]
 % phCycl    = initial phase of the first refocusing pulse in [degrees];
 % phCycl2   = initial phase of the second refocusing pulse in [degrees];
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using PRESS 
+%             sequence.
 
 function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2)
     

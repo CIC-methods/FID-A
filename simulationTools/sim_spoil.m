@@ -11,6 +11,9 @@
 % d_in      = input density matrix structure.
 % H         = Hamiltonian operator structure.
 % angle     = Spoil angle (degrees).
+%
+% OUTPUTS:
+% d_out     = output density matrix following z-rotation.
 
 function d_out = sim_spoil(d_in,H,angle)
 

@@ -42,6 +42,10 @@
 % Gx         = gradient strength for selective refocusing pulse [G/cm]
 % dx         = position offset in x-direction (corresponding to refocusing pulse) [cm]
 % refPh      = the phase of the refocusing pulse in [degrees];
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using MEGA-SPECIAL 
+%             sequence.
 
 function out = sim_megaspecial_shaped(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2,refPulse,refTp,Gx,dx,refPh)
 

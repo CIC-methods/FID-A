@@ -15,6 +15,12 @@
 % TE            = Echo time [s].
 % TM            = Mixing time [s].
 % N             = Number of 'phase cycles'
+%
+% OUTPUTS:
+% steam         = simulated spectrum, in FID-A structure format, using STEAM 
+%                 sequence.
+% press         = simulated spectrum, in FID-A structure format, using PRESS 
+%                 sequence (for comparison).
 
 % *********INPUT VARIABLES***********
 spinsys='Lac';      %Spin system.

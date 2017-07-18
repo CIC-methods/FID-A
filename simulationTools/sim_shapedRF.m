@@ -32,6 +32,9 @@
 %             If simulating a slice selective pulse, this argument should 
 %             be the position offset [cm].
 % grad      = Gradient strength [G/cm]. Optional (for slice selective pulses only).
+%
+% OUTPUTS:
+% d_out     = output density matrix following shaped RF pulse. 
 
 function d_out = sim_shapedRF(d_in,H,RF,Tp,flipAngle,phase,dfdx,grad)
 

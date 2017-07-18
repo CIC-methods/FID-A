@@ -17,6 +17,10 @@
 % in          = input cell array of simulated spectra from a spatially resolved simulation
 % ppmmin      = lower limit of ppm range to plot [ppm]
 % ppmmax      = upper limit of ppm range to plot [ppm]
+%
+% OUTPUTS:
+% none 
+
 
 function []=sim_make2DSimPlot(in,ppmmin,ppmmax)
 

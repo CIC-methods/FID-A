@@ -22,6 +22,9 @@
 %               different spins in the system, the angle variable can be a
 %               vector of flip angles with length equal to the H.nspins.
 % ph        = Phase of rotation (in degrees; ie.  0='x', 90='y');
+%
+% OUTPUTS:
+% d_out     = output density matrix following rf rotation.
 
 function d_out = sim_rotate_arbPh(d_in,H,angle,ph)
 

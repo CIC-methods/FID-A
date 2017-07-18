@@ -49,6 +49,10 @@
 % dy         = position offset in y-direction (corresponding to second refocusing pulse) [cm]
 % refPh1     = the phase of the first refocusing pulse in [degrees];
 % refPh2     = the phase of the second refocusing pulse in [degrees];
+%
+% OUTPUTS:
+% out        = simulated spectrum, in FID-A structure format, using MEGA-PRESS 
+%              sequence.
 
 function out = sim_megapress_shapedRefoc(n,sw,Bfield,linewidth,taus,sys,editFlip,refPulse,refTp,Gx,Gy,dx,dy,refPh1,refPh2)
 

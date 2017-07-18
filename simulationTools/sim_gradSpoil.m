@@ -2,7 +2,7 @@
 %Jamie Near, 2014.
 %
 % USAGE:
-% d_out = sim_gradSpoil(d_in,H,gradVect,dur,posVect)
+% d_out = sim_gradSpoil(d_in,H,gradVect,posVect,dur)
 % 
 % DESCRIPTION:
 % This function simulates the effect of a rectangular spoiler gradient 
@@ -14,6 +14,9 @@
 % gradVect  = Vector of spoiler gradient amplitudes [Gx Gy Gz] in G/cm.
 % posVect   = Position vector of spins of interest [x y z] in cm.
 % dur       = Duration of the gradient pulse in ms.
+%
+% OUTPUTS:
+% d_out     = output density matrix following spoiler gradient.
 
 function d_out = sim_gradSpoil(d_in,H,gradVect,posVect,dur)
 

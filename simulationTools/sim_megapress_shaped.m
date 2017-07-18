@@ -3,7 +3,7 @@
 % 
 % USAGE:
 % sim_megapress_shaped(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2,refPulse,refTp,Gx,Gy,dx,dy,refPh1,refPh2)
-% 
+%
 % DESCRIPTION:
 % This function simulates the MEGA-PRESS sequence with shaped
 % localization pulses and shaped editing pulses.  Enables choice of the 
@@ -52,6 +52,10 @@
 % dy         = position offset in y-direction (corresponding to second refocusing pulse) [cm]
 % refPh1     = the phase of the first refocusing pulse in [degrees];
 % refPh2     = the phase of the second refocusing pulse in [degrees];
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using MEGA-PRESS 
+%             sequence.
 
 function out = sim_megapress_shaped(n,sw,Bfield,linewidth,taus,sys,editPulse,editTp,editPh1,editPh2,refPulse,refTp,Gx,Gy,dx,dy,refPh1,refPh2)
 

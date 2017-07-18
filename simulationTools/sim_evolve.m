@@ -12,6 +12,9 @@
 % d_in      = input density matrix structure.
 % H         = Hamiltonian operator structure.
 % t         = duration of evolution (s)
+%
+% OUTPUTS:
+% d_out     = output density matrix following free evolution.
 
 function d_out = sim_evolve(d_in,H,t)
 

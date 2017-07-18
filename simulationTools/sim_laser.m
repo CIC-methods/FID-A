@@ -17,6 +17,10 @@
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
 % TE        = Echo time in [s] 
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using LASER 
+%             sequence.
 
 function out = sim_laser(n,sw,Bfield,linewidth,sys,TE)
 

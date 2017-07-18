@@ -28,6 +28,11 @@
 %             should be the frequency offset [Hz].  If simulating a slice
 %             selective pulse, this argument should be the position offset [cm].
 % G         = gradient strength for slice-selective pulse [G/cm];
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using pulse-acquire 
+%             sequence.
+
 
 function out = sim_onepulse_shaped(n,sw,Bfield,linewidth,sys,RF,tp,phCyc,dfdx,G)
 

@@ -24,6 +24,10 @@
 % refoc1Flip= array of refoc1 flip angles for each spin in system
 % refoc2Flip= array of refoc2 flip angles for each spin in system
 % editFlip  = array of editing flip angles for each spin in system
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using MEGA-PRESS 
+%             sequence.
 
 function out = sim_megapress(n,sw,Bfield,linewidth,sys,taus,refoc1Flip,refoc2Flip,editFlip)
 

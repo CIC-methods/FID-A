@@ -1,11 +1,11 @@
-% sim_spinecho.m
+% sim_spinecho_xN.m
 % Robin Simpson and Jamie Near, 2014.
 % 
 % USAGE:
-% out = sim_spinecho(n,sw,Bfield,linewidth,sys,tau)
+% out = sim_spinecho(n,sw,Bfield,linewidth,sys,tau,Nechoes)
 % 
 % DESCRIPTION:
-% This function simulates a spin-echo experiment with instantaneous RF pulses.
+% This function simulates a multi-echo spin-echo experiment with 'Nechoes' instantaneous RF pulses.
 % 
 % INPUTS:
 % n         = number of points in fid/spectrum
@@ -14,12 +14,17 @@
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
 % tau       = echo time in [s]
+% Nechoes   = number of spin echoes (optional.  Default = 10);
 %
 % OUTPUTS:
-% out       = simulated spectrum, in FID-A structure format, using spin-echo 
-%             sequence.
+% out       = simulated spectrum, in FID-A structure format, using multi-echo 
+%             spin-echo sequence.
 
-function out = sim_spinecho(n,sw,Bfield,linewidth,sys,tau)
+function out = sim_spinecho_xN(n,sw,Bfield,linewidth,sys,tau,Nechoes)
+
+if nargin<7
+    Nechoes=10;
+end
 
 %Set water to centre
 centreFreq=4.65;
@@ -28,11 +33,15 @@ sys.shifts=sys.shifts-centreFreq;
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
+delay=tau/(2*Nechoes);
+
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                            %EXCITE
-d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
-d=sim_rotate(d,H,180,'y');                       %180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
+for k=1:Nechoes
+    d=sim_evolve(d,H,delay);                        %Evolve by tau/2
+    d=sim_rotate(d,H,180,'y');                       %180 degree refocusing pulse about y' axis.
+    d=sim_evolve(d,H,delay);                        %Evolve by tau/2
+end
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
@@ -40,7 +49,7 @@ d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
 out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
-out.seq='spinecho';
+out.seq=['spinecho_x' num2str(Nechoes)];
 out.te=tau;
 out.sim='ideal';
 

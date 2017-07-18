@@ -18,6 +18,10 @@
 % sys       = spin system definition structure
 % te        = echo time in [s]
 % tm        = mixing time in [s]
+%
+% OUTPUTS:
+% out       = simulated spectrum, in FID-A structure format, using steam
+%             sequence.
 
 function out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm)
 

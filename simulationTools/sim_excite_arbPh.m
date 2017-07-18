@@ -18,12 +18,15 @@
 % d_in      = input density matrix structure.
 % H         = Hamiltonian operator structure.
 % phase     = Phase of rotation in degrees (ie. 0='x', 90='y', etc);
-% angle     = Flip angle of excitation (degrees).  Optional.  Default=90.
-% If angle is a scalar, then the same flip angle is applied to all spins 
-% in the spin system.  If angle is a vector, then the elements of the 
-% vector specify the flip angles to apply to each spin in the system.  In 
-% this case, the length of the vector must be the same as the number of 
-% spins in the spin system.  
+% angle     = Flip angle of excitation (degrees).  Optional.  Default=90.  
+%             If angle is a scalar, then the same flip angle is applied to 
+%             all spins in the spin system.  If angle is a vector, then the 
+%             elements of the vector specify the flip angles to apply to 
+%             each spin in the system.  In this case, the length of the 
+%             vector must be the same as the number of spins in the spin system. 
+%
+% OUTPUTS:
+% d_out     = output density matrix following excitation pulse.
 
 function d_out = sim_excite_arbPh(H,phase,angle)
 
