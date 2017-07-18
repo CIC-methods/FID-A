@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% RF_shift=rf_freqshift(RF,Tp,f);
+% RF_shift=rf_freqshift(RF,Tp,F);
 % 
 % DESCRIPTION:
 % Apply a frequency shift to an RF pulse.
@@ -11,6 +11,9 @@
 % RF         = RF pulse definition structure.
 % Tp         = duration of the rf pulse in [ms].
 % F          = amount that you would like to frequency shift the rf pulse in [Hz].
+%
+% OUTPUTS:
+% RF_shift   = Output rf pulse following frequency shift.
 
 function RF_shift=rf_freqshift(RF,Tp,F)
 

@@ -15,7 +15,12 @@
 %             correspond to the reference frequency of the rf transmitter.  
 % n          = number of points in the rf waveform.
 % bw         = FWHM of the gaussian inversion profile in the frequnecy
-%           domain (Hz).
+%              domain (Hz).
+%
+% OUTPUTS:
+% rf         = Output rf waveform for gaussian rf pulse, in FID-A rf 
+%              pulse structure format.
+% AMPINT     = Calculated amplitude integral (for use in Siemens .pta files).
 
 function [rf,AMPINT]=rf_gauss(tp,df,n,bw);
 

@@ -17,6 +17,11 @@
 % peakB1 	= Peak B1 amplitude in [kHz] (optional.  Default=RF.tw1/tp)
 % ph        = Starting phase of the rf pulse [degrees] (optional. Default=0)
 % M0        = Starting magnetization [units of M0] (optional. Default=[0,0,1])
+%
+% OUTPUTS:
+% mv        = Simulated magnetization vector in three columns (x,y,z) as a
+%             function of frequency.
+% sc        = Frequency scale (in kHz) corresponding to the simulated mv vectors.
 
 
 function [mv,sc]=rf_blochSim(RF,tp,fspan,f0,peakB1,ph,M0);

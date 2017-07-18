@@ -8,9 +8,11 @@
 % Resample the input RF pulse into a new waveform with N discrete points.  
 % 
 % INPUTS:
-% RF        = RF pulse definition structure
+% RF_in     = Input RF pulse definition structure
 % N         = Number of points in new RF waveform
-
+% 
+% OUTPUTS:
+% RF_out    = Output rf waveform following resampling.
 
 function RF_out=rf_resample(RF_in,N);
 

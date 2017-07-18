@@ -16,8 +16,13 @@
 % bw         = bandwidth of both selection bands [Hz].
 % ph         = phase of the second gaussian.
 % shft       = frequency shift applied to both bands.
+%
+% OUTPUTS:
+% rf         = Output rf waveform for a dual banded rf pulse, in FID-A rf 
+%              pulse structure format.
+% AMPINT     = Calculated amplitude integral (for use in Siemens .pta files).
 
-function [rf,AMPINT]=rf_dualBand(tp,df,n,bw,ph,shft);
+function [rf,AMPINT]=rf_dualBand(tp,df,n,bw,ph,shft)
 
 %convert the pulse duration into seconds;
 tps=tp/1000;

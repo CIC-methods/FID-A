@@ -16,6 +16,10 @@
 %               Refocusing = 'ref'
 %               Inversion  = 'inv'
 %               Excitation = 'exc'
+% OUTPUTS:
+% rf         = Output rf waveform for sinc shaped rf pulse, in FID-A rf 
+%              pulse structure format.
+% AMPINT     = Calculated amplitude integral (for use in Siemens .pta files).
 
 function [rf,AMPINT]=rf_sinc(lobes,n,type);
 

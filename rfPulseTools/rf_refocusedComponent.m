@@ -19,6 +19,10 @@
 % INPUTS:
 % RF        = RF pulse definition structure
 % tp        = pulse duration in [ms] (optional.  Default = 5ms).
+%
+% OUTPUTS:
+% I         = Refocused component magnitude.
+% ph        = Refocused component phase.
 
 
 function [I,ph]=rf_refocusedComponent(RF,tp);

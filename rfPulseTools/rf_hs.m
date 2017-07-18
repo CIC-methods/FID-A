@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [rf]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
+% [RF,FM,mv,sc]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
 % 
 % DESCRIPTION:
 % this funciton creates any desired HS pulse.  N is the number of steps, n
@@ -17,7 +17,17 @@
 % tbw            = Time bandwidth product.
 % Tp             = Duration of the RF pulse (ms).
 % trunc          = Truncation of the amplitude modulation function.
-% thk            = thickness of the slice selective pulse (optional).  
+% thk            = thickness of the slice selective pulse (optional). 
+%
+% OUTPUTS:
+% rf             = Output rf waveform for a HS pulse, in FID-A rf pulse 
+%                  structure format.
+% FM             = Frequency modulation waveform (in Hz).
+% mv             = Simulated magnetization vector in three columns (x,y,z) 
+%                  as a function of frequency.
+% sc             = Frequency scale (in kHz) corresponding to the simulated 
+%                  mv vectors.
+
 
 function [RF,FM,mv,sc]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
 
