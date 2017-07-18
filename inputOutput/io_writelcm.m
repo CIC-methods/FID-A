@@ -12,6 +12,10 @@
 % in         = input data in matlab structure format.
 % outfile    = Desired filename of output text file.
 % te         = Echo time of acquisition (in ms).
+%
+% OUTPUTS:
+% RF         = Same as input.  Not used.  The primary output of this
+%                function is a text file in LCModel raw format. 
 
 function RF=io_writelcm(in,outfile,te);
 %function RF=writelcm(in,outfile,te);

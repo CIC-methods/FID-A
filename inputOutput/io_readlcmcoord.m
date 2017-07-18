@@ -12,6 +12,9 @@
 % part       = Which metabolite fit to extract from the .coord file - 
 %              The abbreviated metabolite name should be given (ie.
 %              'Cr','PCr','Glu','GABA',etc.)
+%
+% OUTPUTS:
+% out        = Desired metabolite component in simplified FID-A structure format.
 % 
 %Esin Ozturk Isik, Bogazici University, 01/06/2017.  Corrected the handling
 %of non-existing metabolites.

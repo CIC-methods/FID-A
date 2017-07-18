@@ -12,6 +12,10 @@
 % INPUTS:
 % rf         = matlab RF pulse.
 % outfile    = name of the output .RF file to be written.
+%
+% OUTPUTS:
+% RF         = Same as input.  Not used.  The primary output of this
+%                function is a text file in Varian/Agilent .RF format. 
 
 function RF=io_writeRF(rf,outfile);
 

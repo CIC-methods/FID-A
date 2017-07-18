@@ -12,6 +12,10 @@
 % INPUTS:
 % rf         = matlab RF pulse.
 % outfile    = name of the output .pta file to be written.
+%
+% OUTPUTS:
+% RF            = Same as input.  Not used.  The primary output of this
+%                   function is a text file in Siemens .pta format. 
 
 function RF=io_writepta(rf,outfile);
 

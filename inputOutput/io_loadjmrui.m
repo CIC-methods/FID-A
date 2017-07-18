@@ -9,6 +9,9 @@
 % 
 % INPUTS:
 % filename   = filename of the jMRUI txt file.
+%
+% OUTPUTS:
+% out = Input dataset in FID-A structure format.
 
 function out=io_loadjmrui(filename);
 

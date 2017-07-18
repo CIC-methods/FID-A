@@ -15,6 +15,9 @@
 % 
 % INPUTS:
 % filename   = filename of Varian .fid data to load.
+%
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
 
 function out=io_loadspec_varian(filename);
 

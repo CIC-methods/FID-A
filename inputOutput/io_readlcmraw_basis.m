@@ -9,6 +9,11 @@
 %
 % INPUTS:
 % filename   = filename of LCModel .basis file.
+%
+% OUTPUTS:
+% out        = Input basis set saved as a structure in which each field is
+%               an individual metabolite basis spectrum in FID-A structure 
+%               format.
 
 function [out]=io_readlcmraw_basis(filename)
 

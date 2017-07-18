@@ -16,6 +16,9 @@
 % 
 % INPUTS:
 % filename   = filename of Siemens twix data to load.
+%
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
 
 function out=io_loadspec_twix(filename);
 

@@ -10,6 +10,11 @@
 % 
 % INPUTS:
 % filename   = filename of the .pta file to read in.  
+%
+% OUTPUTS:
+% rf        = Input rf pulse waveform saved as a matlab array with 2
+%               columns (magnitude and phase).
+% info      = Not used.  
 
 function [rf,info]=io_readpta(filename)
 

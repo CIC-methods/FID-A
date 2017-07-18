@@ -19,6 +19,9 @@
 %             (amplitued and phase).
 % type      = Excitation ('exc'), Refocusing ('ref') or Inversion ('inv')
 % f0        = centre frequency of the rf pulse [Hz].  Optional. Default=0.
+%
+% OUTPUTS:
+% RF_struct = RF pulse waveform in FID-A rf pulse structure format.
 
 function RF_struct=io_loadRFwaveform(filename,type,f0);
 

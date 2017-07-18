@@ -9,6 +9,9 @@
 % 
 % INPUTS:
 % filename   = filename of LCModel raw file.
+%
+% OUTPUTS:
+% out        = Input metabolite basis spectrum in FID-A structure format.
 
 function [out]=io_readlcmraw_dotraw(filename)
 

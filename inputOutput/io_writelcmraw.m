@@ -14,7 +14,11 @@
 % outfile        = name of the output .RAW file.
 % metab          = Abbreviated name of the metabolite (ie. 'Cr', 'Glu',
 %                   etc.)
-
+%
+% OUTPUTS:
+% RF            = Same as input.  Not used.  The primary output of this
+%                   function is a text file in LCModel raw format.  
+    
 function RF=io_writelcmraw(data_struct,outfile,metab);
 %function RF=writelcmraw(data_struct,outfile);
 

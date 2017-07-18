@@ -9,6 +9,9 @@
 % 
 % INPUTS:
 % filename   = filename of jMRUI .txt file.
+%
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
 
 function [rf,info]=io_readjmrui(filename)
 

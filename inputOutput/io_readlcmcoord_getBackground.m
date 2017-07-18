@@ -12,6 +12,9 @@
 % part       = Which part of the .coord file to extract - 'bg' extracts the
 %             LCModel baseline signal, 'sp' extracts the spectrum, and 
 %             'fit' extracts the fit.
+%
+% OUTPUTS:
+% out        = Desired background component in simplified FID-A structure format.
 
 function [out]=io_readlcmcoord_getBackground(filename,part)
 

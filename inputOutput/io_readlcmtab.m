@@ -10,6 +10,10 @@
 % 
 % INPUTS:
 % filename   = filename of the LCModel .table file.
+%
+% OUTPUTS:
+% out        = A structure containing the LCmodel concentration estimates 
+%               and CRLB values for each metabolite.
 
 function out=io_readlcmtab(filename)
 

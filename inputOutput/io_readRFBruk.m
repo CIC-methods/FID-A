@@ -9,7 +9,11 @@
 % 2 columns specifying magnitude and phase.
 % 
 % INPUTS:
-% filename   = filename of the .pta file to read in.  
+% filename   = filename of the .pta file to read in. 
+%
+% OUTPUTS:
+% rf         = Input rf pulse waveform saved as a matlab array with 2
+%               columns (magnitude and phase).
 
 function rf=io_readRFBruk(filename)
 

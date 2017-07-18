@@ -10,6 +10,12 @@
 % 
 % INPUTS:
 % filename   = Filename of the lcmodel detailed output file.  
+%
+% OUTPUTS:
+% metabs     = A listing of the metabolites included in the correlation
+%               coefficients table.
+% corrMatrix = A matrix of correlation coefficients between metabolites,
+%               with indices specified by the 'metabs' variable.  
 
 function [metabs,corrMatrix]=io_loadlcmdetail(filename);
 

@@ -14,6 +14,11 @@
 % 
 % INPUTS:
 % filename   = filename of the .txt file to read in.  
+%
+% OUTPUTS:
+% rf         = Input rf pulse waveform saved as a matlab array with 3
+%               columns (phase, magnitude, duration).
+% info       = Empty. Not required.  
 
 function [rf,info]=io_readRFtxt(filename)
 

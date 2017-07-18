@@ -15,6 +15,12 @@
 % 
 % INPUTS:
 % inDir   = Path to the scan number directory that contains the 'pdata' folder.
+%
+% OUTPUTS:
+% out = Input dataset in FID-A structure format.
+% ref = The Reference scan data (navigator echoes) in FID-A structure 
+%       format, if applicable.
+
 
 
 function [out,ref]=io_loadspec_bruk(inDir)

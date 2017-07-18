@@ -22,6 +22,10 @@
 % subspecs   = number of subspectra in the data (from spectral editing, ISIS, etc.)
 % te         = Echo time (ms).  Optional.  Default is [].
 % tr         = Repetition time (ms).  Optional.  Default is [].
+%
+% OUTPUTS:
+% out        = Input water suppressed dataset in FID-A structure format.
+% out_w      = Input water reference dataset in FID-A structure format. 
 
 function [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs,te,tr);
 

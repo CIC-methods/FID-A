@@ -13,6 +13,9 @@
 % spectralwidth  = spectral width of the input spectrum (Hz).
 % te             = Echo time (ms).  Optional.  Defulat is [].
 % tr             = Repetition time (ms).  Optional.  Default is [].
+%
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
 
 function out=io_loadspec_IMA(filename,Bo,spectralwidth,te,tr);
 

@@ -24,6 +24,9 @@
 % INPUTS:
 % filename   = filename of Philips sdat file to be loaded.
 % subspecs   = number of subspectra in the data (from spectral editing, ISIS, etc.)
+%
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
 
 function out=io_loadspec_sdat(filename,subspecs);
 

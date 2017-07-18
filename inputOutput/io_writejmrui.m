@@ -11,6 +11,10 @@
 % INPUTS:
 % in         = input data in matlab structure format.
 % outfile    = Desired filename of output text file.
+%
+% OUTPUTS:
+% RF         = Same as input.  Not used.  The primary output of this
+%                function is a text file in jMRUI txt format. 
 
 function RF=io_writejmrui(in,outfile);
 

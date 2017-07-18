@@ -15,6 +15,9 @@
 % 
 % INPUTS:
 % inDir   = Path to the scan directory that contains the 'pdata' folder.
+%
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
 
 function out=io_loadspec_irBruk(inDir)
 
