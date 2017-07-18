@@ -25,6 +25,11 @@
 % spinSys               = spin system to simulate
 % editPhCyc1            = vector of phase cycling steps for 1st editing pulse [degrees]
 % editPhCyc2            = vector of phase cycling steps for 2nd editing pulse [degrees]
+%
+% OUTPUTS:
+% outON             = Simulated MEGA-PRESS edit-ON spectrum.
+% outOFF            = Simulated ExTE-MEGA-PRESS edit-OFF spectrum.
+% outDIFF           = Simulated ExTE-MEGA-PRESS difference spectrum.
 
 % ************INPUT PARAMETERS**********************************
 editWaveform='sampleEditPulse.pta'; %name of editing pulse waveform.

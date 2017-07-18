@@ -28,9 +28,9 @@
 % OUTPUTS:
 % diffSpec          = Fully processed difference spectrum.
 % sumSpec           = Fully processed sum spectrum.
-% subSpec1          = First MEGA-PRESS subspectrum.
-% subSpec2          = Second MEGA-PRESS subspectrum.
-% outw               = Fully processed water unsuppressed spectrum. 
+% subSpec1          = Fully processed MEGA-PRESS subspectrum #1.
+% subSpec2          = Fully processed MEGA-PRESS subspectrum #2.
+% outw              = Fully processed water unsuppressed spectrum. 
 %
 
 function [diffSpec,sumSpec,subSpec1,subSpec2,outw]=run_megapressproc_GEauto(filestring,coilcombos,avgAlignDomain,alignSS);

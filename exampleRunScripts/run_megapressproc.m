@@ -28,7 +28,9 @@
 % OUTPUTS:
 % out1_diff          = Fully processed difference spectrum.
 % out1_sum           = Fully processed sum spectrum.
+% out1               = Fully processed edit-on and edit-off subspectra.
 % outw               = Fully processed water unsuppressed spectrum. 
+% coilcombos         = Estimated coil weights and phases.
 
 function [out1_diff,out1_sum,out1,outw,coilcombos]=run_megapressproc(filestring,coilcombos,avgAlignDomain,alignSS);
 

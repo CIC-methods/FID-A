@@ -22,15 +22,42 @@
 %  te2      = Second PRESS echo time (if applicable) (s).
 %  seq      = Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
 %  ref      = Add reference peak at 0ppm (used in LCModel, y or n);
+%
+% OUTPUTS:
+% H2O       = Simulated water spectrum
+% Ala       = Simulated alanine spectrum
+% Asp       = Simulated aspartate spectrum
+% PCh       = Simulated phosphocholine spectrum
+% Cr        = Simulated creatine spectrum
+% PCr       = Simulated phosphochreatine spectrum
+% GABA      = Simulated GABA spectrum
+% Gln       = Simulated glutamine spectrum
+% Glu       = Simulated glutamate spectrum
+% GSH       = Simulated glutathione spectrum
+% Gly       = Simulated glycine spectrum
+% Ins       = Simulated myo-inositol spectrum
+% Lac       = Simulated Lactate spectrum
+% NAA       = Simulated NAA spectrum
+% Scyllo    = Simulated scyllo-inositol spectrum
+% Tau       = Simulated taurine spectrum
+% Asc       = Simulated ascorbate spectrum
+% bHB       = Simulated beta-hydroxybutyrate spectrum
+% bHG       = Simulated 2-hydroxyglutyrate spectrum
+% Glc       = Simulated glucose spectrum
+% NAAG      = Simulated N-acetylaspartylglutamate spectrum
+% GPC       = Simulated glycerophosphocholine spectrum
+% PE        = Simulated phosphoethanolamine spectrum
+% Ser       = Simulated serine spectrum
+%
 % 
 % ************INPUT PARAMETERS**********************************
  lb=2;         %linewidth (Hz)
  np=8192;      %Spectral points
  sw=4000;      %Spectral width (Hz)
  Bo=7;         %Magnetic Field Strength (Tesla)
- te1=0.135;    %First PRESS echo time, or SPECIAL echo time (s)
- te2=0.010;    %Second PRESS echo time (if applicable) (s).
- seq='st'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
+ te1=0.010;    %First PRESS echo time, or SPECIAL echo time (s)
+ te2=0.125;    %Second PRESS echo time (if applicable) (s).
+ seq='p'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam, 'l'=laser);
  ref='n'       %Add reference peak at 0ppm (used in LCModel, y or n);
 % *************END OF INPUT PARAMETERS**************************
 

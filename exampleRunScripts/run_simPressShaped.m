@@ -40,6 +40,10 @@
 % spinSys           = spin system to simulate 
 % refPhCyc1         = vector of phase cycling steps for 1st refocusing pulse [degrees]
 % refPhCyc2         = vector of phase cycling steps for 2nd refocusing pulse [degrees]
+%
+% OUTPUTS:
+% out_posxy         = Simulation results, spatially resolved.
+% out               = Simulation results, summed over all space.
 
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
@@ -50,10 +54,10 @@ Bfield=3; %magnetic field strength [Tesla]
 lw=2; %linewidth of the output spectrum [Hz]
 thkX=1.66; %slice thickness of x refocusing pulse [cm]
 thkY=1.66; %slice thickness of y refocusing pulse [cm]
-x=linspace(-1,1,12); %X positions to simulate [cm]
-y=linspace(-1,1,12); %y positions to simulate [cm]
+x=linspace(-1.2,1.2,8); %X positions to simulate [cm]
+y=linspace(-1.2,1.2,8); %y positions to simulate [cm]
 tau1=30; %TE1 for first spin echo [ms]
-tau2=78; %TE2 for second spin echo [ms]
+tau2=105; %TE2 for second spin echo [ms]
 spinSys='Lac'; %spin system to simulate
 centreFreq=3.0; %Centre frequency of MR spectrum [ppm]
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]

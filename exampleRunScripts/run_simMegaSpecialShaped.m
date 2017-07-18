@@ -42,6 +42,17 @@
 % editPhCyc1        = vector of phase cycling steps for 1st editing pulse [degrees]
 % editPhCyc2        = vector of phase cycling steps for 2nd editing pulse [degrees]
 % refPhCyc          = vector of phase cycling steps for 1st refocusing pulse [degrees]
+%
+% OUTPUTS:
+% outON_posx        = Simulated MEGA-SPECIAL edit-ON spectrum, spatially resolved. 
+% outOFF_posx       = Simulated MEGA-SPECIAL edit-OFF spectrum, spatially resolved.
+% outDIFF_posx      = Simulated MEGA-SPECIAL difference spectrum, spatially resolved.
+% outON             = Simulated MEGA-SPECIAL edit-ON spectrum, summed over
+%                     all positions.
+% outOFF            = Simulated MEGA-SPECIAL edit-OFF spectrum, summed over
+%                     all positions.
+% outDIFF           = Simulated MEGA-SPECIAL difference spectrum, summed over
+%                     all positions.
 
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
@@ -100,6 +111,7 @@ outON_posx_epc=cell(length(x),length(editPhCyc1),length(editPhCyc2));
 outOFF_posx_epc=cell(length(x),length(editPhCyc1),length(editPhCyc2));
 outON_posx=cell(length(x),1);
 outOFF_posx=cell(length(x),1);
+outDIFF_posx=cell(length(x),1);
 outON=struct([]);
 outOFF=struct([]);
 
@@ -137,18 +149,21 @@ parfor X=1:length(x);
                 outON_posx{X}=op_addScans(outON_posx{X},outON_posx_epc{X}{EP1}{EP2});
                 outOFF_posx{X}=op_addScans(outOFF_posx{X},outOFF_posx_epc{X}{EP1}{EP2});
             end
+            outDIFF_posx{X}=op_subtractScans(outON_posx{X},outOFF_posx{X});
         end %end of 1st editing phase cycle loop.
     end %end of 2nd editing phase cycle loop.
     outON=op_addScans(outON,outON_posx{X});
     outOFF=op_addScans(outOFF,outOFF_posx{X});
 end %end of spatial loop (parfor) in x direction.
-        
-% figure 
-% hold
-% for n=1:length(x)
-% plot(outON_posx{n}{1}.ppm,outON_posx{n}{1}.specs+5*n);
-% plot(outOFF_posx{n}{1}.ppm,outOFF_posx{n}{1}.specs+5*n);
-% end
+   
+outDIFF=op_subtractScans(outON,outOFF);
+
+figure 
+hold
+for n=1:length(x)
+plot(outON_posx{n}{1}.ppm,outON_posx{n}{1}.specs+5*n);
+plot(outOFF_posx{n}{1}.ppm,outOFF_posx{n}{1}.specs+5*n);
+end
 
 
 

@@ -41,6 +41,17 @@
 % editFlipOFF           = vector of edit-OFF pulse flip angles for each spin in spin system.
 % refPhCyc1             = vector of phase cycling steps for 1st refocusing pulse [degrees]
 % refPhCyc2             = vector of phase cycling steps for 2nd refocusing pulse [degrees]
+%
+% OUTPUTS:
+% outON_posxy       = Simulated MEGA-PRESS edit-ON spectrum, spatially resolved. 
+% outOFF_posxy      = Simulated MEGA-PRESS edit-OFF spectrum, spatially resolved.
+% outDIFF_posxy     = Simulated MEGA-PRESS difference spectrum, spatially resolved.
+% outON             = Simulated MEGA-PRESS edit-ON spectrum, summed over
+%                     all positions.
+% outOFF            = Simulated MEGA-PRESS edit-OFF spectrum, summed over
+%                     all positions.
+% outDIFF           = Simulated MEGA-PRESS difference spectrum, summed over
+%                     all positions.
 
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
@@ -88,6 +99,7 @@ outON_posxy_rpc=cell(length(x),length(y),length(refPhCyc1),length(refPhCyc2));
 outOFF_posxy_rpc=cell(length(x),length(y),length(refPhCyc1),length(refPhCyc2));
 outON_posxy=cell(length(x),length(y));
 outOFF_posxy=cell(length(x),length(y));
+outDIFF_posxy=cell(length(x),length(y));
 outON=struct([]);
 outOFF=struct([]);
 
@@ -115,6 +127,7 @@ parfor X=1:length(x);
                     outON_posxy{X}{Y}=op_addScans(outON_posxy{X}{Y},outON_posxy_rpc{X}{Y}{RP1}{RP2},xor(RP1~=length(refPhCyc1),RP2~=length(refPhCyc2)));
                     outOFF_posxy{X}{Y}=op_addScans(outOFF_posxy{X}{Y},outOFF_posxy_rpc{X}{Y}{RP1}{RP2},xor(RP1~=length(refPhCyc1),RP2~=length(refPhCyc2)));
                 end
+                outDIFF_posxy{X}{Y}=op_subtractScans(outON_posxy{X}{Y},outOFF_posxy{X}{Y});
             end %end of 1st refocusing phase cycle loop
         end %end of 2nd refocusing phase cycle loop
         
@@ -123,13 +136,12 @@ parfor X=1:length(x);
         
     end %end of spatial loop (parfor) in y direction.
 end %end of spatial loop (parfor) in x direction.
+
+outDIFF=op_subtractScans(outON,outOFF);
         
-figure 
-hold
-for n=1:length(x)
-plot(outON_posxy{n}{1}.ppm,outON_posxy{n}{1}.specs+5*n);
-plot(outOFF_posxy{n}{1}.ppm,outOFF_posxy{n}{1}.specs+5*n);
-end
+sim_make2DSimPlot(outON_posxy,2.75,3.25);
+sim_make2DSimPlot(outOFF_posxy,2.75,3.25);
+sim_make2DSimPlot(outDIFF_posxy,2.75,3.25);
 
 
 

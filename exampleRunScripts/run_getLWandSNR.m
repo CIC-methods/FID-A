@@ -14,6 +14,10 @@
 % 
 % INPUTS:
 % in    = input data in matlab structure format
+%
+% OUTPUTS:
+% FWHM  = Linewidth (full width at half maximum, in [Hz]) of the water peak.
+% SNR   = Signal to noise ratio of the NAA peak.
 
 function [ FWHM,SNR ] = run_getLWandSNR(in);
 
@@ -22,7 +26,7 @@ zpfactor=4;
 H2Oppmmin=4;
 H2Oppmmax=6;
 
- [FWHM]=op_getLW(in,zpfactor,H2Oppmmin,H2Oppmmax);
+ [FWHM]=op_getLW(in,H2Oppmmin,H2Oppmmax,zpfactor);
 
 %NOW CALCULATE FOUR DIFFERENT ESTIMATES OF SNR (SNR1, SNR2, SNR3 and SNR4), 
 %each using a different frequency range for noise estimation;

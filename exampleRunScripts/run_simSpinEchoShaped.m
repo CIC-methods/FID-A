@@ -35,6 +35,11 @@
 % TE                = Echo-Time  [ms]
 % spinSys           = spin system to simulate 
 % PhCyc             = vector of phase cycling steps for refocusing pulse [degrees]
+%
+% OUTPUTS:
+% out_pos           = Simulation results, spatially resolved.
+% out               = Simulation results, summed over all space.
+
 
 % ************INPUT PARAMETERS**********************************
 RFWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.

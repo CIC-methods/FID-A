@@ -12,24 +12,24 @@
 % generates an html report to describe the results of each processing step.
 % 
 % INPUTS:
-% filestring:    String variable for the name of the p-file
+% filestring    = String variable for the name of the p-file
 %                   the water suppressed data;
-% aaDomain:      (Optional) Perform the spectral registration (drift correction) using
+% aaDomain      = (Optional) Perform the spectral registration (drift correction) using
 %                   the full spectrum ('t'), or only a limited frequency
 %                   range ('f').  Default is 'f'.
-% tmaxin:        (Optional).  Duration (in sec.) of the time domain signal
+% tmaxin        = (Optional).  Duration (in sec.) of the time domain signal
 %                   used in the spectral registration (drift correction).
 %                   Default is 0.2 sec.
-% iterin:        (Optional).  Maximum number of allowed iterations for the spectral
+% iterin        = (Optional).  Maximum number of allowed iterations for the spectral
 %                   registration to converge. Default is 20.
 % 
 % OUTPUTS:
-% out:           Fully processed, water suppressed output spectrum.
-% out_w:         Fully processed, water unsuppressed output spectrum.
-% out_noproc:    Water suppressed output spectrum without pre-
+% out           = Fully processed, water suppressed output spectrum.
+% out_w         = Fully processed, water unsuppressed output spectrum.
+% out_noproc    = Water suppressed output spectrum without pre-
 %                   processing (No bad-averages removal, no frequency drift
 %                   correction).
-% out_w_noproc:  Water unsuppressed output spectrum without pre-
+% out_w_noproc  = Water unsuppressed output spectrum without pre-
 %                   processing.
 
 

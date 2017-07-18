@@ -8,7 +8,7 @@
 % DESCRIPTION:
 % This script simulates a MEGA-PRESS experiment with fully shaped editing 
 % and refocusing pulses.  Phase cycling of both the editing and refocusing
-% pulses is performed.  Furthermore, simulations are run at various
+% pulses is performed.  Simulations are run at various
 % locations in space to account for the within-voxel spatial variation of
 % the GABA signal.  Summation across phase cycles and spatial positions is
 % performed.  As a result of the phase cycling and spatially resolved simulations, 
@@ -46,6 +46,17 @@
 % editPhCyc2        = vector of phase cycling steps for 2nd editing pulse [degrees]
 % refPhCyc1         = vector of phase cycling steps for 1st refocusing pulse [degrees]
 % refPhCyc2         = vector of phase cycling steps for 2nd refocusing pulse [degrees]
+%
+% OUTPUTS:
+% outON_posxy       = Simulated MEGA-PRESS edit-ON spectrum, spatially resolved. 
+% outOFF_posxy      = Simulated MEGA-PRESS edit-OFF spectrum, spatially resolved.
+% outDIFF_posxy     = Simulated MEGA-PRESS difference spectrum, spatially resolved.
+% outON             = Simulated MEGA-PRESS edit-ON spectrum, summed over
+%                     all positions.
+% outOFF            = Simulated MEGA-PRESS edit-OFF spectrum, summed over
+%                     all positions.
+% outDIFF           = Simulated MEGA-PRESS difference spectrum, summed over
+%                     all positions.
 
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
@@ -155,13 +166,11 @@ parfor X=1:length(x);
                 if EP1==1 && EP2==1
                     outON_posxy{X}{Y}=outON_posxy_epc{X}{Y}{EP1}{EP2};
                     outOFF_posxy{X}{Y}=outOFF_posxy_epc{X}{Y}{EP1}{EP2};
-                    outDIFF_posxy{X}{Y}=op_subtractScans(outON_posxy{X}{Y},outOFF_posxy{X}{Y});
                 else
                     outON_posxy{X}{Y}=op_addScans(outON_posxy{X}{Y},outON_posxy_epc{X}{Y}{EP1}{EP2});
                     outOFF_posxy{X}{Y}=op_addScans(outOFF_posxy{X}{Y},outOFF_posxy_epc{X}{Y}{EP1}{EP2});
-                    outDIFF_posxy{X}{Y}=op_subtractScans(outON_posxy{X}{Y},outOFF_posxy{X}{Y});
                 end
-                
+                outDIFF_posxy{X}{Y}=op_subtractScans(outON_posxy{X}{Y},outOFF_posxy{X}{Y});
             end %end of 1st editing phase cycle loop.
         end %end of 2nd editing phase cycle loop.
         

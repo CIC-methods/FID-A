@@ -28,9 +28,10 @@
 %                     2 - Perform manual alignment of edit-on and edit-off subspectra.
 % 
 % OUTPUTS:
-% diffSpec          = Fully processed difference spectrum.
-% sumSpec           = Fully processed sum spectrum.
-% outw               = Fully processed water unsuppressed spectrum. 
+% diffSpec           = Fully processed difference spectrum.
+% sumSpec            = Fully processed sum spectrum.
+% subSpec1           = Fully processed MEGA-PRESS subspectrum #1.
+% subSpec2           = Fully processed MEGA-PRESS subspectrum #2.
 
 function [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
 

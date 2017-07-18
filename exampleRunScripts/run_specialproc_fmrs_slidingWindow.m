@@ -16,18 +16,19 @@
 % result, this function generates many text output files.  
 % 
 % INPUTS:
-% filestring:        String variable for the name of the directory containing
+% filestring       = String variable for the name of the directory containing
 %                       the water suppressed .dat file.  Water unsuppressed
 %                       .dat file should be contained in [filestring '_w/'];
-% windowSize:       This is an integer that specifies the number of averages
+% windowSize       = This is an integer that specifies the number of averages
 %                       that are stored within the sliding window.  It is
 %                       recommended to choose a window size that is
 %                       divisible by the number of phase cycles so that the
 %                       window does not contain any partial phase cycles.
 % 
 % OUTPUTS:
-% out1:              The first sliding window spectrum.  
-% out_w:             Fully processed, water unsuppressed output spectrum.
+% out1             = The first sliding window spectrum (the others are 
+%                    written to LCModel format).  
+% out_w            = Fully processed, water unsuppressed output spectrum.
 
 function [out1,out_w]=run_specialproc_fmrs_slidingWindow(filestring,windowSize);
 

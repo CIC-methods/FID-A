@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2015.
 % 
 % USAGE:
-% run_make2DSimPlot(in,ppmmin,ppmmax,plotDiff)
+% []=run_make2DSimPlot(in,ppmmin,ppmmax,plotDiff)
 % 
 % DESCRIPTION:
 % This function takes the output of a spatially resolved simulation, and

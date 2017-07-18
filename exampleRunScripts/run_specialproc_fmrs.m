@@ -13,10 +13,10 @@
 % vector) and returns the averaged stimulus OFF and simulus ON spectra.
 % 
 % INPUTS:
-% filestring:        String variable for the name of the directory containing
+% filestring       = String variable for the name of the directory containing
 %                       the water suppressed .dat file.  Water unsuppressed
 %                       .dat file should be contained in [filestring '_w/'];
-% blockDesign:       This is a vector of positive and negative even integers that
+% blockDesign      = This is a vector of positive and negative even integers that
 %                       make up the ON/OFF block design.  Each integer 
 %                       represents the number of sequential averages in a 
 %                       block.  Positive integers refer to ON blocks, and 
@@ -25,17 +25,17 @@
 %                       averages followed by 20 ON averages followed by 10
 %                       OFF averages, the blockDesign vector would be: 
 %                       [-30 20 -10];
-% leadingAvgsToRmv:  The number of averages to omit from the beginning of
+% leadingAvgsToRmv = The number of averages to omit from the beginning of
 %                       each block.  This is done to account for a lag in the 
 %                       neurochemical response to stimulus.  Must be an 
 %                       even integer.  (optional. Default=0);
 % 
 % OUTPUTS:
-% out_stimOFF:       Fully processed water suppressed spectrum from the sum 
+% out_stimOFF      = Fully processed water suppressed spectrum from the sum 
 %                       of the stimulus OFF periods.
-% out_stimON:        Fully processed water suppressed spectrum from the sum
+% out_stimON       = Fully processed water suppressed spectrum from the sum
 %                       of the stimulus ON periods.
-% out_w:             Fully processed, water unsuppressed output spectrum.
+% out_w            = Fully processed, water unsuppressed output spectrum.
 
 function [out_stimOFF,out_stimON,out_w]=run_specialproc_fmrs(filestring,blockDesign,leadingAvgsToRmv);
 
