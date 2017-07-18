@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2015.
 % 
 % USAGE:
-% [out,frqshift]=op_ppmref(in,ppmmin,ppmmax,ppmrefval);
+% [out,frqshift]=op_ppmref(in,ppmmin,ppmmax,ppmrefval,dimNum);
 % 
 % DESCRIPTION:
 % Search for the peak located between ppmmin and ppmmax, and then give that
@@ -13,6 +13,11 @@
 % ppmmin    = minimum of ppm search range.
 % ppmmax    = maximum of ppm search range.
 % ppmrefval = new reference ppm value.
+% dimNum    = which subspectrum to used for referencing (optional).
+%
+% OUTPUTS:
+% out       = Output dataset following frequency shift.
+% frqshift  = Frequency shift applied (in Hz).
 
 function [out,frqshift]=op_ppmref(in,ppmmin,ppmmax,ppmrefval,dimNum);
 

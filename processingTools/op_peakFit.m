@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2017.
 % 
 % USAGE:
-% [fit,parsFit]=op_peakFit(in,ppmmin,ppmmax);
+% [fit,parsFit,residual]=op_peakFit(in,ppmmin,ppmmax,parsGuess);
 % 
 % DESCRIPTION:
 % Perform a Voigt lineshape fit to a prominent singlet resonance within the
@@ -17,7 +17,11 @@
 %                linewidth [Hz]
 %                frequency [ppm]
 %                phase [degrees])
-
+%
+% OUTPUTS:
+% fit       = Voigt lineshape fit in simplified FID-A structure format. 
+% parsFit   = Fit parameters (same format as parsGuess).
+% residual  = The fit residual in simplified FID-A structure format.
 
 function [fit,parsFit,residual]=op_peakFit(in,ppmmin,ppmmax,parsGuess);
 

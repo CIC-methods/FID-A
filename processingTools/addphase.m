@@ -13,6 +13,10 @@
 % INPUTS:
 % specs          = Input vector.
 % AddedPhase     = Amount of phase (degrees) to add.
+%
+% OUTPUTS: 
+% PhasedSpecs    = Output vector (0th order phased version of the input). 
+
 
 function PhasedSpecs=addphase(specs,AddedPhase);
 

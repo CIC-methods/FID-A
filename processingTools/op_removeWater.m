@@ -2,37 +2,29 @@
 %Jay Hennessy, McGill University 2017.
 %
 % USAGE:
-% out=op_removeWater( out, wlim, K, M, plot_bool);
+% out=op_removeWater(out,wlim,Kinit,M,plot_bool);
 % 
 % DESCRIPTION:
 % This function removes the water signal from MRS data using HSVD method 
 % described by H. BARKHUIJSEN et al. 1987.
 % 
-% 
 % INPUTS:
-% in   = MRS data structure used by FID-a toolkit. Data should be
-%         pre-processed, for example by out = run_pressproc(filename)
-%
-% wlim = This is the frequency limits of the water peak to be fitted in
-%        ppm. (default = [4.4 5]
-%
-% K     = The number of frequency components in the data model This parameter
-%         might have to be played with. (default is 20).
-%        
-%
-% M     = M is the integer number of columns in the henkel matrix. Note: L
-%         is the number of rows and L+M=N where N is the number of data
-%         points. For best results 0.5<=L/M<=2. (default M= .75*length)
-%
+% in        = MRS data structure used by FID-a toolkit. Data should be
+%             pre-processed, for example by out = run_pressproc(filename)
+% wlim      = This is the frequency limits of the water peak to be fitted in
+%             ppm. (default = [4.4 5]
+% Kinit     = The number of frequency components in the data model This parameter
+%             might have to be played with. (default is 20).
+% M         = M is the integer number of columns in the henkel matrix. Note: L
+%             is the number of rows and L+M=N where N is the number of data
+%             points. For best results 0.5<=L/M<=2. (default M= .75*length.
 % plot_bool = if 1, water fit is plotted (default =1)
 %
 % OUTPUTS:
-% out   = New spectrum without the water peak in the as a FID-A structure
-%
-% K     = The number of frequency components used to fit the data.
-%
+% out       = New spectrum without the water peak in the as a FID-A structure
+% K         = The number of frequency components used to fit the data.
 
-function [ out, K,amp ] = op_removeWater( in,wlim, Kinit, M, plot_bool)
+function [ out, K,amp ] = op_removeWater(in,wlim,Kinit,M,plot_bool)
 
 % set default values ( intended for seimens data with 4096 data points)
 if nargin<5

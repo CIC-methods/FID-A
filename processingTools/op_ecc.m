@@ -12,7 +12,11 @@
 % 
 % INPUTS:
 % in     = water suppressed input data in matlab structure format.
-% in2    = water unsuppressed input data in matlab structure format.
+% inw    = water unsuppressed input data in matlab structure format.
+%
+% OUTPUTS:
+% out    = Water suppressed output following eddy current correction  
+% outw   = Water unsuppressed output following eddy current correction
 
 function [out,outw]=op_ecc(in,inw);
 

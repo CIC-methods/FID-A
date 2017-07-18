@@ -15,6 +15,11 @@
 %                  'p' - Phase align only
 %                  'fp or pf' - Frequency and phase align (default)
 %
+% OUTPUTS:
+% out       = Output following alignment of input (in) to the base spectrum.  
+% ph        = Phase shift (in degrees) used for alignment.
+% frq       = Frequency shift (in Hz) used for alignment.
+
 
 function [out,ph,frq]=op_alignScans(in,in1,tmax,mode);
 

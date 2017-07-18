@@ -14,6 +14,9 @@
 % addInd     = (optional) If add==1, then row indices [1 2] and [3 4]
 %             will be added.  Otherwise, row indices [1 2] and [3 4] will 
 %             be subtracted.
+%
+% OUTPUTS:
+% out        = Output following combination of ISIS subspectra.  
 
 function out=op_ISIScombine(in,addInd);
 

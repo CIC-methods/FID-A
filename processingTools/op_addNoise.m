@@ -14,6 +14,10 @@
 % sdnoise    = Standard deviation of the random noise to be added in the time domain.
 % noise      = (optional)  Specific noise kernel to be added (if specified,
 %               sdnoise variable is ignored).  
+%
+% OUTPUTS:
+% out        = Output dataset with noise added.
+% noise      = The noise vector that was added. 
 
 function [out,noise]=op_addNoise(in,sdnoise,noise);
 

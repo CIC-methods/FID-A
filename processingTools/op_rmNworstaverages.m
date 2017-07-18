@@ -11,6 +11,12 @@
 % INPUTS:
 % in         = input data in matlab structure format
 % n          = number of bad averages to remove
+%
+% OUTPUTS:
+% out         = Output dataset following removal of motion corrupted averages.
+% metric      = Vector of unlikeness metrics corresponding to all input
+%               averages. 
+% badAverages = Indices of the averages that were removed. 
 
 function [out,metric,badAverages]=op_rmNworstaverages(in,n);
 

@@ -14,6 +14,10 @@
 % avg        = Align averages to the average of the averages ('y'), or the 
 %              first average in the series ('n'); 
 % weighting	 = (Optional) Apply less weight to the later points of the fid?
+%
+% OUTPUTS:
+% out        = Output following alignment of averages.  
+% phs        = Vector of phases (in Degrees) used for alignment.
 
 function [out,phs]=op_phaseAlignAverages(in,Npts,avg,weighting)
 

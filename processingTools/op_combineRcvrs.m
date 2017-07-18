@@ -11,6 +11,18 @@
 % INPUTS:
 % in            = Water suppressed input spectrum in matlab structure format.
 % inw           = Water unsuppressed input spectrum in matlab structure format.
+%
+% OUTPUTS:
+% out           = Water suppressed output following combination of RF 
+%                 channels.  
+% outw          = Water unsuppressed output following combination of RF 
+%                 channels.
+% out_presum    = Water suppressed output with RF channels aligned but not 
+%                 combined. 
+% outw_presum   = Water unsuppressed output with RF channels aligned but not
+%                 combined.
+% weights       = Structure containing the coil weights and phases that were
+%                 applied.
 
 function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
 

@@ -12,6 +12,9 @@
 % INPUTS:
 % in     = input data in matlab structure format.
 % f      = frequency shift to apply to subspectrum (in Hz).
+%
+% OUTPUTS:
+% out    = Output following frequency shifting of subspectrum.  
 
 function out=op_freqshiftSubspec(in,f);
 

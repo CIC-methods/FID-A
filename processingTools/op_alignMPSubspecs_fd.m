@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_alignMPSubspecs_fd(in,initPars);
+% [out,fs,phs]=op_alignMPSubspecs_fd(in,minppm,maxppm,initPars);
 % 
 % DESCRIPTION:
 % Apply spectral registration to align MEGA-PRESS subspectra prior to 
@@ -14,6 +14,11 @@
 % minppm    = Minimum of frequency range (ppm).
 % maxppm    = Maximum of frequency range (ppm).
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+%
+% OUTPUTS:
+% out       = Output following alignment of MEGA-PRESS subspectra.  
+% fs        = Vector of frequency shifts (in Hz) used for alignment.
+% phs       = Vector of phase shifts (in degrees) used for alignment.
 
 function [out,fs,phs]=op_alignMPSubspecs_fd(in,minppm,maxppm,initPars)
 

@@ -11,6 +11,9 @@
 % INPUTS:
 % in         = input data in matlab structure format.
 % dsFactor   = factor by which to divide the sampling rate of the fid.
+%
+% OUTPUTS:
+% out        = Output following downsampling 
 
 function out=op_downsamp(in,dsFactor);
 

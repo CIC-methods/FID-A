@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out=op_filter(in,lb);
+% [out,lor]=op_filter(in,lb);
 % 
 % DESCRIPTION:
 % Perform line broadening by multiplying the time domain signal by an
@@ -11,6 +11,10 @@
 % INPUTS:
 % in     = input data in matlab structure format.
 % lb     = line broadening factor in Hz.
+%
+% OUTPUTS:
+% out    = Output following alignment of averages.  
+% lor    = Exponential (time domain) filter envelope that was applied.
 
 function [out,lor]=op_filter(in,lb);
 

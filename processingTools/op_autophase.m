@@ -2,19 +2,23 @@
 % Jamie Near, McGill University 2015.
 % 
 % USAGE:
-% [out,phaseShift]=op_autophase(in,ppmmin,ppmmax,ph);
+% [out,phaseShift]=op_autophase(in,ppmmin,ppmmax,ph,dimNum);
 % 
 % DESCRIPTION:
 % Search for the peak located between ppmmin and ppmmax, and then phase the
 % spectrum so that that peak reaches the desired phase.
 % 
 % INPUTS:
-% in        = input data in matlab structure format.
-% ppmmin    = minimum of ppm search range.
-% ppmmax    = maximum of ppm search range.
-% ph        = desired phase value in degrees [optional.  Default=0].
-% dimNum    = which subSpec dimension to use for phasing? [Only for use in
-% data with multiple subSpectra].  
+% in         = input data in matlab structure format.
+% ppmmin     = minimum of ppm search range.
+% ppmmax     = maximum of ppm search range.
+% ph         = desired phase value in degrees [optional.  Default=0].
+% dimNum     = which subSpec dimension to use for phasing? [Only for use in
+%              data with multiple subSpectra].  
+%
+% OUTPUTS:
+% out        = Output following automatic phasing.
+% phaseShift = The phase shift (in degrees) that was applied.
 
 function [out,phShft]=op_autophase(in,ppmmin,ppmmax,ph,dimNum);
 

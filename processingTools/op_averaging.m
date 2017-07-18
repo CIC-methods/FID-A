@@ -10,6 +10,9 @@
 % 
 % INPUTS:
 % in	= input data in matlab structure format.
+%
+% OUTPUTS:
+% out   = Output following averaging.  
 
 function out=op_averaging(in);
 

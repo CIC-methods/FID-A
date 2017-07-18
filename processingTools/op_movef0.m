@@ -10,6 +10,9 @@
 % INPUTS:
 % in     = input data in matlab structure format.
 % f      = frequency shift to apply (in Hz).
+%
+% OUTPUTS:
+% out    = Output dataset following f0 shift.
 
 function out=op_movef0(in,f);
 

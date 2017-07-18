@@ -9,6 +9,9 @@
 % 
 % INPUTS:
 % in	= Input data in matlab structure format.
+%
+% OUTPUTS:
+% out   = Output following conjugation.  
 
 function out=op_complexConj(in);
 

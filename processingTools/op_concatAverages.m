@@ -11,6 +11,10 @@
 % INPUTS:
 % in1    = first input in matlab structure format.
 % in2    = second input in matlab structure format.
+%
+% OUTPUTS:
+% out    = Output following concatenation of inputs along the 
+%           averages dimension.  
 
 function out=op_concatAverages(in1,in2);
 

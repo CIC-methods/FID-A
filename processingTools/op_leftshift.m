@@ -11,6 +11,9 @@
 % INPUTS:
 % in     = input data in matlab strucure format.
 % ls     = number of points to remove from the beginning of the fid.
+%
+% OUTPUTS:
+% out    = Output following left shifting.  
 
 function out=op_leftshift(in,ls);
 

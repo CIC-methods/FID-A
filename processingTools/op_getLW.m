@@ -20,6 +20,10 @@
 %                  (Optional.  Default = 5.0 ppm);
 % zpfactor   = zero-padding factor (used for method 1.)
 %                  (Optional.  Default = 8);
+%
+% OUTPUTS:
+% FWHM       = Estimated linewidth of the input spectrum (in Hz).
+
 
 function [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor);
 

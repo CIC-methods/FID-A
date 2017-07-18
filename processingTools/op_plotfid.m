@@ -18,8 +18,12 @@
 % xlab   = Label for the x-axis (optional.  Default = 'Time (sec)');
 % ylab   = label for the y-axis (optional.  Default = 'FID Amplitude (arb units)');
 % tit    = label for the title of the plot (optional.  Default = '');
+%
+% OUTPUTS:
+% out    = Figure handle.
 
-function out=op_plotfid(in,tmax,xlab,ylab)
+
+function out=op_plotfid(in,tmax,xlab,ylab,tit)
 
 if nargin<5
     tit='';

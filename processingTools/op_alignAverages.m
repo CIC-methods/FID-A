@@ -23,6 +23,12 @@
 % avg       = Align averages to the average of the averages? (y or n)
 %             (Optional.  Default = 'n')
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+%
+% OUTPUTS:
+% out       = Output following alignment of averages.  
+% fs        = Vector of frequency shifts (in Hz) used for alignment.
+% phs       = Vector of phase shifts (in degrees) used for alignment.
+
 
 function [out,fs,phs]=op_alignAverages(in,tmax,avg,initPars)
 

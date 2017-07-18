@@ -10,8 +10,12 @@
 % INPUTS:
 % in1        = First spectrum to add (in matlab structure format)
 % in2        = Second spectrum to add (also in matlab structure format).
-% subtract	= (optional).  Add or subtract?  (0 = add, 1=subtract).
+% subtract	 = (optional).  Add or subtract?  (0 = add, 1=subtract).
 %             Default=0;
+%
+% OUTPUTS:
+% out        = Result of adding inputs in1 and in2.  
+
 
 function out=op_addScans(in1,in2,subtract);
 

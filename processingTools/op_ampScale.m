@@ -10,6 +10,9 @@
 % INPUTS:
 % in    = input data in matlab structure format
 % A     = Amplitude scaling factor.
+%
+% OUTPUTS:
+% out   = Output following amplitude scaling.  
 
 function out=op_ampScale(in,A);
 

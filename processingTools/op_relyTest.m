@@ -15,6 +15,10 @@
 % 
 % INPUTS:
 % in	= input data in matlab structure format.
+%
+% OUTPUTS:
+% out   = Structure containing skewness and kurtosis indices for
+%          reliability testing.
 
 function out=op_relyTest(in);
 

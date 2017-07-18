@@ -10,7 +10,12 @@
 % 
 % INPUTS:
 % in     = input data in matlab structure format.
-% index  = vector indicating the indices of the subspectra you would like to extract.
+% index  = vector indicating the indices of the subspectra you would like 
+%          to extract.
+%
+% OUTPUTS:
+% out    = Output dataset consisting of subspectra indices extracted from 
+%          the input.
 
 function out=op_takesubspec(in,index);
 

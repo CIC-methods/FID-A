@@ -20,6 +20,11 @@
 %                  'p' - Phase align only
 %                  'fp or pf' - Frequency and phase align (default)
 %
+% OUTPUTS:
+% out       = Cell array of multiple datasets after alignment.
+% ph        = Vector of phase shifts (in degrees) used for alignment.
+% frq       = Vector of frequency shifts (in Hz) used for alignment.
+
 
 function [out,ph,frq]=op_alignAllScans_fd(in,fmin,fmax,tmax,ref,mode);
 

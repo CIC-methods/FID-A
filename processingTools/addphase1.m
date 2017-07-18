@@ -11,15 +11,18 @@
 % FID-A data structure, see 'op_addphase.m'.
 % 
 % INPUTS:
-% specs      = input vector
-% ppm        = freqeuncy scale (ppm) corresponding to the specs vector
-% timeShift  = This defines the amount of 1st order phase shift by
+% specs       = input vector
+% ppm         = freqeuncy scale (ppm) corresponding to the specs vector
+% timeShift   = This defines the amount of 1st order phase shift by
 %               specifying the equivalent horizontal shift (in seconds) in the time
 %               domain.
-% ppm0       = The frequency "origin" (ppm) of the 1st order phase shift. 
+% ppm0        = The frequency "origin" (ppm) of the 1st order phase shift. 
 %               (this frequency will undergo 0 phase shift).
-% B0         = The main magnetic field strength (needed since ppm depends on
+% B0          = The main magnetic field strength (needed since ppm depends on
 %               B0)
+%
+% OUTPUTS: 
+% PhasedSpecs = Output vector (1st order phased version of the input). 
 
 function PhasedSpecs=addphase1(specs,ppm,timeShift,ppm0,B0);
 

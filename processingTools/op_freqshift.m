@@ -10,6 +10,9 @@
 % INPUTS:
 % in     = input data in matlab structure format.
 % f      = frequency shift to apply (in Hz).
+%
+% OUTPUTS:
+% out    = Output following frequency shift.  
 
 function out=op_freqshift(in,f);
 

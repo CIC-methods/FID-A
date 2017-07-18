@@ -9,9 +9,17 @@
 % proton MRS dataset.
 % 
 % INPUTS:
-% in	= input data in matlab stucture format.
-% ph0	= zero order phase to add to the input data.
-% ph1	= 1st order phase to add to the input data.
+% in	   = input data in matlab stucture format.
+% ph0	   = zero order phase to add to the input data.
+% ph1	   = 1st order phase to add to the input data.
+%
+% OUTPUTS:
+% parsFit  = Fit parameters for the Creatine peak fit.  
+%               parsFit(1) = Amplitude (in arbitrary units);
+%               parsFit(2) = Linewidth (in Hz);
+%               parsFit(3) = Frequency (in ppm);
+%               parsFit(4) = Baseline slope;
+%               parsFit(5) = Baseline DC Offset;
 
 function parsFit=op_creFit(in,ph0,ph1);
 

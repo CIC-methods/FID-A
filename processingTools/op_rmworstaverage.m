@@ -2,14 +2,21 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,metric,badAverages]=op_rmworstaverage(in,n);
+% [out,metric,badAverages]=op_rmworstaverage(in);
 % 
 % DESCRIPTION:
 % Removes motion corrupted averages from a dataset containing multiple
 % averages.  The most badly motion corrupted average is discarded.
 % 
 % INPUTS:
-% in         = input data in matlab structure format
+% in          = input data in matlab structure format
+%
+% OUTPUTS:
+% out         = Output dataset following removal of the most motion 
+%               corrupted average.
+% metric      = Vector of unlikeness metrics corresponding to all input
+%               averages. 
+% badAverages = Indices of the averages that were removed.
 
 function [out,metric,badAverages]=op_rmworstaverage(in);
 

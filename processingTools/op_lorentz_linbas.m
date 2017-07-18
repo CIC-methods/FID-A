@@ -19,6 +19,9 @@
 %               baseline offset, (in Amplitude units)
 %               Phase shift];  (in degrees)
 % ppm        = frequency axis vector (in ppm);
+%
+% OUTPUTS:
+% y          = Output vector specifying a lorentzian lineshape.  
 
 function [y]=op_lorentz_linbas(pars,ppm)
 

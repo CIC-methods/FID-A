@@ -13,6 +13,10 @@
 % ph1            = 1st order phase to add (in seconds);
 % ppm0           = (optional) frequency reference point.  Default = 4.65;
 % suppressPlot   = (optional) Boolian to suppress plots.  Default = 0;
+%
+% OUTPUTS:
+% out            = Phase adjusted output spectrum.
+
 
 function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
 

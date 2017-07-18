@@ -11,6 +11,10 @@
 % INPUTS:
 % in1    = first input in matlab structure format.
 % in2    = second input in matlab structure format.
+%
+% OUTPUTS:
+% out    = Output following concatenation along the subspecs dimension.  
+
 
 function out=op_concatSubspecs(in1,in2);
 

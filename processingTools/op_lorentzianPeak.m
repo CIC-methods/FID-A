@@ -15,6 +15,9 @@
 % lw     = Linewidth of gaussian peak (Hz).
 % ppm0   = Frequency of gaussian peak (ppm).
 % amp    = Amplitude of gaussian peak.  
+%
+% OUTPUTS:
+% out    = Lorentzian lineshape peak in FID-A structure format.
 
 function out=op_lorentzianPeak(n,sw,Bo,lw,ppm0,amp);
 

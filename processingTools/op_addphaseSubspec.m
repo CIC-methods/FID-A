@@ -11,6 +11,10 @@
 % INPUTS:
 % in    = Input spectrum in matlab structure format.
 % ph    = Phase (in degrees) to add to the second subspectrum.
+%
+% OUTPUTS:
+% out   = Output dataset with phase adjusted subspectrum. 
+
 
 function out=op_addphaseSubspec(in,ph);
 

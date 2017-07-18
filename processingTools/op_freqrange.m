@@ -11,6 +11,9 @@
 % in         = input data in matlab structure format.
 % ppmmin     = minimum extent of frequency range in ppm.
 % ppmmax     = maximum extent of frequency range in ppm.
+%
+% OUTPUTS:
+% out        = Output following frequency range selection.
 
 function out=op_freqrange(in,ppmmin,ppmmax);
 

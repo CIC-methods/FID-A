@@ -14,6 +14,9 @@
 %             but the reason is that many "difference editing" sequences use phase
 %             cycling of the readout ADC to achieve "subtraction by addition".
 %             -"summ" performs a subtraction of the subspectra.
+%
+% OUTPUTS:
+% out       = Output following combination of subspectra.  
 
 function out=op_combinesubspecs(in,mode);
 

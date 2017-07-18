@@ -2,15 +2,18 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out=op_timerange(in,ppmmin,ppmmax);
+% out=op_timerange(in,tmin,tmax);
 % 
 % DESCRIPTION:
 % Output only a specified frequency range of the input spectrum.
 % 
 % INPUTS:
 % in         = input data in matlab structure format.
-% ppmmin     = minimum extent of frequency range in ppm.
-% ppmmax     = maximum extent of frequency range in ppm.
+% tmin       = minimum extent of frequency range in ppm.
+% tmax       = maximum extent of frequency range in ppm.
+%
+% OUTPUTS:
+% out        = Output dataset following truncation in the time domain. 
 
 function out=op_timerange(in,tmin,tmax);
 

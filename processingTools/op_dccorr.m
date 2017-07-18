@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out=op_dccorr(in,mode,var);
+% out=op_dccorr(in,mode,var1);
 % 
 % DESCRIPTION:
 % Do a DC Correction on the data.  This method is a frequency domain
@@ -13,10 +13,13 @@
 % mode	= Point('p') or Value('v').  In point mode, the DC offset is
 %           calculated automatically at a specific point in the spectrum.  In value
 %           mode, the user has to provide the value of the desired DC offset.
-% var	= If mode is 'p', then 'var' is the index of the spectral point that you
+% var1	= If mode is 'p', then 'var' is the index of the spectral point that you
 %           wish to use to calculate the DC offset.  If mode is 'v', then
 %           'var' is the value of the dc offset correction that you wish to
 %           employ.
+%
+% OUTPUTS:
+% out   = Output following DC correction.  
 
 function out=op_dccorr(in,mode,var1);
 

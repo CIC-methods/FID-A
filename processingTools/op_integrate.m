@@ -18,6 +18,10 @@
 %                        -'re' (integral performed on real part (default)).
 %                        -'im' (integral performed on imaginary part).
 %                        -'mag' (integral performed on magnitude part).
+%
+% OUTPUTS:
+% int        = Estimated area under the curve for the desired frequency range.
+
 
 function [int]=op_integrate(in,ppmmin,ppmmax,mode);
 

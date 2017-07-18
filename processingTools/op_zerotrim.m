@@ -10,13 +10,15 @@
 % INPUTS:
 % in                = input data in matlab structure format.
 % numPointsToTrim   = The number of points to trim from the end of the fid.
+%
+% OUTPUTS:
+% out               = Output dataset following truncation in time domain.  
 
 function out=op_zerotrim(in,numPointsToTrim);
 
 if ~in.flags.zeropadded
     disp('WARNING:  Should not trim zeros if Zero padding has not been performed!  ABORTING!');
 end
-
 
 %calculate how many zeros to leave
 zp=(in.sz(1)-numPointsToTrim);

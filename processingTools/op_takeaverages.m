@@ -11,6 +11,9 @@
 % INPUTS:
 % in     = input data in matlab structure format.
 % index  = vector indicating the indices of the averages you would like to extract.
+%
+% OUTPUTS:
+% out    = Output dataset consisting of averages extracted from the input.
 
 function out=op_takeaverages(in,index);
 

@@ -18,6 +18,11 @@
 % tmax      = Maximum time (s) in time domain to use for alignment.
 % avg       = Align averages to the average of the averages? (y or n)
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+%
+% OUTPUTS:
+% out       = Output following alignment of averages.  
+% fs        = Vector of frequency shifts (in Hz) used for alignment.
+% phs       = Vector of phase shifts (in degrees) used for alignment.
 
 function [out,fs,phs]=op_alignAverages_fd(in,minppm,maxppm,tmax,avg,initPars)
 

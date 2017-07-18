@@ -17,6 +17,11 @@
 %               vector specifies the drift applied to each average.
 % noise      = the standard deviation of noise to add to the phase drift
 %             function.
+%
+% OUTPUTS:
+% out        = Output dataset with phase drift added.
+% phDrift     = Vector of phase drift values that were added (in degrees).
+
 
 function [out,phDrift]=op_makePhaseDrift(in,totalDrift,noise);
 %out=op_makedrift(in,totalDrift);

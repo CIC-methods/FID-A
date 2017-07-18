@@ -10,8 +10,12 @@
 % INPUTS:
 % in         = input data in matlab structure format.
 % zpFactor   = the factor by which the number of points in the fid will be
-%             increased.  ie.  if zpFactor =2, then the number of zeros added to the end
-%             of the fid will be equal to the number of points in the original spectrum.
+%             increased.  ie.  if zpFactor =2, then the number of zeros 
+%             added to the end of the fid will be equal to the number of 
+%             points in the original spectrum.
+%
+% OUTPUTS:
+% out        = Output dataset following zeropadding.
 
 function out=op_zeropad(in,zpFactor);
 

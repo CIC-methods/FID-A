@@ -17,6 +17,10 @@
 %               vector specifies the drift applied to each average.
 % noise      = the standard deviation of noise to add to the frequency drift
 %             function.
+%
+% OUTPUTS:
+% out        = Output dataset with frequency drift added.
+% fDrift     = Vector of frequency drift values that were added (in Hz).
 
 function [out,fDrift]=op_makeFreqDrift(in,totalDrift,noise);
 %

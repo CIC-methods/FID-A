@@ -25,6 +25,9 @@
 %                     maximum signal of each coil channel divided by the square of
 %                     the noise in each coil channel (as described by Hall et al.
 %                     Neuroimage 2014). 
+%
+% OUTPUTS:
+% coilcombos         = Structure containing the calculated coil weights and phases. 
 
 function coilcombos=op_getcoilcombos(file_or_struct,point,mode);
 

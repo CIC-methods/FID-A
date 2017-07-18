@@ -17,6 +17,9 @@
 %                  (Optional.  Default = -2 ppm);
 % noiseppmmax    = max of frequency range in which to measure noise.
 %                  (Optional.  Default = 0 ppm);
+%
+% OUTPUTS:
+% SNR            = Estimated SNR of the input spectrum.
 
 function [SNR]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
 

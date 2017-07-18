@@ -25,6 +25,10 @@
 % point              = The index of the datapoint in the fid that is used
 %                     for determination of Signal intensity. (Optional.
 %                     Default = 1);
+%
+% OUTPUTS:
+% coilcombos         = Structure containing the calculated coil weights and phases. 
+
 
 function coilcombos=op_getcoilcombos_specReg(file_or_struct,tmin,tmax,point);
 

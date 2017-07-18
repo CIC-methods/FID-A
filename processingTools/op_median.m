@@ -9,6 +9,10 @@
 % 
 % INPUTS:
 % in	= input data in matlab structure format.
+%
+% OUTPUTS:
+% out   = Output dataset following median calculation.
+
 
 function out=op_median(in);
 

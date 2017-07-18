@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out=op_arsos(in);
+% out=op_arsos(in,domain);
 % 
 % DESCRIPTION:
 % Perform all rank statistic order filter (see Slotboom J et al, Meas Sci
@@ -11,8 +11,11 @@
 % or the frequency domain.  
 % 
 % INPUTS:
-% in	= input data in matlab structure format.
-% domain= time domain ('t', (default)) or frequency domain ('f').
+% in	 = input data in matlab structure format.
+% domain = time domain ('t', (default)) or frequency domain ('f').
+%
+% OUTPUTS:
+% out    = Output following arsos filtering.
 
 function out=op_arsos(in,domain);
 

@@ -13,6 +13,11 @@
 % in        = Input data structure.
 % tmax      = Maximum time (s) in time domain to use for alignment.
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+%
+% OUTPUTS:
+% out       = Output following alignment of ISIS subspectra.  
+% fs        = Vector of frequency shifts (in Hz) used for alignment.
+% phs       = Vector of phase shifts (in degrees) used for alignment.
 
 function [out,fs,phs]=op_alignISIS(in,tmax,initPars)
 

@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_freqAlignAverages_fd(in,minppm,maxppm,tmax,avg,initPars);
+% [out,fs]=op_freqAlignAverages_fd(in,minppm,maxppm,tmax,avg,initPars);
 % 
 % DESCRIPTION:
 % Perform time-domain spectral registration using a limited range of
@@ -14,7 +14,11 @@
 % maxppm     = Maximum of frequnecy range (ppm).
 % tmax       = Maximum time (s) in time domain to use for alignment.
 % avg        = Align averages to the average of the averages? (y or n)
-% initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+% initPars	 = (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+%
+% OUTPUTS:
+% out        = Output following alignment of averages.  
+% fs         = Vector of frequencies (in Hz) used for alignment.
 
 function [out,fs]=op_freqAlignAverages_fd(in,minppm,maxppm,tmax,avg,initPars);
 

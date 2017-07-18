@@ -19,6 +19,9 @@
 % xlab   = Label for the x-axis (optional.  Default = 'Frequency (ppm)');
 % ylab   = label for the y-axis (optional.  Default = '');
 % tit    = label for the title of the plot (optional.  Default = '');
+%
+% OUTPUTS:
+% out    = Figure handle.
 
 function out=op_plotspec(in,ppmmin,ppmmax,xlab,ylab,tit)
 

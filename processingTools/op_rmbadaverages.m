@@ -13,9 +13,15 @@
 %than 'nsd' above the mean are discarded.
 %
 %INPUTS:
-%in         = input data in matlab structure format
-%nsd        = number of standard deviations to use a rejection threshold
-%domain     = domain in which to perform calculations ('t' or 'f')
+%in           = input data in matlab structure format
+%nsd          = number of standard deviations to use a rejection threshold
+%domain       = domain in which to perform calculations ('t' or 'f')
+%
+% OUTPUTS:
+% out         = Output dataset following removal of motion corrupted averages.
+% metric      = Vector of unlikeness metrics corresponding to all input
+%               averages. 
+% badAverages = Indices of the averages that were removed. 
 
 function [out,metric,badAverages]=op_rmbadaverages(in,nsd,domain);
 

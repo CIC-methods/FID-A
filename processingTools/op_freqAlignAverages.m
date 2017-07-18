@@ -12,7 +12,11 @@
 % in         = Input data structure.
 % tmax       = Maximum time (s) in time domain to use for alignment.
 % avg        = Align averages to the average of the averages? (y or n)
-% initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+% initPars	 = (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+%
+% OUTPUTS:
+% out        = Output following alignment of averages.  
+% fs         = Vector of frequencies (in Hz) used for alignment.
 
 function [out,fs]=op_freqAlignAverages(in,tmax,avg,initPars);
 

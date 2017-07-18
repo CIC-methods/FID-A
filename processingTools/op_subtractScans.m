@@ -10,6 +10,9 @@
 % INPUTS:
 % in1        = 1st input data in matlab structure format.
 % in2        = 2nd input data in matlab structure format.
+%
+% OUTPUTS:
+% out        = Output dataset following subtraction of in2 from in1.
 
 function out=op_subtractScans(in1,in2);
 

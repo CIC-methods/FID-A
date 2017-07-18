@@ -10,7 +10,10 @@
 % 
 % INPUTS:
 % in     = input data in matlab structure format.
-% lb     = line narrowing factor (Hz).  
+% lb     = line narrowing factor (Hz). 
+%
+% OUTPUTS:
+% out    = Output dataset following application of inverted exponential filter.
 
 function out=op_unfilter(in,lb);
 

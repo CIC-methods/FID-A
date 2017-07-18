@@ -15,6 +15,9 @@
 % in     = input data in matlab structure format.
 % npts   = number of points at both edges of the freqeuncy domain that will
 %         be used for estimation of the DC offset of the spectrum.
+%
+% OUTPUTS:
+% out    = Output following time-domain DC offset correction.  
 
 function out=op_fddccorr(in,npts);
 
