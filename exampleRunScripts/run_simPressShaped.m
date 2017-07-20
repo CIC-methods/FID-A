@@ -118,12 +118,12 @@ parfor X=1:length(x);
     end %end of spatial loop (parfor) in y direction.
 end %end of spatial loop (parfor) in x direction.
         
-figure 
-if length(x)>1 && length(y)>1
-    sim_make2DSimPlot(out_posxy,2,3);
-else
-    plot(out.ppm,out.specs);
-end
+% figure 
+% if length(x)>1 && length(y)>1
+%     sim_make2DSimPlot(out_posxy,2,3);
+% else
+%     plot(out.ppm,out.specs);
+% end
 
 
 
