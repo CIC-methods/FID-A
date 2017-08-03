@@ -230,9 +230,9 @@ sequence=line(equals_index+1:end);
 sequence=strtrim(sequence);
 fclose(method_fid);
 
-%Specify the number of subspecs.  For now, this will always be zero.
-subspecs=0;
-rawSubspecs=0;
+%Specify the number of subspecs.  For now, this will always be one.
+subspecs=1;
+rawSubspecs=1;
 
 
 %calculate the ppm scale
