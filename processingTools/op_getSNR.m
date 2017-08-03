@@ -38,12 +38,13 @@ if nargin<5
 end
 
 
-%FIRST FIND THE NAA PEAK HEIGHT:
+%FIRST FIND THE NAA SIGNAL INTENSITY.  USE THE MAX PEAK HEIGHT OF THE 
+%MAGNITUDE SPECTRUM INSIDE THE DESIRED SPECTRAL RANGE:
 NAAwindow=in.specs(in.ppm>NAAppmmin & in.ppm<NAAppmmax);
 ppmwindow=in.ppm(in.ppm>NAAppmmin & in.ppm<NAAppmmax);
 
-maxNAA_index=find(abs(real(NAAwindow))==max(abs(real((NAAwindow)))));
-maxNAA=real(NAAwindow(maxNAA_index))
+maxNAA_index=find(abs(NAAwindow)==max(abs((NAAwindow))));
+maxNAA=abs(NAAwindow(maxNAA_index))
 
 figure;
 plot(ppmwindow,abs(real(NAAwindow)));
