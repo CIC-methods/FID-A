@@ -31,30 +31,37 @@ end
 
 
 %Now read in the waveform:
-if exist(filename)
-    if filename(end-3:end)=='.pta'
-        disp('Siemens format .pta RF pulse file detected!! Loading waveform now.');
-        rf=io_readpta(filename);
-    elseif filename(end-2:end)=='.RF'
-        disp('Varian/Agilent format .RF RF pulse file detected!! Loading waveform now.');
-        rf=io_readRF(filename);
-    elseif filename(end-3:end)=='.inv'
-        disp('Bruker format .inv RF pulse file detected!! Loading waveform now.');
-        rf=io_readRFBruk(filename);
-    elseif filename(end-3:end)=='.rfc'
-        disp('Bruker format .pta RF pulse file detected!! Loading waveform now.');
-        rf=io_readRFBruk(filename);
-    elseif filename(end-3:end)=='.exc'
-        disp('Bruker format .exc RF pulse file detected!! Loading waveform now.');
-        rf=io_readRFBruk(filename);
-    elseif filename(end-3:end)=='.txt'
-        disp('Basic .txt format RF pulse file detected!! Loading waveform now.');
-        rf=io_readRFtxt(filename);
+if isstr(filename)
+    if exist(filename)
+        if filename(end-3:end)=='.pta'
+            disp('Siemens format .pta RF pulse file detected!! Loading waveform now.');
+            rf=io_readpta(filename);
+        elseif filename(end-2:end)=='.RF'
+            disp('Varian/Agilent format .RF RF pulse file detected!! Loading waveform now.');
+            rf=io_readRF(filename);
+        elseif filename(end-3:end)=='.inv'
+            disp('Bruker format .inv RF pulse file detected!! Loading waveform now.');
+            rf=io_readRFBruk(filename);
+        elseif filename(end-3:end)=='.rfc'
+            disp('Bruker format .pta RF pulse file detected!! Loading waveform now.');
+            rf=io_readRFBruk(filename);
+        elseif filename(end-3:end)=='.exc'
+            disp('Bruker format .exc RF pulse file detected!! Loading waveform now.');
+            rf=io_readRFBruk(filename);
+        elseif filename(end-3:end)=='.txt'
+            disp('Basic .txt format RF pulse file detected!! Loading waveform now.');
+            rf=io_readRFtxt(filename);
+        else
+            error('ERROR:  RF Pulse file not recognized.  Aborting!');
+        end
     else
-        error('ERROR:  RF Pulse file not recognized.  Aborting!');
-    end
+        error('ERROR:  File not found!  Aborting!');
+    end  
 else
-    error('ERROR:  File not found!  Aborting!');
+    if ismatrix(filename) && ndims(filename)==2 && size(filename,2)==3
+        disp('Input is an RF waveform already in the matlab workspace.  Loading waveform now.');
+        rf=filename;
+    end
 end
 
 
