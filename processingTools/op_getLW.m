@@ -17,7 +17,7 @@
 % Refppmmin  = Min of frequency range (ppm) in which to search for reference peak.
 %                  (Optional.  Default = 4.4 ppm);
 % Refppmmax  = Max of frequency range to (ppm) in which search for reference peak
-%                  (Optional.  Default = 5.0 ppm);
+%                  (Optional.  Default = 5/3 ppm per Tesla B0);
 % zpfactor   = zero-padding factor (used for method 1.)
 %                  (Optional.  Default = 8);
 %
