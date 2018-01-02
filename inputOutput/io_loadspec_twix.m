@@ -304,8 +304,13 @@ spectralwidth=1/dwelltime;
 txfrq=twix_obj.hdr.Meas.Frequency;
 
 %Get Date
-date = getfield(regexp(twix_obj.hdr.MeasYaps.tReferenceImage0, ...
-'^".*\.(?<DATE>\d{8})\d*"$', 'names'), 'DATE');  %Franck Lamberton
+%date = getfield(regexp(twix_obj.hdr.MeasYaps.tReferenceImage0, ...
+%'^".*\.(?<DATE>\d{8})\d*"$', 'names'), 'DATE');  %Franck Lamberton
+
+date=''; %The above code for extracting the date from the header 
+         %was causing problems.  Since date is not critical
+         %for almost any applications, removing it now to be fixed at a
+         %later date.
 
 %Find the number of averages.  'averages' will specify the current number
 %of averages in the dataset as it is processed, which may be subject to
