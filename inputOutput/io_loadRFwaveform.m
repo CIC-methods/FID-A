@@ -16,7 +16,9 @@
 % filename  = filename of RF pulse waveform text file.  Can be in Siemens
 %             format (.pta), Varian/Agilent format (.RF), Bruker format 
 %             (.inv, .ref or .exc) or a plain text file (.txt, with two columns 
-%             (amplitued and phase).
+%             (amplitued and phase).  Filename can also be the name of a
+%             three column matlab vector specifing the phase, amplitude and
+%             time vectors of an RF pulse waveform.  
 % type      = Excitation ('exc'), Refocusing ('ref') or Inversion ('inv')
 % f0        = centre frequency of the rf pulse [Hz].  Optional. Default=0.
 %
