@@ -63,7 +63,7 @@ waterFreq=ppmwindow(maxRef_index);
 while sat=='n'
     parsGuess=zeros(1,5);
     parsGuess(1)=maxRef; %AMPLITUDE
-    parsGuess(2)=5/(42.577*in.Bo); %FWHM.  Assumes Proton
+    parsGuess(2)=(5*in.Bo/3)/(42.577*in.Bo); %FWHM.  Assumes Proton.  LW = 5/3 Hz/T.
     parsGuess(3)=waterFreq; %FREQUENCY
     parsGuess(4)=0; %Baseline Offset
     parsGuess(5)=0; %Phase
