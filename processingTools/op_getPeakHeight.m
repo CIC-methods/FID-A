@@ -9,13 +9,13 @@
 % 
 % INPUTS:
 % in             = input data in matlab structure format
-% NAAppmmin      = min of frequncy range in which to search for peak.
+% NAAppmmin      = min of frequency range in which to search for peak.
 %                  (Optional.  Default = 1.8 ppm (for NAA));
-% NAAppmmax      = max of frequncy range in which to search for peak.
+% NAAppmmax      = max of frequency range in which to search for peak.
 %                  (Optional.  Default = 2.2 ppm (for NAA));
 %
 % OUTPUTS:
-% h              = Peak height of the desired peak.
+% h              = Peak amplitude of the desired peak.
 
 function [h]=op_getPeakHeight(in,NAAppmmin,NAAppmmax);
 
