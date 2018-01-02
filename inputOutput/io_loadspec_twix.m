@@ -55,16 +55,24 @@ sqzDims=twix_obj.image.sqzDims;
 sequence=twix_obj.hdr.Config.SequenceFileName;  
 
 %Try to find out what sequnece this is:
-isSpecial=~isempty(strfind(sequence,'rm_special')) || ~isempty(strfind(sequence,'vq_special')); %Is this Ralf Mekle's SPECIAL sequence or the CIBM SPECIAL sequence?
+isSpecial=~isempty(strfind(sequence,'rm_special')) ||...  %Is this Ralf Mekle's SPECIAL sequence?
+            ~isempty(strfind(sequence,'vq_special')) ||... %or the CIBM SPECIAL sequence?
+            ~isempty(strfind(sequence,'jn_svs_special'));  %or Jamie Near's SPECIAL sequence?
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
-isjnseq=~isempty(strfind(sequence,'jn_')); %Is this one of Jamie Near's sequences?
+isjnseq=~isempty(strfind(sequence,'jn_')); %Is this any one of Jamie Near's sequences?
 isMinnMP=~isempty(strfind(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
+isSiemens=~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
+            ~isempty(strfind(sequence,'svs_st'));    % or the Siemens STEAM sequence?
 
-%Ralf Mekle's SPECIAL sequence does not store the subspectra along a
-%separate dimension of the data array, so we will separate them
-%artifically:
-if isSpecial 
+%If this is the SPECIAL sequence, it probably contains both inversion-on
+%and inversion-off subspectra on a single dimension, unless it is the VB
+%version of Jamie Near's SPECIAL sequence, in which case the subspecs are
+%already stored on separate dimensions.  
+%Both Ralf Mekle's SPECIAL and the VD-VE version of Jamie Near's SPECIAL sequence 
+%do not store the subspectra along a separate dimension of the data array, 
+%so we will separate them artifically:
+if isSpecial && ~(strcmp(version,'vb') && isjnseq) %Catches any SPECIAL sequence except Jamie Near's VB version.
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
         data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
@@ -75,16 +83,37 @@ if isSpecial
         data(:,:,2)=squeezedData(:,[2:2:end]);
         sqzSize=[sqzSize(1) sqzSize(2)/2 2];
     end
-    sqzDims{end+1}='Ida';
+    if isjnseq
+        sqzDims{end+1}='Set';
+    else
+        sqzDims{end+1}='Ida';
+    end
 else
     data=dOut.data;
 end
 
-%Make a pulse sequence identifier for the header (out.seq);
-seq=sequence;
-  
 %Squeeze the data to remove singleton dims
 fids=squeeze(data);
+
+%noticed that in the Siemens PRESS and STEAM sequences, there is sometimes
+%an extra dimension containing unwanted reference scans or something.  Remove them here.
+if isSiemens && (strcmp(version,'vd') || strcmp(version,'ve')) && strcmp(sqzDims{end},'Phs')
+    sqzDims=sqzDims(1:end-1);
+    sqzSize=sqzSize(1:end-1);
+    if ndims(fids)==4
+        fids=fids(:,:,:,2);
+        fids=squeeze(fids);
+    elseif ndims(fids)==3
+        fids=fids(:,:,2);
+        fids=squeeze(fids);
+    elseif ndims(fids)==2
+        fids=fids(:,2);
+        fids=squeeze(fids);
+    end
+end
+
+%Make a pulse sequence identifier for the header (out.seq);
+seq=sequence;
 
 %Find the magnetic field strength:
 Bo=twix_obj.hdr.Dicom.flMagneticFieldStrength;
