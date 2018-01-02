@@ -326,9 +326,7 @@ end
 
 %now do automatic zero-order phase correction (Use Creatine Peak):
 out_ls_zp=op_zeropad(out_ls,16);
-index=find(abs(out_ls_zp.specs)==max(abs(out_ls_zp.specs(out_ls_zp.ppm>2.9 & out_ls_zp.ppm<3.1))));
-ph0=-phase(out_ls_zp.specs(index))*180/pi;
-out_ph=op_addphase(out_ls,ph0);
+[out_ph,ph0]=op_autophase(out_ls,2.9,3.1);
 out_ls_zp=op_addphase(out_ls_zp,ph0);
 %And now for water unsuppressed data (use water peak):
 if water
