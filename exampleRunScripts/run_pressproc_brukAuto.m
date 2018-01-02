@@ -7,7 +7,7 @@
 % DESCRIPTION:
 % Fully automated processing script for Bruker PRESS MRS data in fid.raw 
 % format (raw data).  Processing steps include removal of bad averages, 
-% freqeuncy drift correction, leftshifting and auto-phasing. This pipeline 
+% frequency drift correction, leftshifting and auto-phasing. This pipeline 
 % requires no user interaction. This function automatically generates an 
 % html report to describe the results of each processing step.
 % 
