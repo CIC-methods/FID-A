@@ -97,7 +97,7 @@ if isstruct(in)
     set(Fig1Ax1Line1, 'LineWidth', 1.2);
     %set(Fig1Ax1Line1,'MarkerSize', 10);
 elseif iscell(in)
-    if ndims(squeeze(in{1}.fids))>2
+    if ndims(squeeze(in{1}.specs))>2
         disp('More than 1 dimension detected in addition to the frequency dimension.');
         disp('Which dimension would you like to be displayed? ');
         if in{1}.dims.coils
