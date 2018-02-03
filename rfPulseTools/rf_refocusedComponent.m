@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2016.
 %
 % USAGE:
-% [I,ph]=rf_refocusedComponent(RF,tp);
+% [I,ph]=rf_refocusedComponent(RF,tp,flipAngle,fspan);
 % 
 % DESCRIPTION:
 % Calculates the reefocused component and refocused phase of an rf pulse.
@@ -19,22 +19,29 @@
 % INPUTS:
 % RF        = RF pulse definition structure
 % tp        = pulse duration in [ms] (optional.  Default = 5ms).
+% flipAngle = flip angle of pulse [degrees] (optional.  Default = 180 deg).
+% fspan     = frequency span in [kHz] (optional.  Default = 10kHz).
 %
 % OUTPUTS:
 % I         = Refocused component magnitude.
 % ph        = Refocused component phase.
 
 
-function [I,ph]=rf_refocusedComponent(RF,tp);
+function [I,ph]=rf_refocusedComponent(RF,tp,flipAngle,fspan);
 
-if nargin<2
-    tp=5.0;
+if nargin<4
+    fspan=10;
+    if nargin<3
+        flipAngle=180;
+        if nargin<2
+            tp=5.0;
+        end
+    end
 end
 
-
-simBW=10; %[kHz]  Default simulation bandwidth is 10 kHz;
+simBW=fspan; %[kHz]  Default simulation bandwidth is 10 kHz;
 f0=0; %[kHz]  Centre Frequency of simulation in kHz;
-b1max=RF.tw1/tp; %[kHz]  B1max is calculated automatically;
+b1max=RF.tw1/tp*(flipAngle/180); %[kHz]  B1max is calculated automatically;
 rfph=0;  %[degrees]  Default rf pulse phase is 0 degrees;
 
 %Simulate twice, once starting with [Mx] and once starting with [My];
