@@ -67,11 +67,6 @@ else
 end
 
 
-%first store the waveform;
-RF_struct.waveform=rf;
-RF_struct.type=type;
-RF_struct.f0=f0;
-
 %Find out if the pulse is phase modulated.  If it is not, then we can
 %determine the time-w1 product of the pulse quite simply.  If it is phase
 %modulated (adiabatic, etc) then the determination of the time-w1 product 
@@ -87,11 +82,11 @@ end
 %If there are any phase discontinuities in the phase function that are
 %equal to a 360 degree jump we can remove these.  This will make it easier
 %for rf_resample to do it's job later on:
-jumps=diff(RF_struct.waveform(:,1));
+jumps=diff(rf(:,1));
 jumpsAbs=(abs(jumps)>355 & abs(jumps)<365);  %Assume jumps within this range are exactly = 360 degrees.
 jumpIndex=find(jumpsAbs);
 for n=1:length(jumpIndex)
-    RF_struct.waveform(jumpIndex(n)+1:end,1)=RF_struct.waveform(jumpIndex(n)+1:end,1)-(360*(jumps(jumpIndex(n))/abs(jumps(jumpIndex(n)))));
+    rf(jumpIndex(n)+1:end,1)=rf(jumpIndex(n)+1:end,1)-(360*(jumps(jumpIndex(n))/abs(jumps(jumpIndex(n)))));
 end
 
 %scale amplitude function so that maximum value is 1:
@@ -128,8 +123,6 @@ else
     tw1=Tp*w1max;
 end
 
-RF_struct.tw1=tw1;
-
 %now it's time to find out the time-bandwidth product:
 %First make a high resolution plot the pulse profile over a wide bandwidth:
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5+f0/1000,5+f0/1000,100000);
@@ -165,5 +158,11 @@ elseif type=='inv'
     %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
 end
 
+%Now store the output structure;
+RF_struct.waveform=rf;
+RF_struct.type=type;
+RF_struct.f0=f0;
 RF_struct.tbw=bw*Tp*1000;
+RF_struct.tw1=tw1;
+
 
