@@ -41,7 +41,7 @@
 %               FOR MEGA-PRESS on SIEMENS SYSTEM:  taus=[4.545,12.7025,21.7975,12.7025,17.2526];
 % sys        = Metabolite spin system definition structure;
 % editFlip   = vector of editing flip angles in [degrees] at chemical shifts corresponding to 'shifts'.
-% refPulse   = Refocusing pulse shape - [Nx3] array with [:,1]=phase, [:,2]=amplitude, [:,3]=duration
+% refPulse   = RF pulse definition structure for refoc pulses (obtain using 'io_loadRFwaveform.m')
 % refTp      = duration of refocusing pulse in [ms]
 % Gx         = gradient strength for first selective refocusing pulse [G/cm]
 % Gy         = gradient strength for second selective refocusing pulse [G/cm]

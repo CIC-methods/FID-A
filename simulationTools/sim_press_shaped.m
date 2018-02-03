@@ -2,7 +2,7 @@
 % Robin Simpson and Jamie Near, 2014.
 % 
 % USAGE:
-% out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2))
+% out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle)
 % 
 % DESCRIPTION:
 % This function simulates the PRESS experiment.  The excitation is
@@ -33,25 +33,28 @@
 % sw        = desired spectral width in [Hz]
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
-% J         = matrix of coupling constants in [Hz] for spin system
-% shifts    = vector of chemical shifts in [ppm] for spin system
+% sys       = spin system definition structure
 % tau1      = echo time 1 in [ms].
 % tau2      = echo time 2 in [ms].
-% RF        = radiofrequency pulse array [N x 3].  Phase, Amplitude, Duration.
+% RF        = RF pulse definition structure for refoc pulses (obtain using 'io_loadRFwaveform.m')
 % tp        = RF pulse duration in [ms]
-% peakB1    = peak B1 amplitude in [kHz]
 % dx        = position offset in x-direction (corresponding to first refocusing pulse) [cm]
 % dy        = position offset in y-direction (corresponding to second refocusing pulse) [cm]
 % Gx        = gradient strength for first selective refocusing pulse [G/cm]
 % Gy        = gradient strength for second selective refocusing pulse [G/cm]
 % phCycl    = initial phase of the first refocusing pulse in [degrees];
 % phCycl2   = initial phase of the second refocusing pulse in [degrees];
+% flipAngle = flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2)
+function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle)
+
+if nargin<16
+    flipAngle=180;
+end
     
 if tau1<tp/1000
     error('ERROR:  Echo-time 1 cannot be less than duration of refocusing pulse! ABORTING!!');
@@ -78,9 +81,9 @@ end
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(H,'x');                                    %EXCITE
 d=sim_evolve(d,H,delays(1)/2000);                            %Evolve by delays(1)/2
-d=sim_shapedRF(d,H,RF,tp,180,90+phCyc1,dx,Gx);          %1st shaped 180 degree refocusing pulse
+d=sim_shapedRF(d,H,RF,tp,flipAngle,90+phCyc1,dx,Gx);          %1st shaped 180 degree refocusing pulse
 d=sim_evolve(d,H,(delays(1)+delays(2))/2000);                     %Evolve by (delays(1)+delays(2))/2
-d=sim_shapedRF(d,H,RF,tp,180,90+phCyc2,dy,Gy);          %2nd shaped 180 degree refocusing pulse
+d=sim_shapedRF(d,H,RF,tp,flipAngle,90+phCyc2,dy,Gy);          %2nd shaped 180 degree refocusing pulse
 d=sim_evolve(d,H,delays(2)/2000);                            %Evolve by delays(2)/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************

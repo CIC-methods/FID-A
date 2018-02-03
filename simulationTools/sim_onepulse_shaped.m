@@ -21,7 +21,7 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% RF        = radiofrequency pulse array [N x 3].  Phase, Amplitude, Duration.
+% RF        = RF pulse definition structure (obtain using 'io_loadRFwaveform.m')
 % tp        = RF pulse duration in [ms]
 % phCyc     = Phase of excitation rf pulse in [degrees].
 % dfdx      = if simulating a frequency selective pulse, this argument 

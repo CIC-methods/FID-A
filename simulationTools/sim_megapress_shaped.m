@@ -39,12 +39,12 @@
 % taus(4)     = time in [ms] from 2nd 180 to 2nd edit pulse
 % taus(5)     = time in [ms] from 2nd edit pulse to ADC
 %               FOR MEGA-PRESS on SIEMENS SYSTEM:  taus=[4.545,12.7025,21.7975,12.7025,17.2526];
-% editPulse  = Editing pulse shape - [Nx3] array with [:,1]=phase, [:,2]=amplitude, [:,3]=duration
-% editTp     = duration of editing pulse in [ms];
 % sys        = Metabolite spin system definition structure;
+% editPulse  = RF pulse definition structure for editing pulses (obtain using 'io_loadRFwaveform.m')
+% editTp     = duration of editing pulse in [ms];
 % editPh1    = the phase of the first editing pulse in [degrees];
 % editPh2    = the phase of the second editing pulse in [degrees];
-% refPulse   = Refocusing pulse shape - [Nx3] array with [:,1]=phase, [:,2]=amplitude, [:,3]=duration
+% refPulse   = RF pulse definition structure for refoc pulses (obtain using 'io_loadRFwaveform.m')
 % refTp      = duration of refocusing pulse in [ms]
 % Gx         = gradient strength for first selective refocusing pulse [G/cm]
 % Gy         = gradient strength for second selective refocusing pulse [G/cm]

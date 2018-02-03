@@ -21,7 +21,7 @@
 % linewidth  = linewidth in [Hz]
 % sys        = Metabolite spin system definition structure;
 % TE         = Echo time in [ms]
-% RF         = Refocusing pulse structure (load using io_loadRFwaveform);
+% RF         = RF pulse definition structure for refoc pulse (obtain using 'io_loadRFwaveform.m');
 % Tp         = duration of refocusing pulse in [ms]
 % grad       = gradient strength for the selective refocusing pulse [G/cm]
 % pos        = position offset in the direction corresponding to the refocusing pulse [cm]

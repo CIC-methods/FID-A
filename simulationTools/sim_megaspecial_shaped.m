@@ -32,12 +32,12 @@
 % taus(2)     = time in [ms] from 1st edit pulse to the 180
 % taus(3)     = time in [ms] from the 180 pulse to 2nd edit pulse
 % taus(4)     = time in [ms] from 2nd edit pulse to ADC
+% sys        = Metabolite spin system definition structure;
 % editPulse  = Editing pulse shape structure
 % editTp     = duration of editing pulse in [ms];
-% sys        = Metabolite spin system definition structure;
 % editPh1    = the phase of the first editing pulse in [degrees];
 % editPh2    = the phase of the second editing pulse in [degrees];
-% refPulse   = Refocusing pulse shape structure
+% refPulse   = RF pulse definition structure for refoc pulse (obtain using 'io_loadRFwaveform.m')
 % refTp      = duration of refocusing pulse in [ms]
 % Gx         = gradient strength for selective refocusing pulse [G/cm]
 % dx         = position offset in x-direction (corresponding to refocusing pulse) [cm]

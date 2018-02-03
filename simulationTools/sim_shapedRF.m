@@ -23,7 +23,7 @@
 % d_in      = input density matrix structure.
 % H         = Hamiltonian operator structure.
 % RF        = Radiofrequency pulse.  This can be the filename of a Siemens
-%             .pta file, or an RF pulse definition structure (obtained using rf_init.m)
+%             .pta file, or an RF pulse definition structure (obtained using io_loadRFwaveform.m)
 % Tp        = Pulse duration in [ms];
 % flipAngle = RF pulse flip angle [degrees].
 % phase     = Phase of RF pulse [degrees].  Optional.  Default = 0 (x'-axis.  90 degress corresponds to +y' axis)
