@@ -403,7 +403,8 @@ for s=1:NScans
         else
             date_str = datetime(twix_obj{s}.image.readerVersion, 'ConvertFrom','posixtime');
         end
-        fprintf(' (UTC: %s)\n', date_str);
+        fprintf(' (UTC: %s)\n', datestr(date_str));  %Jamie Near - pass date_str as string for 
+                                                     %compatibility with older versions of MATLAB.                                                  
     end
     
     % jump to first mdh
