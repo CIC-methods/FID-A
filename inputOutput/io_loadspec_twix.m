@@ -67,9 +67,15 @@ isjnseq=~isempty(strfind(sequence,'jn_')) ||... %Is this another one of Jamie Ne
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
 isMinn=~isempty(strfind(sequence,'eja_svs_')); %Is this one of Eddie Auerbach's (CMRR, U Minnesota) sequences?
-isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
-            ~isempty(strfind(sequence,'svs_st'))) && ... % or the Siemens STEAM sequence?
-            isempty(strfind(sequence,'eja_svs'));    %And make sure it's not 'eja_svs_steam'.
+isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens svs PRESS seqeunce?
+            ~isempty(strfind(sequence,'csi_se')) ||... %Or the Siemens CSI PRESS sequence?
+            ~isempty(strfind(sequence,'svs_st')) || ... % Or the Siemens svs STEAM sequence?
+            ~isempty(strfind(sequence,'csi_st'))) && ... % Or the Siemens CSI STEAM sequence?
+            isempty(strfind(sequence,'eja_svs'));    %And make sure it's not 'eja_svs_steam', which also contains the string 'svs_st'.
+        
+%Is this a CSI sequence?:
+isCSI=~isempty(strfind(sequence,'csi')) ||...
+        ~isempty(strfind(sequence,'CSI'));
 
 %If this is the SPECIAL sequence, it probably contains both inversion-on
 %and inversion-off subspectra on a single dimension, unless it is the VB
@@ -195,16 +201,38 @@ else
     end
 end
 
+%Now index the CSI dimensions
+dims.csi_x=find(strcmp(sqzDims,'Lin'));
+dims.csi_y=find(strcmp(sqzDims,'Phs'));
+if ~isempty(dims.csi_x)
+    %remove the csi_x dimension from the dimsToIndex vector
+    dimsToIndex=dimsToIndex(dimsToIndex~=dims.csi_x);
+else 
+    %If a "csi_x" dimension is not found,
+    %then set the FID-A "csi_x" dimension to zero.
+    dims.csi_x=0;
+end
+if ~isempty(dims.csi_y)
+    %remove the csi_y dimension from the dimsToIndex vector
+    dimsToIndex=dimsToIndex(dimsToIndex~=dims.csi_y);
+else 
+    %If a "csi_y" dimension is not found,
+    %then set the FID-A "csi_y" dimension to zero.
+    dims.csi_y=0;
+end
+
+
 %Now we have indexed the dimensions containing the timepoints, the coil
-%channels, and the averages.  As we indexed each dimension, we removed the
-%corresponding index from the dimsToIndex vector.  At this point, if there
-%are any values left in the dimsToIndex vector, then there must be some
-%additional dimensions that need indexing.  We assume that if sub-spectra exist,
-%then these must be indexed in either the 'Ida' dimension (for all Jamie
-%Near's VB-version pulse sequences), the 'Set' dimension (for all Jamie 
-%Near's VD/VE-version pulse sequences), the 'Eco' dimension (for the WIP
-%529 MEGA-PRESS sequence or the Minnesota MEGA-PRESS sequence), or the 'Ide' 
-% dimension (for the WIP 859 MEGA-PRESS sequence). 
+%channels, the averages, and the x- and y- CSI encoding.  As we indexed 
+%each dimension, we removed the corresponding index from the dimsToIndex 
+%vector.  At this point, if there are any values left in the dimsToIndex 
+%vector, then there must be some additional dimensions that need indexing.  
+%We assume that if sub-spectra exist, then these must be indexed in either 
+%the 'Ida' dimension (for all Jamie Near's VB-version pulse sequences), the 
+%'Set' dimension (for all Jamie Near's VD/VE-version pulse sequences), the 
+%'Eco' dimension (for the WIP 529 MEGA-PRESS sequence or the Minnesota 
+%MEGA-PRESS sequence), or the 'Ide' dimension (for the WIP 859 MEGA-PRESS 
+%sequence). 
 if ~isempty(dimsToIndex)
     %Now index the dimension of the sub-spectra
     if isjnseq  || isSpecial
@@ -252,56 +280,217 @@ end
 %   2) coils.
 %   3) averages.
 %   4) subSpecs.
-%   5) extras.
-if length(sqzDims)==5
-    fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs dims.extras]);
-    dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.extras=5;
-elseif length(sqzDims)==4
+%   5) csi_x.
+%   6) csi_y.
+%   7) extras.
+if length(sqzDims)==7
+    fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs dims.csi_x dims.csi_y dims.extras]);
+    dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=5;dims.csi_y=6;dims.extras=7;
+elseif length(sqzDims)==6
     if dims.extras==0
-        fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs]);
-        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.extras=0;
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=5;dims.csi_y=6;dims.extras=0;
+    elseif dims.csi_y==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=5;dims.csi_y=0;dims.extras=6;
+    elseif dims.csi_x==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=0;dims.csi_y=5;dims.extras=6;
     elseif dims.subSpecs==0
-        fids=permute(fids,[dims.t dims.coils dims.averages dims.extras]);
-        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.extras=4;
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=4;dims.csi_y=5;dims.extras=6;
     elseif dims.averages==0
-        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.extras]);
-        dims.t=1;dims.coils=2;dims;averages=0;dims.subSpecs=3;dims.extras=4;
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=2;dims;averages=0;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=5;dims.extras=6;
     elseif dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=5;dims.extras=6;
+    end
+elseif length(sqzDims)==5
+    if dims.extras==0 && dims.csi_y==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subspecs dims.csi_x]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=5;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subspecs dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=0;dims.csi_y=5;dims.extras=0;
+    elseif dims.extras==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=4;dims.csi_y=5;dims.extras=0;
+    elseif dims.extras==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=5;dims.extras=0;
+    elseif dims.extras==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=5;dims.extras=0;
+    elseif dims.csi_y==0 && dims.csi_x==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subspecs dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=0;dims.csi_y=0;dims.extras=5;
+    elseif dims.csi_y==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=4;dims.csi_y=0;dims.extras=5;
+    elseif dims.csi_y==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=0;dims.extras=5;
+    elseif dims.csi_y==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=0;dims.extras=5;
+    elseif dims.csi_x==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=4;dims.extras=5;
+    elseif dims.csi_x==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=0;dims.csi_y=4;dims.extras=5;
+    elseif dims.csi_x==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=0;dims.csi_y=4;dims.extras=5;
+    elseif dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=3;dims.csi_y=4;dims.extras=5;
+    elseif dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.csi_x=3;dims.csi_y=4;dims.extras=5;
+    elseif dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.subSpecs dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.csi_x=3;dims.csi_y=4;dims.extras=5;
+    end
+elseif length(sqzDims)==4
+    if dims.extras==0 && dims.csi_y==0 && dims.csi_x==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.subSpecs]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=4;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.csi_x]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=4;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.csi_x]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.csi_x]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=4;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=2;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=4;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=0;dims.csi_y=4;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=0;dims.csi_y=4;dims.extras=0;
+    elseif dims.extras==0 && dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=3;dims.csi_y=4;dims.extras=0;
+    elseif dims.extras==0 && dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.csi_x=3;dims.csi_y=4;dims.extras=0;
+    elseif dims.extras==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.subSpecs dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.csi_x=3; dims.csi_y=4;dims.extras=0;
+    elseif dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0
+        fids=permute(fids,[dims.t dims.coils dims.averages dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=0; dims.csi_y=0;dims.extras=4;
+    elseif dims.csi_y==0 && dims.csi_x==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.subSpecs dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=0; dims.csi_y=0;dims.extras=4;
+    elseif dims.csi_y==0 && dims.csi_x==0 && dims.coils==0
         fids=permute(fids,[dims.t dims.averages dims.subSpecs dims.extras]);
-        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.extras=4;
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=0; dims.csi_y=0;dims.extras=4;
+    elseif dims.csi_y==0 && dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=3; dims.csi_y=0;dims.extras=4;
+    elseif dims.csi_y==0 && dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.csi_x=3; dims.csi_y=0;dims.extras=4;
+    elseif dims.csi_y==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.subSpecs dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.csi_x=3; dims.csi_y=0;dims.extras=4;
+    elseif dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.csi_x dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=2; dims.csi_y=3;dims.extras=4;
     end
 elseif length(sqzDims)==3
-    if dims.extras==0 && dims.subSpecs==0
+    if dims.extras==0 && dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0
         fids=permute(fids,[dims.t dims.coils dims.averages]);
-        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.extras=0;
-    elseif dims.extras==0 && dims.averages==0
+        dims.t=1;dims.coils=2;dims.averages=3;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.csi_x==0 && dims.averages==0
         fids=permute(fids,[dims.t dims.coils dims.subSpecs]);
-        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.extras=0;
-    elseif dims.extras==0 && dims.coils==0
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=3;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.csi_x==0 && dims.coils==0
         fids=permute(fids,[dims.t dims.averages dims.subSpecs]);
-        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.extras=0;
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=3;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.csi_x]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=3;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.csi_x]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=3;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.subSpecs dims.csi_x]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.csi_x=3;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.csi_y]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=3;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=3;dims.extras=0;
+    elseif dims.extras==0 && dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.csi_x dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=2;dims.csi_y=3;dims.extras=0;
+    elseif dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.averages==0
+        fids=permute(fids,[dims.t dims.coils dims.extras]);
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=0;dims.extras=3;
+    elseif dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.averages dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=0;dims.extras=3;
+    elseif dims.csi_y==0 && dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.csi_x dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=2;dims.csi_y=0;dims.extras=3;
+    elseif dims.csi_x==0 && dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.csi_y dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=2;dims.extras=3;
     end
 elseif length(sqzDims)==2
-    if dims.extras==0 && dims.subSpecs==0 && dims.averages==0
+    if dims.extras==0 && dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.averages==0
         fids=permute(fids,[dims.t dims.coils]);
-        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.extras=0;
-    elseif dims.extras==0 && dims.subSpecs==0 && dims.coils==0
+        dims.t=1;dims.coils=2;dims.averages=0;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.coils==0
         fids=permute(fids,[dims.t dims.averages]);
-        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.extras=0;
-    elseif dims.extras==0 && dims.averages==0 && dims.coils==0
+        dims.t=1;dims.coils=0;dims.averages=2;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.csi_x==0 && dims.averages==0 && dims.coils==0
         fids=permute(fids,[dims.t dims.subSpecs]);
-        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.extras=0;
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.csi_x=0;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_y==0 && dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.csi_x]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=2;dims.csi_y=0;dims.extras=0;
+    elseif dims.extras==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.csi_y]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=2;dims.extras=0;
+    elseif dims.csi_y==0 && dims.csi_x==0 && dims.subSpecs==0 && dims.averages==0 && dims.coils==0
+        fids=permute(fids,[dims.t dims.extras]);
+        dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.csi_x=0;dims.csi_y=0;dims.extras=2;
     end
-elseif length(sqzDims)==1
-    fids=permute(fids,[dims.t]);
-    dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.extras=0;
 end
 
 %Now get the size of the data array:
 sz=size(fids);
 
-%Now take fft of time domain to get fid:
+%Now take fft of time domain to get specs:
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
+
+%Now take fft of csi dimensions to get image data.  NOTE:  Before this step
+%We should make sure that the centre of k-space corresponds to the centre
+%of the csi_x and csi_y dimensions.  If not, we will have to shift the data
+% prior to this FT step.  Fix at later date.  Also note: K-space will not be
+%stored in the FID-A structure.  If needed, we'll have to transform back to
+%k-space.;
+if dims.csi_x
+    fids=ifft(fids,[],dims.csi_x);
+    specs=ifft(specs,[],dims.csi_x);
+    kx=[];  %Fill this out later
+end
+if dims.csi_y
+    fids=ifft(fids,[],dims.csi_y);
+    specs=ifft(specs,[],dims.csi_y);
+    ky=[];  %Fill this out later
+end
     
 
 %Now get relevant scan parameters:*****************************
@@ -427,6 +616,7 @@ if out.dims.subSpecs==0
 else
     out.flags.isISIS=(out.sz(out.dims.subSpecs)==4);
 end
+out.flags.isCSI=isCSI;
 
 
 
