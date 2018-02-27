@@ -1,5 +1,6 @@
 %sim_readout.m
 %Jamie Near, 2014.
+%Speed-up modifications by Chathura Kumaragamage, Feb 2018.
 %
 % USAGE:
 % [out,d_out] = sim_readout(d_in,H,n,sw,linewidth,rcvPhase,shape)
@@ -54,22 +55,33 @@ else
 end
 
 %READOUT CODE COURTESY OF SAAD JBABDI, FMRIB 2011!!
+%FURTHER SPEEDUP IMPLEMENTED BY CHATHURA KUMARAGAMAGE, MCGILL 2018!!
 M=H.HAB;
 [U,D]=eig(M);D=diag(D);
 val=2^(2-H.nspins);
 k=1;
+
+Fxy =H.Fx+1i*H.Fy;
+phase_comp=exp(1i*rcvPhase*pi/180);
+
+l=0:points-1;
+if strcmp(shape,'L') || strcmp(shape,'l')
+    decay=exp(-((l)*deltat)/t2);
+elseif strcmp(shape,'G') || strcmp(shape,'g')
+    decay = exp(-(((l)*deltat)^2)/(2*(sigma^2)));
+elseif strcmp(shape,'LG') || strcmp(shape,'lg')
+    decay = (R*exp(-((l)*deltat)/t2))+((1-R)*exp(-(((l)*deltat)^2)/(2*(sigma^2))));
+end
+    
 while k<(points+1);
     d1=diag(exp(-1i*(k-1)*D*deltat));
-    d2=diag(exp(1i*(k-1)*D*deltat));
-    if strcmp(shape,'L') || strcmp(shape,'l')
-        out.fids(k)=val*exp(-((k-1)*deltat)/t2)*trace(U*d1*U'*d_in*U*d2*U'*(H.Fx+1i*H.Fy)*exp(1i*rcvPhase*pi/180));
-    elseif strcmp(shape,'G') || strcmp(shape,'g')
-        out.fids(k)=val*exp(-(((k-1)*deltat)^2)/(2*(sigma^2)))*trace(U*d1*U'*d_in*U*d2*U'*(H.Fx+1i*H.Fy)*exp(1i*rcvPhase*pi/180));
-    elseif strcmp(shape,'LG') || strcmp(shape,'lg')
-        out.fids(k)=val*((R*exp(-((k-1)*deltat)/t2))+(R*exp(-(((k-1)*deltat)^2)/(2*(sigma^2)))))*trace(U*d1*U'*d_in*U*d2*U'*(H.Fx+1i*H.Fy)*exp(1i*rcvPhase*pi/180));
-    end  
+    d=U*d1*U';
+    out.fids(k)=trace(d*d_in*d'*(Fxy)*phase_comp);
     k = k+1;
 end
+
+out.fids = val*(out.fids.*decay);
+
 d_out=sim_evolve(d_in,H,points*deltat);
 out.t=[0:deltat:deltat*(points-1)];
 freq=[(-sw/2)+(sw/(2*points)):sw/(points):(sw/2)-(sw/(2*points))];
