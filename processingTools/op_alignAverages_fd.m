@@ -16,7 +16,10 @@
 % minppm	= Minimum of frequency range (ppm).
 % maxppm	= Maximum of frequnecy range (ppm).
 % tmax      = Maximum time (s) in time domain to use for alignment.
-% avg       = Align averages to the average of the averages? (y or n)
+% avg       = Align averages to the average of the averages? (y or n).  If
+%               you select 'n', all averages will be aligned to a single
+%               average.  The average chosen as the reference average will
+%               be the one with the lowest 'unlikeness' metric (see 'op_rmbadaverages.m'). 
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
 %
 % OUTPUTS:
@@ -51,25 +54,37 @@ for m=1:B
         base=op_averaging(in);
         base=op_freqrange(base,minppm,maxppm);
         base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
-        begin=1;
+        ind_min=0;
     else
-        disp('aligning all averages to the first average');
+        %First find the average that is most similar to the total average:
+        inavg=op_averaging(in);
+        for k=1:in.sz(in.dims.averages)
+            for l=1:B
+                metric(k,l)=sum((real(in.fids(in.t>=0 & in.t<=tmax,k,l))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,l)))).^2);
+            end
+        end
+        [temp,ind_min]=min(metric(:,m));
+        
+        %Now set the base function using the index of the most similar
+        %average:
+        disp(['aligning all averages to the ' num2str(ind_min) 'th average.']);
         base=op_freqrange(in,minppm,maxppm);
-        base=[real(base.fids(base.t>=0 & base.t<tmax,1,m));imag(base.fids(base.t>=0 & base.t<tmax,1,m))];
-        begin=2;
-        fids(:,1,m)=in.fids(:,1,m);
+        base=[real(base.fids(base.t>=0 & base.t<tmax,ind_min,m));imag(base.fids(base.t>=0 & base.t<tmax,ind_min,m))];
+        fids(:,ind_min,m)=in.fids(:,ind_min,m);
     end
-    for n=begin:in.sz(in.dims.averages)
-        parsGuess=parsFit;
-        %parsGuess(1)=parsGuess(1);
-        %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
-        datarange=op_freqrange(in,minppm,maxppm);
-        start=datarange.fids(datarange.t>=0 & datarange.t<tmax,n,m);
-        parsFit=nlinfit(start,base,@op_freqPhaseShiftComplexRangeNest,parsGuess);
-        fids(:,n,m)=op_freqPhaseShiftNest(parsFit,in.fids(:,n,m));
-        fs(n,m)=parsFit(1);
-        phs(n,m)=parsFit(2);
-        %plot(in.ppm,fftshift(ifft(fids(:,1,m))),in.ppm,fftshift(ifft(fids(:,n,m))));
+    for n=1:in.sz(in.dims.averages)
+        if n~=ind_min
+            parsGuess=parsFit;
+            %parsGuess(1)=parsGuess(1);
+            %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
+            datarange=op_freqrange(in,minppm,maxppm);
+            start=datarange.fids(datarange.t>=0 & datarange.t<tmax,n,m);
+            parsFit=nlinfit(start,base,@op_freqPhaseShiftComplexRangeNest,parsGuess);
+            fids(:,n,m)=op_freqPhaseShiftNest(parsFit,in.fids(:,n,m));
+            fs(n,m)=parsFit(1);
+            phs(n,m)=parsFit(2);
+            %plot(in.ppm,fftshift(ifft(fids(:,1,m))),in.ppm,fftshift(ifft(fids(:,n,m))));
+        end
     end
 end
 
