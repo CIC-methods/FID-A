@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_alignAverages(in,tmax,avg,initPars);
+% [out,fs,phs]=op_alignAverages(in,tmax,avg,ref);
 % 
 % DESCRIPTION:
 % Perform spectral registration in the time domain to correct frequency and
@@ -20,12 +20,16 @@
 % in        = Input data structure.
 % tmax      = Maximum time (s) in time domain to use for alignment.
 %             (Optional.  Default is the time at which SNR drops below 3)
-% avg       = Align averages to the average of the averages? (y or n)
-%             (Optional.  Default = 'n').  If you select 'n', all averages
-%             will be aligned to a single average.  The average chosen as
-%             the reference average will be the one that has the lowest
-%             'unlikeness' metric (see 'op_rmbadaverages.m').  
-% initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+% avg       = Align averages to the average of the averages? ('y','n', or 
+%             'r').  (Optional.  Default = 'n').  If you select 'n', all 
+%             averages will be aligned to a single average.  The average 
+%             chosen as the reference average will be the one with the 
+%             lowest 'unlikeness' metric (see 'op_rmbadaverages.m').  If 
+%             select 'y', all averages will be alinged to the average of
+%             the averages.  If you select 'r', all averages will be
+%             aligned to an externally provided reference spectrum.
+% ref       = An externally provided reference spectrum that you would like
+%             to align everything to (Required only if avg = 'r').  
 %
 % OUTPUTS:
 % out       = Output following alignment of averages.  
@@ -48,29 +52,36 @@ if in.dims.averages==0
 
 else
 
-    if nargin<4
-        parsFit=[0,0];
-        if nargin<3
-            avg='n'
-            if nargin<2
-                %if tmax is not specified, find the time at which the SNR
-                %drops below 5
-                disp('tmax not supplied.  Calculating tmax....');
-                sig=abs(in.fids);
-                noise=std(real(in.fids(ceil(0.75*end):end,:,:)),[]);
-                noise=mean(mean(mean(noise,2),3),4);
-                snr=sig/noise;
-                
-                for n=1:(numel(snr)/size(snr,1))
-                    N=find(snr(:,n)>5);
-                    tmax_est(n)=in.t(N(end));
-                end
-                tmax=median(tmax_est); 
-                disp(['tmax = ' num2str(tmax*1000) 'ms.']);
+    parsFit=[0,0];
+    
+    if nargin<3
+        avg='n'
+        if nargin<2
+            %if tmax is not specified, find the time at which the SNR
+            %drops below 5
+            disp('tmax not supplied.  Calculating tmax....');
+            sig=abs(in.fids);
+            noise=std(real(in.fids(ceil(0.75*end):end,:,:)),[]);
+            noise=mean(mean(mean(noise,2),3),4);
+            snr=sig/noise;
+            
+            for n=1:(numel(snr)/size(snr,1))
+                N=find(snr(:,n)>5);
+                tmax_est(n)=in.t(N(end));
             end
+            tmax=median(tmax_est);
+            disp(['tmax = ' num2str(tmax*1000) 'ms.']);
+        end
+    end
+    
+    if (strcmp(avg,'r') || strcmp(avg,'R'))
+        if nargin<4
+            error('ERROR:  If using the ''r'' option for input variable ''avg'', then a 4th input argument must be provided');
         end
     else
-        parsFit=initPars;
+        if nargin<4
+            ref=struct();
+        end
     end
     
     if in.dims.subSpecs==0
@@ -84,11 +95,11 @@ else
     fids=zeros(in.sz(in.dims.t),1,B);
     for m=1:B
         if avg=='y' || avg=='Y'
-            disp('aligning all averages to the Average of the averages');
+            disp('Aligning all averages to the Average of the averages.');
             base=op_averaging(in);
             base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
             ind_min=0;
-        else
+        elseif avg=='n' || avg=='N'
             %First find the average that is most similar to the total average:
             inavg=op_averaging(in);
             for k=1:in.sz(in.dims.averages)
@@ -100,9 +111,14 @@ else
 
             %Now set the base function using the index of the most similar
             %average:
-            disp(['Aligning all averages to the ' num2str(ind_min) 'th average.']);
+            disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
             base=[real(in.fids(in.t>=0 & in.t<tmax,ind_min,m));imag(in.fids(in.t>=0 & in.t<tmax,1,m))];
             fids(:,ind_min,m)=in.fids(:,ind_min,m);
+        elseif avg=='r' || avg=='R'
+            disp('Aligning all averages to an externally provided reference spectrum.');
+            base=ref;
+            base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
+            ind_min=0;
         end
         for n=1:in.sz(in.dims.averages)
             if n~=ind_min

@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_alignAverages_fd(in,minppm,maxppm,tmax,avg,initPars);
+% [out,fs,phs]=op_alignAverages_fd(in,minppm,maxppm,tmax,avg,ref);
 % 
 % DESCRIPTION:
 % Perform time-domain spectral registration using a limited range of
@@ -16,28 +16,39 @@
 % minppm	= Minimum of frequency range (ppm).
 % maxppm	= Maximum of frequnecy range (ppm).
 % tmax      = Maximum time (s) in time domain to use for alignment.
-% avg       = Align averages to the average of the averages? (y or n).  If
-%               you select 'n', all averages will be aligned to a single
-%               average.  The average chosen as the reference average will
-%               be the one with the lowest 'unlikeness' metric (see 'op_rmbadaverages.m'). 
-% initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+% avg       = Align averages to the average of the averages? ('y','n', or 
+%               'r').  If you select 'n', all averages will be aligned to a 
+%               single average.  The average chosen as the reference 
+%               average will be the one with the lowest 'unlikeness' metric 
+%               (see 'op_rmbadaverages.m').  If you select 'y', all
+%               averages will be aligned to the average of the averages.
+%               If you select 'r', all averages will be aligned to an
+%               externally provided refernece spectrum.
+% ref       = An externally provided reference spectrum that you would like
+%               to align everything to (Required only if avg = 'r').  
 %
 % OUTPUTS:
 % out       = Output following alignment of averages.  
 % fs        = Vector of frequency shifts (in Hz) used for alignment.
 % phs       = Vector of phase shifts (in degrees) used for alignment.
 
-function [out,fs,phs]=op_alignAverages_fd(in,minppm,maxppm,tmax,avg,initPars)
+function [out,fs,phs]=op_alignAverages_fd(in,minppm,maxppm,tmax,avg,ref)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');
 end
 
-if nargin<6
-    parsFit=[0,0];
+if (strcmp(avg,'r') || strcmp(avg,'R'))
+    if nargin<6
+        error('ERROR:  If using the ''r'' option for input variable ''avg'', then a 6th input argument must be provided');
+    end
 else
-    parsFit=initPars;
+    if nargin<6
+        ref=struct();
+    end
 end
+
+parsFit=[0,0];
 
 if in.dims.subSpecs==0
     B=1;
@@ -50,12 +61,12 @@ phs=zeros(in.sz(in.dims.averages),B);
 fids=zeros(in.sz(in.dims.t),1,B);
 for m=1:B
     if avg=='y' || avg=='Y'
-        disp('aligning all averages to the Average of the averages');
+        disp('Aligning all averages to the Average of the averages.');
         base=op_averaging(in);
         base=op_freqrange(base,minppm,maxppm);
         base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
         ind_min=0;
-    else
+    elseif avg=='n' || avg=='N'
         %First find the average that is most similar to the total average:
         inavg=op_averaging(in);
         for k=1:in.sz(in.dims.averages)
@@ -67,10 +78,16 @@ for m=1:B
         
         %Now set the base function using the index of the most similar
         %average:
-        disp(['aligning all averages to the ' num2str(ind_min) 'th average.']);
+        disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
         base=op_freqrange(in,minppm,maxppm);
         base=[real(base.fids(base.t>=0 & base.t<tmax,ind_min,m));imag(base.fids(base.t>=0 & base.t<tmax,ind_min,m))];
         fids(:,ind_min,m)=in.fids(:,ind_min,m);
+    elseif avg=='r' || avg=='R'
+        disp('Aligning all averages to an externally provided reference spectrum.');
+        base=ref;
+        base=op_freqrange(base,minppm,maxppm);
+        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
+        ind_min=0;
     end
     for n=1:in.sz(in.dims.averages)
         if n~=ind_min
