@@ -112,7 +112,7 @@ else
             %Now set the base function using the index of the most similar
             %average:
             disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
-            base=[real(in.fids(in.t>=0 & in.t<tmax,ind_min,m));imag(in.fids(in.t>=0 & in.t<tmax,1,m))];
+            base=[real(in.fids(in.t>=0 & in.t<tmax,ind_min,m));imag(in.fids(in.t>=0 & in.t<tmax,ind_min,m))];
             fids(:,ind_min,m)=in.fids(:,ind_min,m);
         elseif avg=='r' || avg=='R'
             disp('Aligning all averages to an externally provided reference spectrum.');
