@@ -54,11 +54,13 @@ elseif domain=='f' || domain=='F'
     filt=10;
     infilt=op_filter(in,filt);
 end
-inavg=op_averaging(infilt);
+%inavg=op_averaging(infilt);
+inavg=op_median(infilt);
+trange=(infilt.t>=0 & infilt.t<=tmax);
 for n=1:in.sz(in.dims.averages)
     for m=1:SS
         if domain=='t' || domain=='T'
-            metric(n,m)=sum((real(infilt.fids(infilt.t>=0 & infilt.t<=tmax,n,m))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,m)))).^2);
+            metric(n,m)=sum((real(infilt.fids(trange,n,m))-(real(inavg.fids(trange,m)))).^2);
         elseif domain=='f' || domain=='F'
             metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m)))).^2);
         end
