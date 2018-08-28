@@ -28,7 +28,9 @@ end
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -36,7 +38,7 @@ sys.shifts=sys.shifts-centreFreq;
 delay=tau/(2*Nechoes);
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                            %EXCITE
+d=sim_excite(d,H,'x');                            %EXCITE
 for k=1:Nechoes
     d=sim_evolve(d,H,delay);                        %Evolve by tau/2
     d=sim_rotate(d,H,180,'y');                       %180 degree refocusing pulse about y' axis.

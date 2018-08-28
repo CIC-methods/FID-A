@@ -98,50 +98,53 @@ dt=RF_struct.waveform(:,3)*Tp/sum(RF_struct.waveform(:,3)); %rf step durations
 %plot([1:length(RF_struct.waveform(:,1))],rfB1/B1max);
 %pause;
 
-%now create the RF pulse:
-Rz=zeros(2^H.nspins,2^H.nspins,length(rfB1));
-Ry=zeros(2^H.nspins,2^H.nspins,length(rfB1));
-Rx=zeros(2^H.nspins,2^H.nspins,length(rfB1));
-Beff=zeros(length(rfB1),H.nspins);  %Magnitude of the effective B1 vector [Tesla]
-alpha=zeros(length(rfB1),H.nspins); %Angle between Beff and the transverse plane. [Radians]
-zeta=repmat(rfph+(phase*pi/180),1,H.nspins);  %Instantaneous phase of the pulse RF [Radians]
-theta=zeros(length(rfB1),H.nspins); %Angle to rotate about Beff1 [Radians]
-%Now calculate the composite rotation matrices for the pulse:
-for y=1:H.nspins
-    if simType=='g'
-        Beff(:,y)=sqrt((rfB1.^2)+(((grad*dfdx)+(H.Bfield*H.shifts(y)/1e6))^2));  %Calculate BeffRef for the pulse
-        alpha(:,y)=atan2((grad*dfdx)+(H.Bfield*H.shifts(y)/1e6),rfB1);  %Calculate alphaRef for the pulse
-    elseif simType=='f'
-        Beff(:,y)=sqrt((rfB1.^2)+(((dfdx/gamma)+(H.Bfield*H.shifts(y)/1e6))^2));
-        alpha(:,y)=atan2(((dfdx/gamma)+(H.Bfield*H.shifts(y)/1e6)),rfB1);
+for m=1:length(H)
+    %now create the RF pulse:
+    Rz=zeros(2^H(m).nspins,2^H(m).nspins,length(rfB1));
+    Ry=zeros(2^H(m).nspins,2^H(m).nspins,length(rfB1));
+    Rx=zeros(2^H(m).nspins,2^H(m).nspins,length(rfB1));
+    Beff=zeros(length(rfB1),H(m).nspins);  %Magnitude of the effective B1 vector [Tesla]
+    alpha=zeros(length(rfB1),H(m).nspins); %Angle between Beff and the transverse plane. [Radians]
+    zeta=repmat(rfph+(phase*pi/180),1,H(m).nspins);  %Instantaneous phase of the pulse RF [Radians]
+    theta=zeros(length(rfB1),H(m).nspins); %Angle to rotate about Beff1 [Radians]
+    %Now calculate the composite rotation matrices for the pulse:
+    for y=1:H(m).nspins
+        if simType=='g'
+            Beff(:,y)=sqrt((rfB1.^2)+(((grad*dfdx)+(H(m).Bfield*H(m).shifts(y)/1e6))^2));  %Calculate BeffRef for the pulse
+            alpha(:,y)=atan2((grad*dfdx)+(H(m).Bfield*H(m).shifts(y)/1e6),rfB1);  %Calculate alphaRef for the pulse
+        elseif simType=='f'
+            Beff(:,y)=sqrt((rfB1.^2)+(((dfdx/gamma)+(H(m).Bfield*H(m).shifts(y)/1e6))^2));
+            alpha(:,y)=atan2(((dfdx/gamma)+(H(m).Bfield*H(m).shifts(y)/1e6)),rfB1);
+        end
+        theta(:,y)=2*pi*gamma*Beff(:,y).*dt;  %Calculate theta for the pulse
+        for n=1:length(rfB1)
+            %Populate X- Y- and Z- rotation matrices for each point in RF
+            %waveform.
+            Rz(:,:,n)=Rz(:,:,n)+zeta(n,y)*H(m).Iz(:,:,y);
+            Ry(:,:,n)=Ry(:,:,n)+alpha(n,y)*H(m).Iy(:,:,y);
+            Rx(:,:,n)=Rx(:,:,n)+theta(n,y)*H(m).Ix(:,:,y);
+        end
     end
-    theta(:,y)=2*pi*gamma*Beff(:,y).*dt;  %Calculate theta for the pulse
+    
+    d=d_in{m};
+    %Now do the density matrix evolutions for each RF pulse element:
     for n=1:length(rfB1)
-        %Populate X- Y- and Z- rotation matrices for each point in RF
-        %waveform.
-        Rz(:,:,n)=Rz(:,:,n)+zeta(n,y)*H.Iz(:,:,y);
-        Ry(:,:,n)=Ry(:,:,n)+alpha(n,y)*H.Iy(:,:,y);
-        Rx(:,:,n)=Rx(:,:,n)+theta(n,y)*H.Ix(:,:,y);
+        d = expm(-1i*H(m).HABJonly*dt(n))*...  %Kimberly Chan, J-evolution for dt.
+            expm(-1i*Rz(:,:,n))*...
+            expm(-1i*Ry(:,:,n))*...
+            expm(-1i*Rx(:,:,n))*...
+            expm(-1i*-Ry(:,:,n))*...
+            expm(-1i*-Rz(:,:,n))*...
+            d*...                           %start with Mz
+            expm(1i*-Rz(:,:,n))*...         %rotate about z by -zeta
+            expm(1i*-Ry(:,:,n))*...         %rotate about y by -alpha
+            expm(1i*Rx(:,:,n))*...          %rotate about x by theta
+            expm(1i*Ry(:,:,n))*...          %rotate about y by alpha
+            expm(1i*Rz(:,:,n))*...          %rotate about z by zeta
+            expm(1i*H(m).HABJonly*dt(n));      %Kimberly Chan, J-evolution for dt.
     end
+    
+    d_out{m}=d;
 end
 
-d=d_in;
-%Now do the density matrix evolutions for each RF pulse element:
-for n=1:length(rfB1)
-    d = expm(-1i*H.HABJonly*dt(n))*...  %Kimberly Chan, J-evolution for dt.
-        expm(-1i*Rz(:,:,n))*...
-        expm(-1i*Ry(:,:,n))*...
-        expm(-1i*Rx(:,:,n))*...
-        expm(-1i*-Ry(:,:,n))*...
-        expm(-1i*-Rz(:,:,n))*...    
-        d*...                           %start with Mz
-        expm(1i*-Rz(:,:,n))*...         %rotate about z by -zeta
-        expm(1i*-Ry(:,:,n))*...         %rotate about y by -alpha
-        expm(1i*Rx(:,:,n))*...          %rotate about x by theta
-        expm(1i*Ry(:,:,n))*...          %rotate about y by alpha
-        expm(1i*Rz(:,:,n))*...          %rotate about z by zeta
-        expm(1i*H.HABJonly*dt(n));      %Kimberly Chan, J-evolution for dt.
-end
-
-d_out=d;
     

@@ -27,13 +27,15 @@ function out = sim_press(n,sw,Bfield,linewidth,sys,tau1,tau2)
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                            %EXCITE
+d=sim_excite(d,H,'x');                            %EXCITE
 d=sim_evolve(d,H,tau1/2);                       %Evolve by tau1/2
 d=sim_rotate(d,H,180,'y');                      %First 180 degree refocusing pulse about y' axis.
 d=sim_evolve(d,H,(tau1+tau2)/2);                %Evolve by (tau1+tau2)/2

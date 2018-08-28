@@ -51,7 +51,9 @@ function out = sim_megaspecial_shaped(n,sw,Bfield,linewidth,taus,sys,editPulse,e
 
 %Set 3ppm GABA resonance to centre
 centreFreq=3;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -68,7 +70,7 @@ if sum(delays<0)
 end
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                                     %EXCITE
+d=sim_excite(d,H,'x');                                     %EXCITE
 d=sim_evolve(d,H,delays(1)/1000);                          %Evolve by delays(1)
 d=sim_shapedRF(d,H,editPulse,editTp,180,90+editPh1);     %1st shaped editing pulse rotation
 d=sim_evolve(d,H,delays(2)/1000);                          %Evolve by delays(2)

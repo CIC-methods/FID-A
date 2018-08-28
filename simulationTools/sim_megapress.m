@@ -33,13 +33,15 @@ function out = sim_megapress(n,sw,Bfield,linewidth,sys,taus,refoc1Flip,refoc2Fli
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                            %EXCITE
+d=sim_excite(d,H,'x');                            %EXCITE
 d=sim_evolve(d,H,taus(1));                      %Evolve by taus(1)
 d=sim_rotate(d,H,refoc1Flip,'y');               %First refocusing pulse about y' axis.
 d=sim_evolve(d,H,taus(2));                      %Evolve by taus(2)

@@ -44,7 +44,9 @@ end
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);

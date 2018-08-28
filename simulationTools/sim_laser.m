@@ -26,7 +26,9 @@ function out = sim_laser(n,sw,Bfield,linewidth,sys,TE)
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -34,7 +36,7 @@ sys.shifts=sys.shifts-centreFreq;
 tau=TE/6;
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                            %EXCITE
+d=sim_excite(d,H,'x');                            %EXCITE
 d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
 d=sim_rotate(d,H,180,'y');                      %First 180 degree refocusing pulse about y' axis.
 d=sim_evolve(d,H,tau);                          %Evolve by tau

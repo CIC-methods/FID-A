@@ -2,7 +2,7 @@
 %Jamie Near, 2014.
 %
 % USAGE:
-% d_out = sim_rotate_arbPh(d_in,H,angle,ph)
+% d_out = sim_rotate_arbPh(d_in,H,anglein,ph)
 % 
 % DESCRIPTION:
 % This function simulates the effect of an ideal (instantaneous) rotation
@@ -16,46 +16,75 @@
 % INPUTS:
 % d_in      = input density matrix structure.
 % H         = Hamiltonian operator structure.
-% angle     = RF pulse flip angle (degrees).  If this value is a scalar,
-%               then the same flip angle will be applied to all spins in
-%               the system.  To apply a different flip angle to the
-%               different spins in the system, the angle variable can be a
-%               vector of flip angles with length equal to the H.nspins.
+% anglein   = RF pulse flip angle (degrees).  If anglein is a scalar, then 
+%             the same flip angle is applied to all spins in the spin 
+%             system.  If anglein is a cell array of scalars, each part of 
+%             the spin system will have the same flip angle applied to each 
+%             of the spins in that part.  Finally, if anglein is a cell 
+%             array of vectors, then a unique flip angle can be applied to 
+%             every spin in each part of the spin system.  In this case, 
+%             the length of the vectors in the cell array must be equal to 
+%             the number of spins in the corresponding part of the spin 
+%             system. 
 % ph        = Phase of rotation (in degrees; ie.  0='x', 90='y');
 %
 % OUTPUTS:
 % d_out     = output density matrix following rf rotation.
 
-function d_out = sim_rotate_arbPh(d_in,H,angle,ph)
+function d_out = sim_rotate_arbPh(d_in,H,anglein,ph)
 
 
-if length(angle) == 1
-    angle=angle*ones(length(H.shifts),1);
-elseif length(angle) ~= H.nspins
-    error('ERROR:  The length of input variable ''angle'' must be the same as the number of spins in the spin system!  ABORTING!');
-else
-    %do nothing;
+if isnumeric(anglein)
+    if length(anglein)==1 %Anglein is a scalar
+        for n=1:length(H)
+            angle{n}=anglein*ones(length(H(n).shifts),1);
+        end
+    else
+        error('ERROR:  anglein must be either a numeric scalar, or a cell array.  ABORTING!');
+    end
+elseif iscell(anglein)
+    if all(cellfun('length',anglein)==1) & length(anglein) == length(H)
+        %Anglein is a cell array of scalars whose length is the same as the
+        %number of parts of the spin system.  I suspect that this option
+        %will be rarely used.
+        for n=1:length(H)
+            angle{n}=anglein{n}*ones(length(H(n).shifts),1);
+        end
+    elseif length(anglein) == 1 & cellfun('length',anglein) == 1
+        %anglein is a cell array with a single element that is a scalar
+        for n=1:length(H)
+            angle{n}=anglein{1}*ones(length(H(n).shifts),1);
+        end
+    else
+        for n=1:length(H)
+            if length(anglein{n}) ~= H(n).nspins
+                error('ERROR:  The length of input variable ''anglein'' must be the same as the number of spins in the spin system!  ABORTING!');
+            end
+        end
+    end
 end
 
-rotMat=zeros(2^H.nspins,2^H.nspins); 
-Rz=zeros(2^H.nspins,2^H.nspins);
-for n=1:H.nspins
-        if H.shifts(n)>=30
+for m=1:length(H)
+    rotMat=zeros(2^H(m).nspins,2^H(m).nspins);
+    Rz=zeros(2^H(m).nspins,2^H(m).nspins);
+    for n=1:H(m).nspins
+        if H(m).shifts(n)>=30
             theta=0;
         else
-            theta=angle(n)*pi/180;
+            theta=angle{m}(n)*pi/180;
         end
-        rotMat=rotMat+theta*H.Ix(:,:,n);
-        Rz=Rz+(ph*pi/180)*H.Iz(:,:,n);
+        rotMat=rotMat+theta*H(m).Ix(:,:,n);
+        Rz=Rz+(ph*pi/180)*H(m).Iz(:,:,n);
+    end
+    d_out{m} = ...
+        expm(-1i * Rz) * ...
+        expm(-1i * rotMat) * ...
+        expm(-1i * -Rz) * ...
+        d_in{m} * ...
+        expm(1i * -Rz) * ...
+        expm(1i * rotMat) * ...
+        expm(1i * Rz);
 end
-d_out = ...
-    expm(-1i * Rz) * ...
-    expm(-1i * rotMat) * ...
-    expm(-1i * -Rz) * ...
-    d_in * ...
-    expm(1i * -Rz) * ...
-    expm(1i * rotMat) * ...
-    expm(1i * Rz);
 
 
 

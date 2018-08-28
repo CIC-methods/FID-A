@@ -47,7 +47,9 @@ if nargin<11
     %Set 3ppm GABA resonance to centre
     centreFreq=3;
 end
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -65,7 +67,7 @@ if sum(delays<0)
 end
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                                %EXCITE
+d=sim_excite(d,H,'x');                                %EXCITE
 d=sim_evolve(d,H,delays(1)/1000);                          %Evolve by delays(1)
 d=sim_rotate(d,H,180,'y');                             %1st instantaneous 180 degree refocusing pulse about y'
 d=sim_evolve(d,H,delays(2)/1000);                          %Evolve by delays(2)

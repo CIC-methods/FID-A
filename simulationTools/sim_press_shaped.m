@@ -65,7 +65,9 @@ end
 
 %Set water to centre
 centreFreq=2.3;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -79,7 +81,7 @@ if sum(delays<0)
 end
 
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                                    %EXCITE
+d=sim_excite(d,H,'x');                                    %EXCITE
 d=sim_evolve(d,H,delays(1)/2000);                            %Evolve by delays(1)/2
 d=sim_shapedRF(d,H,RF,tp,flipAngle,90+phCyc1,dx,Gx);          %1st shaped 180 degree refocusing pulse
 d=sim_evolve(d,H,(delays(1)+delays(2))/2000);                     %Evolve by (delays(1)+delays(2))/2

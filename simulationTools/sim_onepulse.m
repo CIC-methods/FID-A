@@ -25,13 +25,16 @@ function out = sim_onepulse(n,sw,Bfield,linewidth,sys)
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-centreFreq;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-centreFreq;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
+
 %BEGIN PULSE SEQUENCE************
-d=sim_excite(H,'x');                            %EXCITE
+d=sim_excite(d,H,'x');                            %EXCITE
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 

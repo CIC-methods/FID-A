@@ -27,7 +27,9 @@ function out = sim_steam(n,sw,Bfield,linewidth,sys,te,tm)
 
 %Set water to centre
 centreFreq=4.65;
-sys.shifts=sys.shifts-4.65;
+for k=1:length(sys)
+    sys(k).shifts=sys(k).shifts-4.65;
+end
 
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
@@ -37,7 +39,7 @@ out=struct();
 figure; hold;
 for m=1:4
     %BEGIN PULSE SEQUENCE************
-    d=sim_excite_arbPh(H,ph(m));                    %EXCITE
+    d=sim_excite_arbPh(d,H,ph(m));                    %EXCITE
     d=sim_evolve(d,H,te/2);                         %Evolve by te/2
     d=sim_rotate(d,H,-90,'x');                      %Second 90 degree pulse about x' axis.
     d=sim_evolve(d,H,tm);                           %Evolve by TM delay

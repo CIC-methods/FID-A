@@ -17,16 +17,18 @@
 
 function d_out = sim_spoil(d_in,H,angle)
 
-%make vector of spoil angles;
-angle=angle*ones(length(H.shifts),1);
-
-%Make spoiler hamiltonian;
-spoil=zeros(2^H.nspins,2^H.nspins); 
-for n=1:H.nspins
-    spoil=spoil+((angle(n)*pi/180)*H.Iz(:,:,n));
+for m=1:length(H)
+    %make vector of spoil angles;
+    angle=angle*ones(length(H(m).shifts),1);
+    
+    %Make spoiler hamiltonian;
+    spoil=zeros(2^H(m).nspins,2^H(m).nspins);
+    for n=1:H(m).nspins
+        spoil=spoil+((angle(n)*pi/180)*H(m).Iz(:,:,n));
+    end
+    
+    %Do matrix multiplication;
+    d_out{m} = expm(-1i*spoil) * d_in{m} * expm(1i*spoil);
 end
-
-%Do matrix multiplication;
-d_out = expm(-1i*spoil) * d_in * expm(1i*spoil);
 
 

@@ -39,7 +39,7 @@ end
 deltat = 1/sw;
 points = n;
 out.fids = zeros(1,points);
-Bfield=H.Bfield;
+Bfield=H(1).Bfield;
 if strcmp(shape,'L') || strcmp(shape,'l')
     t2 = 1/(pi*linewidth);
 elseif strcmp(shape,'G') || strcmp(shape,'g')
@@ -56,14 +56,7 @@ end
 
 %READOUT CODE COURTESY OF SAAD JBABDI, FMRIB 2011!!
 %FURTHER SPEEDUP IMPLEMENTED BY CHATHURA KUMARAGAMAGE, MCGILL 2018!!
-M=H.HAB;
-[U,D]=eig(M);D=diag(D);
-val=2^(2-H.nspins);
-k=1;
-
-Fxy =H.Fx+1i*H.Fy;
-phase_comp=exp(1i*rcvPhase*pi/180);
-
+%LOOPING THROUGH ARRAYED SPIN SYSTEMS.  JAMIE NEAR, MCGILL 2018!!
 l=0:points-1;
 if strcmp(shape,'L') || strcmp(shape,'l')
     decay=exp(-((l)*deltat)/t2);
@@ -72,18 +65,37 @@ elseif strcmp(shape,'G') || strcmp(shape,'g')
 elseif strcmp(shape,'LG') || strcmp(shape,'lg')
     decay = (R*exp(-((l)*deltat)/t2))+((1-R)*exp(-(((l)*deltat)^2)/(2*(sigma^2))));
 end
+
+for n=1:length(H) %JN - Loop through the different parts of the spin-system:
+    M=H(n).HAB;
+    [U,D]=eig(M);D=diag(D);
+    val=2^(2-H(n).nspins);
+    k=1;
+
+    Fxy =H(n).Fx+1i*H(n).Fy;
+    phase_comp=exp(1i*rcvPhase*pi/180);
     
-while k<(points+1);
-    d1=diag(exp(-1i*(k-1)*D*deltat));
-    d=U*d1*U';
-    out.fids(k)=trace(d*d_in*d'*(Fxy)*phase_comp);
-    k = k+1;
+    while k<(points+1);
+        d1=diag(exp(-1i*(k-1)*D*deltat));
+        d=U*d1*U';
+        out_parts{n}.fids(k)=trace(d*d_in{n}*d'*(Fxy)*phase_comp);
+        k = k+1;
+    end
+
+    out_parts{n}.fids = val*(out_parts{n}.fids.*decay);
+        
 end
 
-out.fids = val*(out.fids.*decay);
-
 d_out=sim_evolve(d_in,H,points*deltat);
+
+%Combine the output FIDs from the different parts of the spin-system:
+out.fids=zeros(size(out_parts{n}.fids));
+for n=1:length(H)
+    out.fids=out.fids+out_parts{n}.fids;
+end
+
 out.t=[0:deltat:deltat*(points-1)];
+
 freq=[(-sw/2)+(sw/(2*points)):sw/(points):(sw/2)-(sw/(2*points))];
 ppm=-freq/(Bfield*42.577);
 ppm=ppm+4.65;
@@ -91,6 +103,7 @@ out.ppm=ppm;
 
 out.fids=out.fids';
 out.specs=fftshift(ifft(out.fids));
+
 
 
 %Add a few additional bits to ouput structure so that it matches the
