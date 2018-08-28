@@ -2,16 +2,15 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_alignAverages(in,tmax,avg,ref);
+% [out,fs,phs]=op_alignAverages(in,tmax,med,ref);
 % 
 % DESCRIPTION:
 % Perform spectral registration in the time domain to correct frequency and
 % phase drifts.  As described in Near et al.  Frequency and phase drift 
 % correction of magnetic resonance spectroscopy data by spectral 
-% registration in the time domain. Magn Reson Med. 2014 Jan 16. 
-% doi: 10.1002/mrm.25094. [Epub ahead of print]
+% registration in the time domain. Magn Reson Med 2015; 73(1):44-50.
 %
-% June 15th 2017:  Made the tmax and avg arguments optional.  If tmax is 
+% June 15th 2017:  Made the tmax and med arguments optional.  If tmax is 
 % not specified, the value is determined automatically by finding the time
 % at which the SNR of the FID drops permanently below 5.  This idea
 % was suggested by Mark Mikkelsen.  Thanks Mark!!
@@ -19,17 +18,19 @@
 % INPUTS:
 % in        = Input data structure.
 % tmax      = Maximum time (s) in time domain to use for alignment.
-%             (Optional.  Default is the time at which SNR drops below 3)
-% avg       = Align averages to the average of the averages? ('y','n', or 
+%             (Optional.  Default is the time at which SNR drops below 5)
+% med       = Align averages to the median of the averages? ('y','n', 'a', or 
 %             'r').  (Optional.  Default = 'n').  If you select 'n', all 
 %             averages will be aligned to a single average.  The average 
 %             chosen as the reference average will be the one with the 
 %             lowest 'unlikeness' metric (see 'op_rmbadaverages.m').  If 
-%             select 'y', all averages will be alinged to the average of
-%             the averages.  If you select 'r', all averages will be
-%             aligned to an externally provided reference spectrum.
+%             select 'y', all averages will be alinged to the median of
+%             the averages.  If you select 'a', all averages will be 
+%             aligned to the average of the averages.  If you select 'r', 
+%             all averages will be aligned to an externally provided 
+%             reference spectrum.
 % ref       = An externally provided reference spectrum that you would like
-%             to align everything to (Required only if avg = 'r').  
+%             to align everything to (Required only if med = 'r').  
 %
 % OUTPUTS:
 % out       = Output following alignment of averages.  
@@ -37,7 +38,7 @@
 % phs       = Vector of phase shifts (in degrees) used for alignment.
 
 
-function [out,fs,phs]=op_alignAverages(in,tmax,avg,initPars)
+function [out,fs,phs]=op_alignAverages(in,tmax,med,initPars)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');
@@ -55,7 +56,7 @@ else
     parsFit=[0,0];
     
     if nargin<3
-        avg='n'
+        med='n'
         if nargin<2
             %if tmax is not specified, find the time at which the SNR
             %drops below 5
@@ -74,9 +75,9 @@ else
         end
     end
     
-    if (strcmp(avg,'r') || strcmp(avg,'R'))
+    if (strcmp(med,'r') || strcmp(med,'R'))
         if nargin<4
-            error('ERROR:  If using the ''r'' option for input variable ''avg'', then a 4th input argument must be provided');
+            error('ERROR:  If using the ''r'' option for input variable ''med'', then a 4th input argument must be provided');
         end
     else
         if nargin<4
@@ -94,14 +95,19 @@ else
     phs=zeros(in.sz(in.dims.averages),B);
     fids=zeros(in.sz(in.dims.t),1,B);
     for m=1:B
-        if avg=='y' || avg=='Y'
-            disp('Aligning all averages to the Average of the averages.');
+        if med=='y' || med=='Y'
+            disp('Aligning all averages to the median of the averages.');
+            base=op_median(in);
+            base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
+            ind_min=0;
+        elseif med=='a' || med=='a'
+            disp('Aligning all averages to the average of the averages.');
             base=op_averaging(in);
             base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
             ind_min=0;
-        elseif avg=='n' || avg=='N'
+        elseif med=='n' || med=='N'
             %First find the average that is most similar to the total average:
-            inavg=op_averaging(in);
+            inavg=op_median(in);
             for k=1:in.sz(in.dims.averages)
                 for l=1:B
                     metric(k,l)=sum((real(in.fids(in.t>=0 & in.t<=tmax,k,l))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,l)))).^2);
@@ -114,7 +120,7 @@ else
             disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
             base=[real(in.fids(in.t>=0 & in.t<tmax,ind_min,m));imag(in.fids(in.t>=0 & in.t<tmax,ind_min,m))];
             fids(:,ind_min,m)=in.fids(:,ind_min,m);
-        elseif avg=='r' || avg=='R'
+        elseif med=='r' || med=='R'
             disp('Aligning all averages to an externally provided reference spectrum.');
             base=ref;
             base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
