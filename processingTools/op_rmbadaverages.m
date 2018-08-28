@@ -8,7 +8,7 @@
 %Removes motion corrupted averages from a dataset containing multiple
 %averages.  Bad averages are identified by calculating a 'likeness' metric
 %for each average.  This is done by subtracting each average from the
-%average of the averages, and then calculating the root mean squared of
+%median of the averages, and then calculating the root mean squared of
 %this difference spectrum.  Averages whose likeness metrics are greater
 %than 'nsd' above the mean are discarded.
 %
