@@ -5,7 +5,8 @@
 % out=io_readjmrui(filename);
 % 
 % DESCRIPTION:
-% Reads jMRUI .txt format into the FID-A data structure format in MATLAB.
+% Reads jMRUI .txt format into a Nx2 MATLAB array where the 2 rows are the
+% time-domain and frequency domain data, respectively. 
 % 
 % INPUTS:
 % filename   = filename of jMRUI .txt file.
