@@ -86,3 +86,6 @@ out.rawAverages=averages;
 %FILLING IN THE FLAGS
 out.flags=in.flags;
 out.flags.writtentostruct=1;
+if length(index)==1
+    out.flags.averaged=1;
+end

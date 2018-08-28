@@ -36,7 +36,8 @@ else
     SS=1;
 end
 infilt=op_filter(in,10);
-inavg=op_averaging(infilt);
+%inavg=op_averaging(infilt);
+inavg=op_median(infilt);
 for n=1:in.sz(in.dims.averages)
     for m=1:SS
             metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m)))).^2);

@@ -70,7 +70,7 @@ if isstruct(in)
     end
     fignum=figure;
     if ~dim
-        out=plot(in.t,real(in.fids));
+        out=plot(in.t,real(squeeze(in.fids)));
     elseif dim==2
         out=plot(in.t,real(squeeze(in.fids(:,:,1))));
     elseif dim==3
