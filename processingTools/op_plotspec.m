@@ -67,7 +67,7 @@ if isstruct(in)
     end
     fignum=figure;
     if ~dim
-        out=plot(in.ppm,real(in.specs));
+        out=plot(in.ppm,real(squeeze(in.specs)));
     elseif dim==2
         out=plot(in.ppm,real(squeeze(in.specs(:,:,1))));
     elseif dim==3
