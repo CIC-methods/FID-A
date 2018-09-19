@@ -46,7 +46,7 @@ for n=1:length(H) %JN - Loop through the different parts of the spin system
     end
     
     %Do matrix multiplication;
-    d_out{n} = expm(-1i*spoil) * d_in * expm(1i*spoil);
+    d_out{n} = expm(-1i*spoil) * d_in{n} * expm(1i*spoil);
 end
 
 
