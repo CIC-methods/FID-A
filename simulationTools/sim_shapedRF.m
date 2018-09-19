@@ -3,7 +3,7 @@
 %Kimberly Chan, 2015:  Added J-evolution during RF pulse.  
 %
 % USAGE:
-% d_out = sim_shapedRF(d_in,H,RFstruct,flipAngle,phase,dfdx,grad)
+% d_out = sim_shapedRF(d_in,H,RFstruct,Tp,flipAngle,phase,dfdx,grad)
 % 
 % DESCRIPTION:
 % This function simulates the effect of a shaped rf pulse on the density
