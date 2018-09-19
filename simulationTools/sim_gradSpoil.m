@@ -41,8 +41,8 @@ angle=2*pi*gamma.*B_gradTotal*dur;
 for n=1:length(H) %JN - Loop through the different parts of the spin system
     %Make spoiler hamiltonians;
     spoil=zeros(2^H(n).nspins,2^H(n).nspins);
-    for n=1:H(n).nspins
-        spoil=spoil+(angle*H(n).Iz(:,:,n));
+    for k=1:H(n).nspins
+        spoil=spoil+(angle*H(n).Iz(:,:,k));
     end
     
     %Do matrix multiplication;
