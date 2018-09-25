@@ -37,8 +37,10 @@
 % y                     = vector of y positions to simulate [cm]
 % taus                  = vector of pulse sequence timings  [ms]
 % spinSys               = spin system to simulate
-% editFlipON            = vector of edit-ON pulse flip angles for each spin in spin system.
-% editFlipOFF           = vector of edit-OFF pulse flip angles for each spin in spin system.
+% editFlipON            = Cell array of edit-ON pulse flip angles for each 
+%                         spin in each part of the spin system.
+% editFlipOFF           = Cell array of edit-OFF pulse flip angles for each 
+%                         spin in each part of the spin system.
 % refPhCyc1             = vector of phase cycling steps for 1st refocusing pulse [degrees]
 % refPhCyc2             = vector of phase cycling steps for 2nd refocusing pulse [degrees]
 %
@@ -72,8 +74,8 @@ taus=[5,... %Time from excitation to 1st refoc pulse [ms]
     17,...  %Time from 2nd refoc pulse to 2nd editing pulse [ms]
     12];    %Time from 2nd editing pulse to ADC onset [ms]
 spinSys='GABA'; %spin system to simulate
-editFlipON{1}=[0 0 180 180 0 0];
-editFlipOFF{1}=[0 0 0 0 0 0];
+editFlipON{1}=[0 0 180 180 0 0]; %Cell array of edit-on pulse flip angles.
+editFlipOFF{1}=[0 0 0 0 0 0]; %Cell array of edit-off pulse flip angles.
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 refPhCyc2=[0,90]; %phase cycling steps for 2nd refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
