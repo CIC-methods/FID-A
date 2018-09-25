@@ -38,8 +38,10 @@
 % lw                = linewidth of the output spectrum [Hz]
 % thkX              = slice thickness of x refocusing pulse [cm]
 % thkY              = slice thickness of y refocusing pulse [cm]
-% x                 = vector of X positions to simulate [cm]
-% y                 = vector of y positions to simulate [cm]
+% fovX              = full simulation FOV in the x direction [cm]
+% fovY              = full simulation FOV in the y direction [cm]
+% nX                = number of spatial grid points to simulate in x-direction
+% nY                = number of spatial grid points to simulate in y-direction
 % taus              = vector of pulse sequence timings  [ms]
 % spinSys           = spin system to simulate 
 % editPhCyc1        = vector of phase cycling steps for 1st editing pulse [degrees]
@@ -71,10 +73,10 @@ lw=2; %linewidth of the output spectrum [Hz]
 Bfield=3; %Magnetic field strength in [T]
 thkX=3; %slice thickness of x refocusing pulse [cm]
 thkY=3; %slice thickness of y refocusing pulse [cm]
-x=linspace(-2.5,2.5,8); %X positions to simulate [cm]
-y=linspace(-2.5,2.5,8); %y positions to simulate [cm]
-%x=0;
-%y=0;
+fovX=5; %size of the full simulation Field of View in the x-direction [cm]
+fovY=5; %size of the full simulation Field of View in the y-direction [cm]
+nX=8; %Number of grid points to simulate in the x-direction
+nY=8; %Number of grid points to simulate in the y-direction
 taus=[5,...  %time between excitation and 1st refoc pulse [ms]
     17,...   %time between 1st refoc pulse and 1st editing pulse [ms]
     17,...   %time between 1st editing pulse and 2nd refoc pulse [ms]
@@ -87,6 +89,10 @@ editPhCyc2=[0 90]; %phase cycling steps for 2nd editing pulse [degrees]
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 refPhCyc2=[0,90]; %phase cycling steps for 2nd refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
+
+%set up spatial grid
+x=linspace(-fovX/2,fovX/2,nX); %X positions to simulate [cm]
+y=linspace(-fovY/2,fovY/2,nY); %y positions to simulate [cm]
 
 %Load RF waveforms
 refRF=io_loadRFwaveform(refocWaveform,'ref',0);
@@ -112,10 +118,6 @@ editRFoff=rf_freqshift(editRF,editTp,(centreFreq-editOffFreq)*Bfield*gamma/1e6);
 Gx=(refRF.tbw/(refTp/1000))/(gamma*thkX/10000); %[G/cm]
 Gy=(refRF.tbw/(refTp/1000))/(gamma*thkY/10000); %[G/cm]
 
-[DX,DY]=meshgrid(x,y);
-
-%n=1;
-%totalIters=length(x)*length(y)*length(editPhCyc1)*length(editPhCyc2)*length(refPhCyc1)*length(refPhCyc2);
 
 %Initialize structures:
 outON_posxy_epc_rpc=cell(length(x),length(y),length(editPhCyc1),length(editPhCyc2),length(refPhCyc1),length(refPhCyc2));
@@ -181,6 +183,21 @@ parfor X=1:length(x);
         
     end %end of spatial loop (parfor) in y direction.
 end %end of spatial loop (parfor) in x direction.
+
+%For consistent scaling across different shaped simulations, we need to :
+%1.  Scale down by the total number of simulations run (since these were
+%    all added together.
+numSims=(nX*nY*length(refPhCyc1)*length(refPhCyc2)*length(editPhCyc1)*length(editPhCyc2));
+outON=op_ampScale(outON,1/numSims);
+outOFF=op_ampScale(outOFF,1/numSims);
+
+%2.  Scale by the total size of the simulated region, relative to the size
+%    of the voxel.
+voxRatio=(thkX*thkY)/(fovX*fovY);
+outON=op_ampScale(outON,1/voxRatio);
+outOFF=op_ampScale(outOFF,1/voxRatio);
+
+
 
 outDIFF=op_subtractScans(outON,outOFF);
         
