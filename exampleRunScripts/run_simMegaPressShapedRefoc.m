@@ -62,19 +62,25 @@ Bfield=3; %magnetic field strength [Tesla]
 lw=2; %linewidth of the output spectrum [Hz]
 thkX=3; %slice thickness of x refocusing pulse [cm]
 thkY=3; %slice thickness of y refocusing pulse [cm]
-x=linspace(-2.1,2.1,8);  %X positions to simulate [cm]
-y=linspace(-2.1,2.1,8);  %Y positions to simulate [cm]
+fovX=5; %size of the full simulation Field of View in the x-direction [cm]
+fovY=5; %size of the full simulation Field of View in the y-direction [cm]
+nX=8; %Number of grid points to simulate in the x-direction
+nY=8; %Number of grid points to simulate in the y-direction
 taus=[5,... %Time from excitation to 1st refoc pulse [ms]
     17,...  %Time from 1st refoc pulse to 1st editing pulse [ms]
     17,...  %Time from 1st editing pulse to 2nd refoc pulse [ms]
     17,...  %Time from 2nd refoc pulse to 2nd editing pulse [ms]
     12];    %Time from 2nd editing pulse to ADC onset [ms]
 spinSys='GABA'; %spin system to simulate
-editFlipON=[0 0 180 180 0 0];
-editFlipOFF=[0 0 0 0 0 0];
+editFlipON{1}=[0 0 180 180 0 0];
+editFlipOFF{1}=[0 0 0 0 0 0];
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 refPhCyc2=[0,90]; %phase cycling steps for 2nd refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
+
+%set up spatial grid
+x=linspace(-fovX/2,fovX/2,nX); %X positions to simulate [cm]
+y=linspace(-fovY/2,fovY/2,nY); %y positions to simulate [cm]
 
 %Load RF waveforms
 refRF=io_loadRFwaveform(refocWaveform,'ref',0);
@@ -136,6 +142,23 @@ parfor X=1:length(x);
         
     end %end of spatial loop (parfor) in y direction.
 end %end of spatial loop (parfor) in x direction.
+
+%For consistent scaling across different shaped simulations, we need to :
+%1.  Scale down by the total number of simulations run (since these were
+%    all added together.
+numSims=(nX*nY*length(refPhCyc1)*length(refPhCyc2));
+outON=op_ampScale(outON,1/numSims);
+outOFF=op_ampScale(outOFF,1/numSims);
+
+%2.  Scale by the total size of the simulated region, relative to the size
+%    of the voxel.
+if fovX>thkX
+    voxRatio=(thkX*thkY)/(fovX*fovY);
+else
+    voxRatio=1;
+end
+outON=op_ampScale(outON,1/voxRatio);
+outOFF=op_ampScale(outOFF,1/voxRatio);
 
 outDIFF=op_subtractScans(outON,outOFF);
         
