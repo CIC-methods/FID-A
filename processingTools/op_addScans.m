@@ -46,7 +46,7 @@ if isempty(fieldnames(in1))
 
 
 else
-    if subtract==1;
+    if subtract
         fids=in1.fids-in2.fids;
     else
         fids=in1.fids+in2.fids;
