@@ -1,11 +1,23 @@
+%io_loadspec_rda.m
+%Jay Hennessy, McGill University 2016.
 %
-% Read spectroscopy data from Siemens machine
+% USAGE:
+% [out]=io_loadspec_rda(rda_filename);
+% 
+% DESCRIPTION:
+% Reads in siemens rda data (.rda file).
+% 
+% op_loadspec_rda outputs the data in structure format, with fields corresponding to time
+% scale, fids, frequency scale, spectra, and header fields containing
+% information about the acquisition.  The resulting matlab structure can be
+% operated on by the other functions in this MRS toolbox.
+% 
+% INPUTS:
+% filename   = filename of Siemens rda data to load.
 %
-% Read a .rda file
-%
-%
-%[filename , pathname ] = uigetfile('*.rda', 'Select an RDA file')
-%rda_filename = [pathname , filename]; %'c:/data/spectroscopy/spec raw data/MrSpec.20020531.160701.rda'
+% OUTPUTS:
+% out        = Input dataset in FID-A structure format.
+
 function [out] = io_loadspec_rda(rda_filename)
 
 fid = fopen(rda_filename);
