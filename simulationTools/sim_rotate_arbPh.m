@@ -55,12 +55,15 @@ elseif iscell(anglein)
         for n=1:length(H)
             angle{n}=anglein{1}*ones(length(H(n).shifts),1);
         end
-    else
+    else %anglein is a cell array with arrays as elements.  
+        % Each array element corresponds to the flip angle for a particular
+        % spin in the spin system.
         for n=1:length(H)
             if length(anglein{n}) ~= H(n).nspins
                 error('ERROR:  The length of input variable ''anglein'' must be the same as the number of spins in the spin system!  ABORTING!');
             end
         end
+        angle=anglein;
     end
 end
 
