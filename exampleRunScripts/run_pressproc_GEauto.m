@@ -51,7 +51,7 @@ mkdir(['./report/figs']);
 
 
 % %read in both datasets:
-[raw,raww]=io_loadspec_GE(filestring,5000,127.7,1,270,2000);
+[raw,raww]=io_loadspec_GE(filestring,1);
 raw=op_complexConj(raw);
 
 if isstruct(raww)

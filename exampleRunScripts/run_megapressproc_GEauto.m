@@ -57,7 +57,7 @@ mkdir(['./report/figs']);
 %       nSubspecs      =2;
 %       TE             =68 ms;
 %       TR             =2000 ms;
-[raw,raww]=io_loadspec_GE(filestring,5000,127.7,2,68,2000);
+[raw,raww]=io_loadspec_GE(filestring,2);
 raw=op_complexConj(raw);
 
 if isstruct(raww)

@@ -2,11 +2,11 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs,te,tr);
+% [out,out_w]=io_loadspec_GE(filename,subspecs);
 % 
 % DESCRIPTION:
-% Reads in GE P file (.dat file) using code adapted from GERead.m, provided 
-% as part of the Gannet software package by Richard Edden (gabamrs.blogspot.com).
+% Reads in GE P-files (.7 file) using code adapted from GERead.m, provided
+% as part of the Gannet software package by Richard Edden (gabamrs.com).
 % 
 % op_loadspec_GE outputs the data in structure format, with fields corresponding to time
 % scale, fids, frequency scale, spectra, and header fields containing
@@ -17,27 +17,16 @@
 % 
 % INPUTS:
 % filename   = filename of GE P file to be loaded.
-% sw         = spectral width (Hz) 
-% Larmor     = Larmor frequency (Hz/ppm, ie.  127 for 3T)
 % subspecs   = number of subspectra in the data (from spectral editing, ISIS, etc.)
-% te         = Echo time (ms).  Optional.  Default is [].
-% tr         = Repetition time (ms).  Optional.  Default is [].
 %
 % OUTPUTS:
-% out        = Input water suppressed dataset in FID-A structure format.
-% out_w      = Input water reference dataset in FID-A structure format. 
+% out        = output water suppressed dataset in FID-A structure format.
+% out_w      = output water reference dataset in FID-A structure format. 
 
-function [out,out_w]=io_loadspec_GE(filename,sw,Larmor,subspecs,te,tr);
-
-if nargin<6
-    if nargin<5
-        te=[];
-    end
-    tr=[];
-end
+function [out,out_w]=io_loadspec_GE(filename,subspecs)
 
 %read in the data using the GELoad.m (adapted from GERead.m)
-[GEout,GEout_w]=GELoad(filename);
+[GEout,GEout_w,GEhdr]=GELoad(filename);
 
 %As far as I can tell, the data that comes out of the GELoad
 %function is normally a N x Navgs x Ncoils matrix.  The Navgs dimension
@@ -45,8 +34,8 @@ end
 %If the data has multiple subspectra 
 if subspecs>1 
     %Split the subspectra out of the "averages" dimension:
-    data(:,:,:,1)=GEout(:,[1:2:end-1],:);
-    data(:,:,:,2)=GEout(:,[2:2:end],:);
+    data(:,:,:,1)=GEout(:,1:2:end,:);
+    data(:,:,:,2)=GEout(:,2:2:end,:);
 else
     data=GEout;
 end
@@ -61,17 +50,8 @@ fids_w=permute(fids_w,[1,3,2]);
 sz=size(fids);
 sz_w=size(fids_w);
 
-
 %Find the magnetic field strength:
-Bo=Larmor/42.577;
-
-%Find the number of averages:
-Naverages=size(fids,2)*size(fids,4);
-Naverages_w=size(fids_w,2)*size(fids_w,4);
-
-%Find out if multiple coil elements were used:
-Ncoils=size(fids,3);
-Ncoils_w=size(fids_w,3);
+Bo=GEhdr.Larmor/42.577;
 
 %Now create a record of the dimensions of the data array.  
 dims.t=1;
@@ -90,7 +70,6 @@ dims_w.averages=3;
 dims_w.subSpecs=0;
 dims_w.extras=0;
 
-
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
 specs_w=fftshift(ifft(fids_w,[],dims_w.t),dims_w.t);
 
@@ -98,11 +77,11 @@ specs_w=fftshift(ifft(fids_w,[],dims_w.t),dims_w.t);
 %Now get relevant scan parameters:*****************************
 
 %Get Spectral width and Dwell Time
-spectralwidth=sw;
+spectralwidth=GEhdr.sw;
 dwelltime=1/spectralwidth;
     
 %Get TxFrq
-txfrq=Larmor*1e6;
+txfrq=GEhdr.Larmor*1e6;
 
 %Leave date blank
 date='';
@@ -112,7 +91,7 @@ date='';
 %change.  'rawAverages' will specify the original number of acquired 
 %averages in the dataset, which is unchangeable.
 %FOR WATER SUPPRESSED DATA:
-if dims.subSpecs ~=0
+if dims.subSpecs~=0
     if dims.averages~=0
         averages=sz(dims.averages)*sz(dims.subSpecs);
         rawAverages=averages;
@@ -131,17 +110,17 @@ else
 end
 
 %FOR WATER UNSUPPRESSED DATA:
-if dims_w.subSpecs ~=0
+if dims_w.subSpecs~=0
     if dims_w.averages~=0
-        averages_w=sz(dims_w.averages)*sz(dims_w.subSpecs);
+        averages_w=sz_w(dims_w.averages)*sz_w(dims_w.subSpecs);
         rawAverages_w=averages_w;
     else
-        averages_w=sz(dims_w.subSpecs);
+        averages_w=sz_w(dims_w.subSpecs);
         rawAverages_w=1;
     end
 else
     if dims_w.averages~=0
-        averages_w=sz(dims_w.averages);
+        averages_w=sz_w(dims_w.averages);
         rawAverages_w=averages_w;
     else
         averages_w=1;
@@ -164,8 +143,8 @@ else
 end
 
 %FOR WATER UNSUPPRESSED DATA:
-if dims_w.subSpecs ~=0
-    subspecs_w=sz(dims.subSpecs);
+if dims_w.subSpecs~=0
+    subspecs_w=sz_w(dims_w.subSpecs);
     rawSubspecs_w=subspecs_w;
 else
     subspecs_w=1;
@@ -176,11 +155,11 @@ end
 
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+f=(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)));
 ppm=f/(Bo*42.577);
 ppm=ppm+4.65;
 
-t=[0:dwelltime:(sz(1)-1)*dwelltime];
+t=0:dwelltime:(sz(1)-1)*dwelltime;
 
 
 %FOR WATER SUPPRESSED DATA
@@ -201,8 +180,8 @@ out.rawAverages=rawAverages;
 out.subspecs=subspecs;
 out.rawSubspecs=rawSubspecs;
 out.seq='';
-out.te=te;
-out.tr=tr;
+out.te=GEhdr.TE;
+out.tr=GEhdr.TR;
 out.pointsToLeftshift=0;
 
 
@@ -244,8 +223,8 @@ out_w.rawAverages=rawAverages_w;
 out_w.subspecs=subspecs_w;
 out_w.rawSubspecs=rawSubspecs_w;
 out_w.seq='';
-out_w.te=te;
-out_w.tr=tr;
+out_w.te=GEhdr.TE;
+out_w.tr=GEhdr.TR;
 out_w.pointsToLeftshift=0;
 
 

@@ -1,178 +1,300 @@
 % GELoad.m
-% gannetmrs.blogspot.com
 %
 % USAGE:
-% [FullData,WaterData]=GELoad(filename);
-% 
+% [FullData,WaterData,hdr]=GELoad(fname);
+%
 % DESCRIPTION:
-% Reads in GE P file (.dat file) using code adapted from GERead.m, provided 
-% as part of the Gannet software package by Richard Edden (gabamrs.blogspot.com).
-% 
+% Reads in GE P-files (.7 file) using code adapted from GERead.m, provided
+% as part of the Gannet software package by Richard Edden (gabamrs.com).
+% Developed by Ralph Noeske and Mark Mikkelsen.
+%
 % INPUTS:
 % filename   = filename of GE P file to be loaded.
 
-function [FullData,WaterData]=GELoad(fname);
+function [FullData,WaterData,hdr]=GELoad(fname)
 
-fid = fopen(fname,'r', 'ieee-be');
-if fid == -1
-    tmp = [ 'Unable to locate Pfile ' fname ];
-    disp(tmp);
-    return;
-end
-% return error message if unable to read file type.
-% Determine size of Pfile header based on Rev number
-status = fseek(fid, 0, 'bof');
-[f_hdr_value, count] = fread(fid, 1, 'real*4');
-rdbm_rev_num = f_hdr_value(1);
-if( rdbm_rev_num == 7.0 );
-    pfile_header_size = 39984;  % LX
-elseif ( rdbm_rev_num == 8.0 );
-    pfile_header_size = 60464;  % Cardiac / MGD
-elseif (( rdbm_rev_num > 5.0 ) && (rdbm_rev_num < 6.0));
-    pfile_header_size = 39940;  % Signa 5.5
+fid = fopen(fname, 'r', 'ieee-be');
+fseek(fid, 0, 'bof');
+rdbm_rev_num = fread(fid, 1, 'real*4');
+if rdbm_rev_num == 7.0
+    pfile_header_size = 39984; % LX
+elseif rdbm_rev_num == 8.0
+    pfile_header_size = 60464; % Cardiac / MGD
+elseif rdbm_rev_num > 5.0 && rdbm_rev_num < 6.0
+    pfile_header_size = 39940; % Signa 5.5
 else
     % In 11.0 and later the header and data are stored as little-endian
     fclose(fid);
-    fid = fopen(fname,'r', 'ieee-le');
-    status = fseek(fid, 0, 'bof');
-    [f_hdr_value, count] = fread(fid, 1, 'real*4');
-    if (f_hdr_value == 9.0)  % 11.0 product release
-        pfile_header_size= 61464;
-    elseif (f_hdr_value == 11.0);  % 12.0 product release
-        pfile_header_size= 66072;
-    elseif (f_hdr_value > 11.0) & (f_hdr_value < 100.0)  % 14.0 and later
-        status = fseek(fid, 1468, 'bof');
-        pfile_header_size = fread(fid,1,'integer*4');
-    else
-        err_msg = sprintf('Invalid Pfile header revision: %f', f_hdr_value );
-        return;
+    fid = fopen(fname, 'r', 'ieee-le');
+    fseek(fid, 0, 'bof');
+    rdbm_rev_num = fread(fid, 1, 'real*4');
+    if rdbm_rev_num == 9.0 % 11.0 product release
+        pfile_header_size = 61464;
+    elseif rdbm_rev_num == 11.0 % 12.0 product release
+        pfile_header_size = 66072;
     end
 end
 
-% Read header information
-status = fseek(fid, 0, 'bof');
-[hdr_value, count] = fread(fid, 102, 'integer*2');
-% RTN - read rhuser
-status = fseek(fid, 0, 'bof');
-[f_hdr_value, count] = fread(fid, 74, 'real*4');
-npasses = hdr_value(33);
-nslices = hdr_value(35);
-nechoes = hdr_value(36);
-%RTN - number of phase cycles
-navs = hdr_value(37);
-nframes = hdr_value(38);
-point_size = hdr_value(42);
-out.p.npoints = hdr_value(52);
-out.p.nrows = hdr_value(53);
-rc_xres = hdr_value(54);
-rc_yres = hdr_value(55);
-start_recv = hdr_value(101);
-stop_recv = hdr_value(102);
+% RTN 2018
+% Added flexible P-file revision support
+% Values are read from rdb_hdr and image sub-headers
+% Position can be found in rdbm.h (RDB_HEADER_REC) and imagedb.h (MRIMAGEDATATYPE)
+
+% RTN 2018
+% unsigned int rdb_hdr_ps_mps_freq
+% float rdb_hdr_user0
+% float rdb_hdr_user4
+% float rdb_hdr_user19
+% short rdb_hdr_nechoes
+% short rdb_hdr_navs
+% short rdb_hdr_nframes
+% short rdb_hdr_point_size
+% unsigned short rdb_hdr_da_xres
+% short rdb_hdr_da_yres
+% short rdb_hdr_dab[0].start_rcv
+% short rdb_hdr_dab[0].stop_rcv
+% int rdb_hdr_off_image
+% int rdb_hdr_off_data
+%
+% image sub-header
+% int te
+% int tr
+% float user8-10    voxel dimensions
+% float user19      rf waveform
+% float user20-21   offset frequencies
+% float user22      pulse width (-1 default)
+
+switch num2str(rdbm_rev_num)
+    
+    case '14.3'
+        
+        % int
+        rdb_hdr_off_image   = 377;
+        rdb_hdr_off_data    = 368;
+        rdb_hdr_ps_mps_freq = 107;
+        
+        % float
+        rdb_hdr_user0  = 55;
+        rdb_hdr_user4  = 59;
+        rdb_hdr_user19 = 74;
+        
+        % short
+        rdb_hdr_nechoes       = 36;
+        rdb_hdr_navs          = 37;
+        rdb_hdr_nframes       = 38;
+        rdb_hdr_point_size    = 42;
+        rdb_hdr_da_xres       = 52;
+        rdb_hdr_da_yres       = 53;
+        rdb_hdr_dab_start_rcv = 101;
+        rdb_hdr_dab_stop_rcv  = 102;
+        
+        % int
+        image_te = 181;
+        image_tr = 179;
+        
+    case '16'
+        
+        % int
+        rdb_hdr_off_image   = 377;
+        rdb_hdr_off_data    = 368;
+        rdb_hdr_ps_mps_freq = 107;
+        
+        % float
+        rdb_hdr_user0  = 55;
+        rdb_hdr_user4  = 59;
+        rdb_hdr_user19 = 74;
+        
+        % short
+        rdb_hdr_nechoes       = 36;
+        rdb_hdr_navs          = 37;
+        rdb_hdr_nframes       = 38;
+        rdb_hdr_point_size    = 42;
+        rdb_hdr_da_xres       = 52;
+        rdb_hdr_da_yres       = 53;
+        rdb_hdr_dab_start_rcv = 101;
+        rdb_hdr_dab_stop_rcv  = 102;
+        
+        % int
+        image_te = 193;
+        image_tr = 191;
+        
+    case '24'
+        
+        % int
+        rdb_hdr_off_image   = 377;
+        rdb_hdr_off_data    = 368;
+        rdb_hdr_ps_mps_freq = 107;
+        
+        % float
+        rdb_hdr_user0  = 55;
+        rdb_hdr_user4  = 59;
+        rdb_hdr_user19 = 74;
+        
+        % short
+        rdb_hdr_nechoes       = 36;
+        rdb_hdr_navs          = 37;
+        rdb_hdr_nframes       = 38;
+        rdb_hdr_point_size    = 42;
+        rdb_hdr_da_xres       = 52;
+        rdb_hdr_da_yres       = 53;
+        rdb_hdr_dab_start_rcv = 101;
+        rdb_hdr_dab_stop_rcv  = 102;
+        
+        % int
+        image_te = 267;
+        image_tr = 265;
+        
+    case '26.002'
+        
+        % int
+        rdb_hdr_off_image   = 11;
+        rdb_hdr_off_data    = 2;
+        rdb_hdr_ps_mps_freq = 123;
+        
+        % float
+        rdb_hdr_user0  = 71;
+        rdb_hdr_user4  = 75;
+        rdb_hdr_user19 = 90;
+        
+        % short
+        rdb_hdr_nechoes       = 74;
+        rdb_hdr_navs          = 75;
+        rdb_hdr_nframes       = 76;
+        rdb_hdr_point_size    = 80;
+        rdb_hdr_da_xres       = 90;
+        rdb_hdr_da_yres       = 91;
+        rdb_hdr_dab_start_rcv = 133;
+        rdb_hdr_dab_stop_rcv  = 134;
+        
+        % int
+        image_te = 267;
+        image_tr = 265;
+        
+end
+
+% Read rdb header as short, int and float
+fseek(fid, 0, 'bof');
+hdr_value = fread(fid, rdb_hdr_dab_stop_rcv, 'integer*2');
+fseek(fid, 0, 'bof');
+f_hdr_value = fread(fid, rdb_hdr_user19, 'real*4');
+fseek(fid, 0, 'bof');
+i_hdr_value = fread(fid, max(rdb_hdr_off_image, rdb_hdr_ps_mps_freq), 'integer*4');
+
+if rdbm_rev_num > 11.0
+    pfile_header_size = i_hdr_value(rdb_hdr_off_data);
+end
+
+hdr.Larmor = i_hdr_value(rdb_hdr_ps_mps_freq)/1e7;
+hdr.sw = f_hdr_value(rdb_hdr_user0);
+
+nechoes = hdr_value(rdb_hdr_nechoes);
+nex = hdr_value(rdb_hdr_navs);
+nframes = hdr_value(rdb_hdr_nframes);
+point_size = hdr_value(rdb_hdr_point_size);
+npoints = hdr_value(rdb_hdr_da_xres);
+nrows = hdr_value(rdb_hdr_da_yres);
+
+start_recv = hdr_value(rdb_hdr_dab_start_rcv);
+stop_recv = hdr_value(rdb_hdr_dab_stop_rcv);
 nreceivers = (stop_recv - start_recv) + 1;
 
+% RTN 2018
+dataframes = f_hdr_value(rdb_hdr_user4)/nex;
+refframes = f_hdr_value(rdb_hdr_user19);
 
-% Specto Prescan pfiles
-if (out.p.npoints == 1) & (out.p.nrows == 1)
-    out.p.npoints = 2048;
+% Read image header as int and float
+% MM (170118): Find TE/TR
+fseek(fid, i_hdr_value(rdb_hdr_off_image), 'bof');
+t_hdr_value = fread(fid, image_te, 'integer*4');
+hdr.TE = t_hdr_value(image_te)/1e3;
+hdr.TR = t_hdr_value(image_tr)/1e3;
+
+% Spectro prescan pfiles
+if npoints == 1 && nrows == 1
+    npoints = 2048;
 end
 
-% Determine number of slices in this Pfile:  this does not work for all cases.
-slices_in_pass = nslices/npasses;
+% Compute size (in bytes) of data
+data_elements = npoints * 2;
+totalframes = nrows * nechoes; % RTN nechoes mulitply
+data_elements = data_elements * totalframes * nreceivers;
 
-% Compute size (in bytes) of each frame, echo and slice
-data_elements = out.p.npoints*2;
-frame_size = data_elements*point_size;
-echo_size = frame_size*out.p.nrows;
-slice_size = echo_size*nechoes;
-mslice_size = slice_size*slices_in_pass;
-my_slice = 1;
-my_echo = 1;
-my_frame = 1;
-
-FullData=zeros(nreceivers, out.p.npoints , (out.p.nrows-my_frame+1)*nechoes); %RTN nechoes multiplication;
-
-%Start to read data into Eightchannel structure.
-totalframes=(out.p.nrows-my_frame+1)*nechoes; % RTN nechoes mulitply;
-out.p.nrows=totalframes;
-data_elements2 = data_elements*totalframes*nreceivers;
-
-%  % Compute offset in bytes to start of frame.
-file_offset = pfile_header_size + ((my_frame-1)*frame_size);
-
-status = fseek(fid, file_offset, 'bof');
-
-% read data: point_size = 2 means 16 bit data, point_size = 4 means EDR )
-if (point_size == 2 )
-    [raw_data, count] = fread(fid, data_elements2, 'integer*2');
+fseek(fid, pfile_header_size, 'bof');
+% Read data: point_size = 2 means 16-bit data, point_size = 4 means EDR
+if point_size == 2
+    raw_data = fread(fid, data_elements, 'integer*2');
 else
-    [raw_data, count] = fread(fid, data_elements2, 'integer*4');
+    raw_data = fread(fid, data_elements, 'integer*4');
 end
-
 fclose(fid);
 
-
 % 110303 CJE
-% calculate Navg from nframes, 8 water frames, 2 phase cycles
+% Calculate Navg from nframes, 8 water frames, 2 phase cycles
 % Needs to be specific to single experiment - for frame rejection
-%RTN edits to accommodate Noeske version raee 20141007
-if (nechoes == 1)
-    out.p.Navg = (nframes-8)*2;
-    out.p.Nwateravg = 8; %moved from MRSGABAinstunits RE 110726
-    ShapeData = reshape(raw_data,[2 out.p.npoints totalframes nreceivers]);
-    ZeroData = ShapeData(:,:,1,:);
-    %WaterData = ShapeData(:,:,2:9,:);
-    %FullData = ShapeData(:,:,10:end,:);
-    WaterData = ShapeData(:,:,2:3,:);  %JN - should be only 2 water reference scans
-    FullData = ShapeData(:,:,4:end,:);  %JN - The rest should be water suppressed scans
-
+% RTN edits to accommodate Noeske version raee 20141007
+% MM (160916): Incorporating more edits from RTN to handle dual-echo data
+%              acquired with one of four possible encoding schemes:
+%              NEX=2/noadd=0, NEX=2/noadd=1, NEX=8/noadd=0, NEX=8/noadd=1
+% MM (171120): RTN edits to accomodate HERMES aquisitions; better looping
+%              over phase cycles
+if nechoes == 1
     
-    %totalframes = totalframes-9;
-    totalframes = totalframes-3; %JN - only 3 non-water suppressed scans.
-    out.p.nrows=totalframes;
+    ShapeData = reshape(raw_data, [2 npoints totalframes nreceivers]);
+    WaterData = ShapeData(:,:,2:refframes+1,:);
+    FullData = ShapeData(:,:,refframes+2:end,:);
     
-    %Frames_for_Water = 8;
-    Frames_for_Water = 2;  %JN - only 2 non-water suppressed scans.
+    totalframes = totalframes - (refframes+1);
+    waterframes = refframes;
+    
 else
-    dataframes = f_hdr_value(59)/navs
-    refframes = f_hdr_value(74)
     
-    out.p.Navg(ii) = dataframes*navs;
-    out.p.Nwateravg = refframes*2;
-    out.p.TR = 1.8;
-    
-    if ((dataframes+refframes) ~= nframes)
+    if (dataframes + refframes) ~= nframes
+        mult = nex/2; % RTN 2016
+        multw = nex; % RTN 2016
+        %mult = 1; % RTN 2017
+        %multw = 1; % RTN 2017
         noadd = 1;
-        dataframes = dataframes*navs;
-        refframes = refframes*navs;
+        dataframes = dataframes * nex;
+        refframes = nframes - dataframes;
     else
+        mult = nex/2; % RTN 2016
+        multw = 1; % RTN 2016
+        %mult = 1; % RTN 2017
+        %multw = 1/nex; % RTN 2017
         noadd = 0;
     end
-    if (totalframes ~= ((dataframes+refframes+1)*2))
-        error('# of totalframes not same as (dataframes+refframes+1)*2');
+    
+    if totalframes ~= (dataframes + refframes + 1) * nechoes % RTN 2017
+        error('# of totalframes not same as (dataframes + refframes + 1) * nechoes');
     end
-    ShapeData = reshape(raw_data,[2 out.p.npoints totalframes nreceivers]);
-    ZeroData = ShapeData(:,:,1,:);
-    WaterData = zeros([2 out.p.npoints refframes*2 nreceivers]);
-    for loop = 1:refframes
-        WaterData(:,:,2*loop,:)=(-1)^(noadd*(loop-1))*ShapeData(:,:,1+loop,:);
-        WaterData(:,:,2*loop-1,:)=(-1)^(noadd*(loop-1))*ShapeData(:,:,totalframes/2+1+loop,:);
-    end
-    FullData = zeros([2 out.p.npoints dataframes*2 nreceivers]);
-    for loop = 1:dataframes
-        FullData(:,:,2*loop,:)=(-1)^(noadd*(loop-1))*ShapeData(:,:,1+refframes+loop,:);
-        FullData(:,:,2*loop-1,:)=(-1)^(noadd*(loop-1))*ShapeData(:,:,totalframes/2+refframes+1+loop,:);
-    end
-    totalframes=totalframes-refframes*2-2;
-    out.p.nrows=totalframes;
-    Frames_for_Water=refframes*2;
+    
+    ShapeData = reshape(raw_data, [2 npoints totalframes nreceivers]);
+    
+    % MM (180404)
+    [X1,X2] = ndgrid(1:refframes, 1:nechoes);
+    X1 = X1'; X1 = X1(:);
+    X2 = X2'; X2 = X2(:);
+    Y1 = (-1).^(noadd * (X1-1));
+    Y1 = permute(repmat(Y1, [1 npoints 2 nreceivers]), [3 2 1 4]);
+    Y2 = 1 + (totalframes/nechoes) * (X2-1) + X1;
+    WaterData = Y1 .* ShapeData(:,:,Y2,:) * multw;
+    
+    [X1,X2] = ndgrid(1:dataframes, 1:nechoes);
+    X1 = X1'; X1 = X1(:);
+    X2 = X2'; X2 = X2(:);
+    Y1 = (-1).^(noadd * (X1-1));
+    Y1 = permute(repmat(Y1, [1 npoints 2 nreceivers]), [3 2 1 4]);
+    Y2 = 1 + refframes + (totalframes/nechoes) * (X2-1) + X1;
+    FullData = Y1 .* ShapeData(:,:,Y2,:) * mult;
+    
+    totalframes = totalframes - (refframes + 1) * nechoes; % RTN 2017
+    waterframes = refframes * nechoes; % RTN 2017
+    
 end
 
-%The two indices along the first dimension are the real and imaginary parts
-%of the fid.  This step combines these into a single complex number.  
-FullData = FullData.*repmat([1;i],[1 out.p.npoints totalframes nreceivers]);
+FullData = FullData .* repmat([1; 1i], [1 npoints totalframes nreceivers]);
 FullData = squeeze(sum(FullData,1));
-
-WaterData = WaterData.*repmat([1;i],[1 out.p.npoints Frames_for_Water nreceivers]);
+WaterData = WaterData .* repmat([1; 1i], [1 npoints waterframes nreceivers]);
 WaterData = squeeze(sum(WaterData,1));
 
 
