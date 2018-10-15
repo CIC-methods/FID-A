@@ -46,7 +46,7 @@ end
 %Ensure that filestring is an absolute path, otherwise you can get yourself
 %in a tangle later inserting figures at the report stage.
 if ~java.io.File(filestring).isAbsolute
-    filestring = char(java.io.File(filestring).getCanonicalPath);
+    filestring = cd(cd(filestring)); 
 end
 
 %make a new directory for the output report and figures:
