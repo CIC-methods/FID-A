@@ -33,7 +33,7 @@
 % subSpec1           = Fully processed MEGA-PRESS subspectrum #1.
 % subSpec2           = Fully processed MEGA-PRESS subspectrum #2.
 
-function [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
+function [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS)
 
 if nargin<4
     alignSS=2;
@@ -47,17 +47,25 @@ if nargin<4
     end
 end
 
+%Ensure that filestring is an absolute path, otherwise you can get yourself
+%in a tangle later inserting figures at the report stage.
+if ~java.io.File(filestring).isAbsolute
+    filestring = cd(cd(filestring));    
+end
+
 %make a new directory for the output report and figures:
-mkdir([filestring '/report']);
-mkdir([filestring '/report/figs']);
+reportDir = fullfile(filestring,'report');
+mkdir(reportDir);
+reportFigsDir = fullfile(filestring,'report','figs');
+mkdir(reportFigsDir);
 
 %Find the filename of the MEGA_GABA dataset
 close all
-unixString=[filestring '/*.dat'];
+unixString=fullfile(filestring,'*.dat');
 [filename]=dir(unixString);
 filename=filename.name(1:end);
 
-unixStringw=[filestring '_w/*.dat'];
+unixStringw=fullfile([filestring '_w'],'*.dat');
 [filenamew]=dir(unixStringw);
 if ~isempty(filenamew)
     filenamew=filenamew.name(1:end);
@@ -69,9 +77,9 @@ else
 end
 
 % %read in both datasets:
-raw=io_loadspec_twix([filestring '/' filename]);
+raw=io_loadspec_twix(fullfile(filestring,filename));
 if water
-    raww=io_loadspec_twix([filestring '_w/' filenamew]);
+    raww=io_loadspec_twix(fullfile([filestring '_w/'], filenamew));
 end
 
 %first step should be to combine coil channels.  To do this find the coil
@@ -116,8 +124,8 @@ title('After correction','FontSize',12);
 box off;
 set(h,'PaperUnits','centimeters');
 set(h,'PaperPosition',[0 0 20 10]);
-saveas(h,[filestring '/report/figs/coilReconFig'],'jpg');
-saveas(h,[filestring '/report/figs/coilReconFig'],'fig');
+saveas(h,fullfile(reportFigsDir,'coilReconFig'),'jpg');
+saveas(h,fullfile(reportFigsDir,'coilReconFig'),'fig');
 close(h);
 
 
@@ -139,9 +147,10 @@ else
         nbadAverages=1;
         nBadAvgTotal=0;
         out_cc2=out_cc;
+        trackRemovedAvg = 1:out_cc.sz(out_cc.dims.averages);
         while nbadAverages>0
             [out_rm,metric{iter},badAverages]=op_rmbadaverages(out_cc2,nsd,'t');
-            badAverages;
+            trackRemovedAvg(badAverages) = [];            
             nbadAverages=length(badAverages)*raw.sz(raw.dims.subSpecs);
             nBadAvgTotal=nBadAvgTotal+nbadAverages;
             out_cc2=out_rm;
@@ -187,24 +196,29 @@ else
         box off;
         set(h,'PaperUnits','centimeters');
         set(h,'PaperPosition',[0 0 20 15]);
-        saveas(h,[filestring '/report/figs/rmBadAvg_prePostFig'],'jpg');
-        saveas(h,[filestring '/report/figs/rmBadAvg_prePostFig'],'fig');
+        saveas(h,fullfile(reportFigsDir,'rmBadAvg_prePostFig'),'jpg');
+        saveas(h,fullfile(reportFigsDir,'rmBadAvg_prePostFig'),'fig');
         close(h);
         
         %figure('position',[0 550 560 420]);
         h=figure('visible','off');
-        plot([1:length(metric{1})],metric{1},'.r',[1:length(metric{iter-1})],metric{iter-1},'x','MarkerSize',16);
+        plot(1:out_cc.sz(out_cc.dims.averages),metric{1}(:,1),'.r','MarkerSize',16)
+        hold on
+        plot(1:out_cc.sz(out_cc.dims.averages),metric{1}(:,2),'.b','MarkerSize',16)
+        removedAvgs = find(~ismember(1:out_cc.sz(out_cc.dims.averages),trackRemovedAvg));
+        plot(removedAvgs,metric{1}(removedAvgs,1),'ko','MarkerSize',20)
+        plot(removedAvgs,metric{1}(removedAvgs,2),'ko','MarkerSize',20)
         set(gca,'FontSize',8);
         xlabel('Scan Number','FontSize',10);
         ylabel('Deviation Metric','FontSize',10);
-        legend('Before rmBadAv','Before rmBadAv','After rmBadAv','After rmBadAv');
+        legend('Original subSpec 1','Original subSpec 2','Removed Avg');
         legend boxoff;
         title('Deviation Metric','FontSize',12);
         box off;
         set(h,'PaperUnits','centimeters');
         set(h,'PaperPosition',[0 0 20 10]);
-        saveas(h,[filestring '/report/figs/rmBadAvg_scatterFig'],'jpg');
-        saveas(h,[filestring '/report/figs/rmBadAvg_scatterFig'],'fig');
+        saveas(h,fullfile(reportFigsDir,'rmBadAvg_scatterFig'),'jpg');
+        saveas(h,fullfile(reportFigsDir,'rmBadAvg_scatterFig'),'fig');
         close(h);
         
         %sat1=input('are you satisfied with the removal of bad averages? ','s');
@@ -236,7 +250,7 @@ else
         fscum=zeros(out_rm.sz(2:end));
         phscum=zeros(out_rm.sz(2:end));
         while (abs(p(1))>0.0003 && iter<iterin)
-            iter=iter+1
+            iter=iter+1;
             close all
             tmax=0.25+0.03*randn(1);
             ppmmin=1.6+0.1*randn(1);
@@ -252,7 +266,7 @@ else
             end
             
             x=repmat([1:size(fs,1)]',1,out_aa.sz(out_aa.dims.subSpecs));
-            p=polyfit(x,fs,1)
+            p=polyfit(x,fs,1);
             
             fscum=fscum+fs;
             phscum=phscum+phs;
@@ -296,8 +310,8 @@ else
         box off;
         set(h,'PaperUnits','centimeters');
         set(h,'PaperPosition',[0 0 20 15]);
-        saveas(h,[filestring '/report/figs/alignAvgs_prePostFig'],'jpg');
-        saveas(h,[filestring '/report/figs/alignAvgs_prePostFig'],'fig');
+        saveas(h,fullfile(reportFigsDir,'alignAvgs_prePostFig'),'jpg');
+        saveas(h,fullfile(reportFigsDir,'alignAvgs_prePostFig'),'fig');
         close(h);
         
         h=figure('visible','off');
@@ -311,8 +325,8 @@ else
         title('Estimated Freqeuncy Drift','FontSize',12);
         set(h,'PaperUnits','centimeters');
         set(h,'PaperPosition',[0 0 10 10]);
-        saveas(h,[filestring '/report/figs/freqDriftFig'],'jpg');
-        saveas(h,[filestring '/report/figs/freqDriftFig'],'fig');
+        saveas(h,fullfile(reportFigsDir,'freqDriftFig'),'jpg');
+        saveas(h,fullfile(reportFigsDir,'freqDriftFig'),'fig');
         close(h);
         
         h=figure('visible','off');
@@ -326,8 +340,8 @@ else
         title('Estimated Phase Drift','FontSize',12);
         set(h,'PaperUnits','centimeters');
         set(h,'PaperPosition',[0 0 10 10]);
-        saveas(h,[filestring '/report/figs/phaseDriftFig'],'jpg');
-        saveas(h,[filestring '/report/figs/phaseDriftFig'],'fig');
+        saveas(h,fullfile(reportFigsDir,'phaseDriftFig'),'jpg');
+        saveas(h,fullfile(reportFigsDir,'phaseDriftFig'),'fig');
         close(h);
 
         sat='y';
@@ -454,52 +468,52 @@ box off;
 title('Result: Diff Spectrum','FontSize',12);
 set(h,'PaperUnits','centimeters');
 set(h,'PaperPosition',[0 0 20 10]);
-saveas(h,[filestring '/report/figs/finalSpecFig'],'jpg');
-saveas(h,[filestring '/report/figs/finalSpecFig'],'fig');
+saveas(h,fullfile(reportFigsDir,'finalSpecFig'),'jpg');
+saveas(h,fullfile(reportFigsDir,'finalSpecFig'),'fig');
 
 % writ=input('Write? (y or n):  ','s');
 writ='y';
 if writ=='y' || writ=='Y'
-     RF=io_writelcm(diffSpec,[filestring '/' filestring '_diff_lcm'],diffSpec.te);
-     RF=io_writelcm(subSpec1,[filestring '/' filestring '_editOFF_lcm'],subSpec1.te);
-     RF=io_writelcm(subSpec2,[filestring '/' filestring '_editON_lcm'],subSpec2.te);
+     RF=io_writelcm(diffSpec,fullfile(filestring,'diff_lcm'),diffSpec.te);
+     RF=io_writelcm(subSpec1,fullfile(filestring,'editOFF_lcm'),subSpec1.te);
+     RF=io_writelcm(subSpec2,fullfile(filestring,'editON_lcm'),subSpec2.te);
     if water
-        RF=io_writelcm(outw,[filestring '_w/' filestring '_w_lcm'],outw.te);
+        RF=io_writelcm(outw,fullfile([filestring '_w/'],'w_lcm'),outw.te);
     end
 end
 
 close all;
 
 %write an html report: 
-fid=fopen([filestring '/report/report.html'],'w+');
+fid=fopen(fullfile(reportDir,'report.html'),'w+');
 fprintf(fid,'<!DOCTYPE html>');
 fprintf(fid,'\n<html>');
 logoPath=which('FID-A_LOGO.jpg');
 fprintf(fid,'\n<img src= " %s " width="120" height="120"></body>',logoPath);
 fprintf(fid,'\n<h1>FID-A Processing Report</h1>');
-fprintf(fid,'\n<h2>Processing pipeline applied to MEGA-PRESS data using run_megapressproc.m</h2>');
-fprintf(fid,'\n<p>FILENAME: %s/%s/%s </p>',pwd,filestring,filename);
+fprintf(fid,'\n<h2>Processing pipeline applied to MEGA-PRESS data using run_megapressproc_auto.m</h2>');
+fprintf(fid,'\n<p>FILENAME: %s </p>',fullfile(filestring,filename));
 fprintf(fid,'\n<p>DATE: %s </p>',date);
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Results of multi-coil combination:</h2>');
-fprintf(fid,'\n<img src= " %s/%s/report/figs/coilReconFig.jpg " width="800" height="400"></body>',pwd,filestring);
+fprintf(fid,'\n<img src= " %s " width="800" height="400"></body>',fullfile(reportFigsDir,'coilReconFig.jpg'));
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Results of removal of bad averages:</h2>');
 fprintf(fid,'\n<p>Original number of averages: \t%5.6f </p>',raw.sz(raw.dims.averages)*raw.sz(raw.dims.subSpecs));
 fprintf(fid,'\n<p>Number of bad Averages removed:  \t%5.6f </p>',nBadAvgTotal);
 fprintf(fid,'\n<p>Number of remaining averages in processed dataset:  \t%5.6f </p>',out_rm.sz(out_rm.dims.averages)*raw.sz(raw.dims.subSpecs));
 fprintf(fid,'\n<p>Bad Averages Removal Threshold was:  \t%2.2f </p>',nsd);
-fprintf(fid,'\n<img src= " %s/%s/report/figs/rmBadAvg_prePostFig.jpg " width="800" height="600"><img src= " %s/%s/report/figs/rmBadAvg_scatterFig.jpg " width="800" height="400">',pwd,filestring,pwd,filestring);
+fprintf(fid,'\n<img src= " %s " width="800" height="600"><img src= " %s " width="800" height="400">',fullfile(reportFigsDir,'rmBadAvg_prePostFig.jpg'),fullfile(reportFigsDir,'rmBadAvg_scatterFig.jpg'));
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Results of spectral registration:</h2>');
 fprintf(fid,'\n<p>Total frequency drift was: \t%5.6f </p>',max(totalFreqDrift));
 fprintf(fid,'\n<p>Total phase drift was: \t%5.6f </p>',max(totalPhaseDrift));
-fprintf(fid,'\n<img src= " %s/%s/report/figs/alignAvgs_prePostFig.jpg " width="800" height="600">',pwd,filestring);
+fprintf(fid,'\n<img src= " %s " width="800" height="600">',fullfile(reportFigsDir,'alignAvgs_prePostFig.jpg'));
 fprintf(fid,'\n\n<p> </p>');
-fprintf(fid,'\n<img src= " %s/%s/report/figs/freqDriftFig.jpg " width="400" height="400"><img src="%s/%s/report/figs/phaseDriftFig.jpg " width="400" height="400">',pwd,filestring,pwd,filestring);
+fprintf(fid,'\n<img src= " %s " width="400" height="400"><img src=" %s " width="400" height="400">',fullfile(reportFigsDir,'freqDriftFig.jpg'),fullfile(reportFigsDir,'phaseDriftFig.jpg'));
 fprintf(fid,'\n\n<p> </p>');
 fprintf(fid,'\n\n<h2>Final Result:</h2>');
-fprintf(fid,'\n<img src= " %s/%s/report/figs/finalSpecFig.jpg " width="800" height="400">',pwd,filestring);
+fprintf(fid,'\n<img src= " %s " width="800" height="400">',fullfile(reportFigsDir,'finalSpecFig.jpg'));
 fclose(fid);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
