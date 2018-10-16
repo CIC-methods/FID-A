@@ -28,7 +28,7 @@
 % ph            = Vector of coil phases (in degrees) used for alignment.
 % sig           = Vector of coil weights.
 
-function [out,ph]=op_alignrcvrs(in,point,mode,coilcombos);
+function [out,ph,sig]=op_alignrcvrs(in,point,mode,coilcombos);
 
 if in.flags.addedrcvrs
     error('ERROR:  Receivers have already been combined!  Aborting!');
