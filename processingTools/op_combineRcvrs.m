@@ -27,14 +27,14 @@
 function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
 
 %first find the weights using the water unsuppressed data:
-weights=op_getcoilcombos(inw,1,'w');
+weights=op_getcoilcombos(in,2,'h');
 
 %now apply the weights to both the water unsuppressed and water suppressed
 %data, but don't combine the averages:
-out_presum=op_alignrcvrs(in,1,'w',weights);
-outw_presum=op_alignrcvrs(inw,1,'w',weights);
+out_presum=op_alignrcvrs(in,2,'h',weights);
+outw_presum=op_alignrcvrs(inw,2,'h',weights);
 
 %now apply the weights and combine the averages:
-out=op_addrcvrs(in,1,'w',weights);
-outw=op_addrcvrs(inw,1,'w',weights);
+out=op_addrcvrs(in,2,'h',weights);
+outw=op_addrcvrs(inw,2,'h',weights);
 
