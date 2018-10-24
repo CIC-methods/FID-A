@@ -2,7 +2,7 @@
 % Robin Simpson and Jamie Near, 2014.
 % 
 % USAGE:
-% out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle)
+% out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle,centreFreq)
 % 
 % DESCRIPTION:
 % This function simulates the PRESS experiment.  The excitation is
@@ -45,15 +45,19 @@
 % phCycl    = initial phase of the first refocusing pulse in [degrees];
 % phCycl2   = initial phase of the second refocusing pulse in [degrees];
 % flipAngle = flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
+% centreFreq= centre frequency of the spectrum in [ppm] (Optional.  Default = 2.3)
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle)
+function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle,centreFreq)
 
-if nargin<16
-    flipAngle=180;
+if nargin<17
+    centreFreq=2.3;
+    if nargin<16
+        flipAngle=180;
+    end
 end
     
 if tau1<tp/1000
@@ -64,7 +68,7 @@ if tau2<tp/1000
 end
 
 %Set water to centre
-centreFreq=2.3;
+%centreFreq=2.3;
 for k=1:length(sys)
     sys(k).shifts=sys(k).shifts-centreFreq;
 end
