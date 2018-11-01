@@ -56,11 +56,12 @@ sequence=twix_obj.hdr.Config.SequenceFileName;
 
 %Try to find out what sequnece this is:
 isSpecial=~isempty(strfind(sequence,'rm_special')) ||...  %Is this Ralf Mekle's SPECIAL sequence?
-            ~isempty(strfind(sequence,'vq_special')) ||... %or the CIBM SPECIAL sequence?
-            ~isempty(strfind(sequence,'jn_svs_special'));  %or Jamie Near's SPECIAL sequence?
+            ~isempty(strfind(sequence,'vq_special'));  %or the CIBM SPECIAL sequence?
+isjnSpecial=~isempty(strfind(sequence,'jn_svs_special'));  %or Jamie Near's SPECIAL sequence?
+isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PRESS sequence?
+isjnseq=~isempty(strfind(sequence,'jn_')); %Is this another one of Jamie Near's sequences?
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
-isjnseq=~isempty(strfind(sequence,'jn_')); %Is this any one of Jamie Near's sequences?
 isMinnMP=~isempty(strfind(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
 isSiemens=~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
             ~isempty(strfind(sequence,'svs_st'));    % or the Siemens STEAM sequence?
@@ -72,7 +73,11 @@ isSiemens=~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS 
 %Both Ralf Mekle's SPECIAL and the VD-VE version of Jamie Near's SPECIAL sequence 
 %do not store the subspectra along a separate dimension of the data array, 
 %so we will separate them artifically:
-if isSpecial && ~(strcmp(version,'vb') && isjnseq) %Catches any SPECIAL sequence except Jamie Near's VB version.
+%25 Oct 2018: Due to a recent change, the VE version of Jamie Near's MEGA-PRESS 
+%sequence also falls into this category. 
+if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequence 
+        (strcmp(version,'vd') && isjnSpecial) ||... %and the VD/VE versions of Jamie Near's SPECIAL sequence
+        (strcmp(version,'vd') && isjnMP);  %and the VD/VE versions of Jamie Near's MEGA-PRESS sequence                                                   
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
         data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
