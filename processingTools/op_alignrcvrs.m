@@ -67,7 +67,7 @@ sig=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
 %now start finding the relative phases between the channels and populate
 %the ph matrix
 for n=1:in.sz(in.dims.coils)
-    if nargin<3
+    if nargin<4
         ph(:,n)=phase(avfids(point,n,1,1))*ph(:,n);
         switch mode
             case 'w'
