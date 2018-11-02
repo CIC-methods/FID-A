@@ -27,7 +27,7 @@
 function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
 
 %first find the weights using the water unsuppressed data:
-weights=op_getcoilcombos(in,2,'h');
+weights=op_getcoilcombos(inw,2,'h');
 
 %now apply the weights to both the water unsuppressed and water suppressed
 %data, but don't combine the averages:
