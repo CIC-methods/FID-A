@@ -21,7 +21,7 @@
 % tmax   = Maximum time in the time domain over which to compute
 %          similarity (s).
 % mode   = Apodization function to use (optional)
-%                   'l' - lorentzian
+%                   'l' - lorentzian (default)
 %                   'g' - gaussian
 %                   'lg' - mixture of lorentizan and gaussian
 %
@@ -49,7 +49,7 @@ end
 % end
 
 if nargin<6
-    mode='fp';
+    mode='l';
 end
 
 switch mode
@@ -60,7 +60,7 @@ switch mode
     case 'lg'
         parsFit=[0.5 0.5];
     case 'gl'
-        mode='fp'
+        mode='lg';
         parsFit=[0.5 0.5];
     otherwise
         error('ERROR:mode unrecognized.  Use "1" or "2".  ABORTING!');
