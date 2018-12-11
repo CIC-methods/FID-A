@@ -351,6 +351,26 @@ else
     rawSubspecs=subspecs;
 end
 
+%Find the number of points acquired before the echo so that this
+%information can be stored in the .pointsToLeftshfit field of the data
+%structure.  Depending on the pulse sequence used to acquire the data, the
+%header location of this parameter is different.  For product PRESS
+%seqeunces, the value is located in twix_obj.image.freeParam(1).  For WIP
+%sequences, the value is located in twix_obj.image.cutOff(1,1).  For CMRR
+%sequences, the value is located in twix_obj.image.iceParam(5,1).  Special
+%thanks to Georg Oeltzschner for decoding all of this and sharing the
+%information with me:
+
+if isWIP529 || isWIP859
+    leftshift = twix_obj.image.cutOff(1,1);
+elseif isSiemens
+    leftshift = twix_obj.image.freeParam(1);
+elseif isMinnMP
+    leftshift = twix_obj.image.iceParam(5,1);
+else
+    leftshift = twix_obj.image.freeParam(1);
+end
+
 %****************************************************************
 
 
@@ -381,7 +401,7 @@ out.rawSubspecs=rawSubspecs;
 out.seq=seq;
 out.te=TE/1000;
 out.tr=TR/1000;
-out.pointsToLeftshift=twix_obj.image.freeParam(1);
+out.pointsToLeftshift=leftshift;
 
 
 %FILLING IN THE FLAGS
