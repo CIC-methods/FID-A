@@ -95,7 +95,7 @@ end
 % replicate(in.dims.coils)=1;
 % ph=repmat(ph,replicate);
 % sig=repmat(sig,replicate);
-sigs=sigs/max(sigs(:));
+sigs=sigs/norm(sigs(:));
 
 ph=ones(in.sz);
 sig=ones(in.sz);
