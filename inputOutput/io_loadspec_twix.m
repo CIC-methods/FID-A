@@ -62,7 +62,7 @@ isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PR
 isjnseq=~isempty(strfind(sequence,'jn_')); %Is this another one of Jamie Near's sequences?
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
-isMinnMP=~isempty(strfind(sequence,'eja_svs_mpress')); %Is this Eddie Auerbach's MEGA-PRESS?
+isMinn=~isempty(strfind(sequence,'eja_svs_')); %Is this one of Eddie Auerbach's (CMRR, U Minnesota) sequences?
 isSiemens=~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
             ~isempty(strfind(sequence,'svs_st'));    % or the Siemens STEAM sequence?
 
@@ -163,7 +163,7 @@ end
 
 %Now index the dimension of the averages
 if strcmp(version,'vd') || strcmp(version,'ve')
-    if isMinnMP
+    if isMinn
         dims.averages=find(strcmp(sqzDims,'Set'));
     else
         dims.averages=find(strcmp(sqzDims,'Ave'));
@@ -208,7 +208,7 @@ if ~isempty(dimsToIndex)
         else
             dims.subSpecs=find(strcmp(sqzDims,'Ida'));
         end
-    elseif isWIP529 || isMinnMP
+    elseif isWIP529 || isMinn
         dims.subSpecs=find(strcmp(sqzDims,'Eco'));
     elseif isWIP859
         dims.subSpecs=find(strcmp(sqzDims,'Ide'));
@@ -365,7 +365,7 @@ if isWIP529 || isWIP859
     leftshift = twix_obj.image.cutOff(1,1);
 elseif isSiemens
     leftshift = twix_obj.image.freeParam(1);
-elseif isMinnMP
+elseif isMinn
     leftshift = twix_obj.image.iceParam(5,1);
 else
     leftshift = twix_obj.image.freeParam(1);
