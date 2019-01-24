@@ -19,7 +19,11 @@
 %             (amplitued and phase).  Filename can also be the name of a
 %             three column matlab vector specifing the phase, amplitude and
 %             time vectors of an RF pulse waveform.  
-% type      = Excitation ('exc'), Refocusing ('ref') or Inversion ('inv')
+% type      = Excitation ('exc'), Refocusing ('ref') or Inversion ('inv'). 
+%             Alternatively, 'type' can specify the exact flip angle [in 
+%             degrees] of the pulse.  This can be useful if you want to use 
+%             a pulse that does not have an exact flip angle of 90 or 180 
+%             degrees (Thanks to Eric Plitman for help with this feature).  
 % f0        = centre frequency of the rf pulse [Hz].  Optional. Default=0.
 %
 % OUTPUTS:
@@ -31,6 +35,19 @@ if nargin<3
     f0=0;
 end
 
+if isnumeric(type)
+    %If 'type' was specified to be exactly 90 degrees, set the type to 'exc';
+    if type==90;
+        type='exc';
+    end
+    
+    %If 'type' was specified to be exactly 180 degrees, set the type to 'inv'
+    %(functionally there is no real difference between 'ref' and 'inv', so I
+    %just chose 'Inv';
+    if type==180;
+        type='inv';
+    end
+end
 
 %Now read in the waveform:
 if isstr(filename)
@@ -96,12 +113,16 @@ Tp=0.005;  %assume a 5 ms rf pulse;
 if ~isPhsMod
     %The pulse is not phase modulated, so we can calculate the w1max:
     %find the B1 max of the pulse in [kHz]:
-    if type=='exc'
-        flipCyc=0.25; %90 degrees is 0.25 cycles;
-    elseif type=='ref'
-        flipCyc=0.5;  %180 degress is 0.5 cycles;
-    elseif type=='inv'
-        flipCyc=0.5;  %180 degrees is 0.5 cycles;
+    if isstr(type)
+        if type=='exc'
+            flipCyc=0.25; %90 degrees is 0.25 cycles;
+        elseif type=='ref'
+            flipCyc=0.5;  %180 degress is 0.5 cycles;
+        elseif type=='inv'
+            flipCyc=0.5;  %180 degrees is 0.5 cycles;
+        end
+    elseif isnumeric(type) %assume that a flip angle (in degrees) was given
+        flipCyc=type/360;
     end
     intRF=sum(rf(:,2).*((-2*(rf(:,1)>179))+1))/length(rf(:,2));
     if intRF~=0
@@ -126,36 +147,49 @@ end
 %now it's time to find out the time-bandwidth product:
 %First make a high resolution plot the pulse profile over a wide bandwidth:
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5+f0/1000,5+f0/1000,100000);
-
-if type=='exc'
-    index=find(mv(3,:)<0.5);
-    bw=sc(index(end))-sc(index(1));
-    %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
-elseif type=='ref'
-    index=find(mv(3,:)<0);
-    bw=sc(index(end))-sc(index(1));
-    %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
-elseif type=='inv'
-    index=find(mv(3,:)<0);
-    bw=sc(index(end))-sc(index(1));
-    %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+if isstr(type)
+    if type=='exc'
+        index=find(mv(3,:)<0.5);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='ref'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='inv'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    end
+elseif isnumeric(type)
+    mz=cos(type); %Find out the Mz value immediately following the pulse.
+    thr=(1+mz)/2;  %Find out the Mz value mid-way between 1 and the mz (half-max):
+    index=find(mv(3,:)<thr);  %Find the indices of the corresponding "full width"
+    bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").  
 end
+
 
 %Now make a very high resolution plot the pulse profile over a narrower bandwidth:
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
-
-if type=='exc'
-    index=find(mv(3,:)<0.5);
-    bw=sc(index(end))-sc(index(1));
-    %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
-elseif type=='ref'
-    index=find(mv(3,:)<0);
-    bw=sc(index(end))-sc(index(1));
-    %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
-elseif type=='inv'
-    index=find(mv(3,:)<0);
-    bw=sc(index(end))-sc(index(1));
-    %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+if isstr(type)
+    if type=='exc'
+        index=find(mv(3,:)<0.5);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='ref'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='inv'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    end
+elseif isnumeric(type)
+    mz=cos(type); %Find out the Mz value immediately following the pulse.
+    thr=(1+mz)/2;  %Find out the Mz value mid-way between 1 and the mz (half-max):
+    index=find(mv(3,:)<thr);  %Find the indices of the corresponding "full width"
+    bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").
 end
 
 %Now store the output structure;
