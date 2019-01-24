@@ -48,6 +48,7 @@
 % GPC       = Simulated glycerophosphocholine spectrum
 % PE        = Simulated phosphoethanolamine spectrum
 % Ser       = Simulated serine spectrum
+% EtOH      = Simulated ethanol spectrum
 %
 % 
 % ************INPUT PARAMETERS**********************************
@@ -85,6 +86,7 @@
     [RF,GPC]=sim_lcmrawbasis(np,sw,Bo,lb,'GPC',te1,te2,ref,'y',seq);
     [RF,PE]=sim_lcmrawbasis(np,sw,Bo,lb,'PE',te1,te2,ref,'y',seq);
     [RF,Ser]=sim_lcmrawbasis(np,sw,Bo,lb,'Ser',te1,te2,ref,'y',seq);
+    [RF,EtOH]=sim_lcmrawbasis(np,sw,Bo,lb,'EtOH',te1,te2,ref,'y',seq);
   
 
 %LEGEND:
@@ -111,3 +113,4 @@
 %   'GPC'    = Glycero-phosphocholine
 %   'PE'     = Phosphoryl ethanolamine
 %   'Ser'    = Serine
+%   'EtOH'   = Ethanol
