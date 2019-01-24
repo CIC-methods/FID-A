@@ -1,25 +1,23 @@
 %io_loadspec_sdat.m
 %Jamie Near, McGill University 2014.
+%Georg Oeltzschner, Johns Hopkins University 2018.
 %
 % USAGE:
 % out=io_loadspec_sdat(filename,subspecs);
 % 
 % DESCRIPTION:
-% Reads in Philpis MRS data (.spar and .sdat files) using code adapted from 
+% Reads in Philips MRS data (.spar and .sdat files) using code adapted from 
 % PhilipsRead.m, provided as part of the Gannet software package by Richard 
-% Edden (gabamrs.blogspot.com).
+% Edden (gabamrs.com).
 % 
-% op_loadspec_sdat outputs the data in structure format, with fields 
+% io_loadspec_sdat outputs the data in structure format, with fields 
 % corresponding to time scale, fids, frequency scale, spectra, and header 
 % fields containing information about the acquisition.  The resulting 
 % matlab structure can be operated on by the other functions in this MRS 
-% toolbox.  NOTE:  Since the Gannet code is geared towards edited GABA MRS 
-% data, this code may not be general enough to handle all types of MRS 
-% data.  Suggestions are most welcome.  ALSO:  This code is not currently
-% smart enough to parse out all of the relevent information from the header
-% file, such as the number of subspectra.  So for now, these details must 
-% be passed to the function as input arguments.  Help implementing these 
-% improvements are most welcome!!
+% toolbox. ALSO:  This code is not currently smart enough to parse out all 
+% of the relevant information from the header file, such as the number of 
+% subspectra.  So for now, these details must be passed to the function as 
+% input arguments.  Help implementing these improvements are most welcome!!
 % 
 % INPUTS:
 % filename   = filename of Philips sdat file to be loaded.
@@ -28,138 +26,70 @@
 % OUTPUTS:
 % out        = Input dataset in FID-A structure format.
 
-function out=io_loadspec_sdat(filename,subspecs);
+function out = io_loadspec_sdat(filename,subspecs)
 
-%read in the data using the GELoad.m (adapted from GERead.m)
-philipsOut=philipsLoad(filename);
+% Read in the data and header information
+[data, header] = philipsLoad(filename);
 
-%As far as I can tell, the data that comes out of the philipsLoad
-%function is normally a N x Navgs x Ncoils matrix.  The Navgs dimension
-%contains all the subspectra, so we will split them now:
-%If the data has multiple subspectra 
-if subspecs==2
+% Determine the dimensions of the data
+data_size       = size(data);
+dims.t          = find(data_size == header.samples);
+dims.averages   = find(data_size == header.rows);
+dims.coils      = 0; % SDAT is already coil-combined
+% Now arrange in the standard order (samples-avgs-subspecs):
+data = permute(data ,[dims.t dims.averages]);
+dims.t = 1;
+dims.averages = 2;
+dims.extras = 0;
+
+% We have no way of actually knowing the number of sub-spectra (e.g. for 
+% MEGA-PRESS or HERMES acquisitions, so we will split them averages 
+% according to the 'subspecs' input.
+% Initialize fids array:
+fids = squeeze(zeros(header.samples, header.rows/subspecs, subspecs));
+if subspecs == 2
     %Split the subspectra out of the "averages" dimension:
-    data(:,:,1)=philipsOut(:,[1:2:end-1],:);
-    data(:,:,2)=philipsOut(:,[2:2:end],:);
-elseif subspecs==4
-    data(:,:,1)=philipsOut(:,[1:4:end-3],:);
-    data(:,:,2)=philipsOut(:,[2:4:end-2],:);
-    data(:,:,3)=philipsOut(:,[3:4:end-1],:);
-    data(:,:,4)=philipsOut(:,[4:4:end],:);
+    fids(:,:,1) = data(:,[1:2:end]);
+    fids(:,:,2) = data(:,[2:2:end]);
+elseif subspecs == 4
+    fids(:,:,1) = data(:,[1:4:end]);
+    fids(:,:,2) = data(:,[2:4:end]);
+    fids(:,:,3) = data(:,[3:4:end]);
+    fids(:,:,4) = data(:,[4:4:end]);
 else
-    data=philipsOut;
+    fids = data;
 end
 
-fids=squeeze(data);
-
-sz=size(fids);
-
-%Read in the spar file to get important parameters:
-sparheader=textread([filename(1:end-4) 'spar'],'%s');
-
-%Find the centre frequency
-txfrq_index=find(ismember(sparheader, 'synthesizer_frequency')==1);
-txfrq = str2num(sparheader{txfrq_index+2});
-
-%Calculate what the magnetic field strength was:
-Bo=txfrq/42577000;
-
-%Find the number of averages:
-Naverages=size(fids,2)*size(fids,3);
-
-%Find the spectral width
-spectralwidth_index=find(ismember(sparheader, 'sample_frequency')==1);
-spectralwidth = str2num(sparheader{spectralwidth_index+2});
-
-%Calculate the dwell time
-dwelltime=1/spectralwidth;
-
-%Find the echo time
-te_index=find(ismember(sparheader, 'echo_time')==1);
-te=str2num(sparheader{te_index+2});
-
-%Find the repetition time
-tr_index=find(ismember(sparheader, 'repetition_time')==1);
-tr=str2num(sparheader{tr_index+2});
-
-%Find the sequence type
-sequence_index=find(ismember(sparheader, 'examination_name')==1);
-sequence=strtrim(sparheader{sequence_index+2});
-
-
-
-%Philips sdat data has coil elements already combined:
-Ncoils=1;
-
-%Now create a record of the dimensions of the data array.  
-dims.t=1;
-dims.coils=0;
-dims.averages=2;
-if subspecs>1
-    dims.subSpecs=3;
+if subspecs > 1
+    dims.subSpecs = 3;
 else
-    dims.subSpecs=0;
+    dims.subSpecs = 0;
 end
 
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
+sz = size(fids);
 
-%Now get relevant scan parameters:*****************************
+% Fill in the header information
+txfrq = header.synthesizer_frequency; % transmitter frequency [Hz]
+Bo = txfrq/42577000; % B0 [T]
+averages = size(fids,2)*size(fids,3); % number of rows in the file
+rawAverages = averages;
+spectralwidth = header.sample_frequency; % bandwidth [Hz]
+dwelltime = 1/spectralwidth; % dwelltime [s]
+te = header.echo_time; % echo time [ms]
+tr = header.repetition_time; % repetition time [ms]
+sequence = header.scan_id; % sequence type
+Ncoils = 1; % SDAT already coil-combined
+rawSubspecs = subspecs;
+date = header.scan_date; % scan date [yyyy.mm.dd hh:mm:ss]
 
-%Leave date blank
-date_index=find(ismember(sparheader, 'scan_date')==1);
-date = str2num(sparheader{date_index+2});
+% Produce specs
+specs = fftshift(ifft(fids,[],dims.t),dims.t);
+% Calculate t and ppm arrays using the calculated parameters:
+f = [(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+ppm = -f/(Bo*42.577);
+ppm = ppm+4.65;
+t = [0:dwelltime:(sz(1)-1)*dwelltime];
 
-%Find the number of averages.  'averages' will specify the current number
-%of averages in the dataset as it is processed, which may be subject to
-%change.  'rawAverages' will specify the original number of acquired 
-%averages in the dataset, which is unchangeable.
-%FOR WATER SUPPRESSED DATA:
-if dims.subSpecs ~=0
-    if dims.averages~=0
-        averages=sz(dims.averages)*sz(dims.subSpecs);
-        rawAverages=averages;
-    else
-        averages=sz(dims.subSpecs);
-        rawAverages=1;
-    end
-else
-    if dims.averages~=0
-        averages=sz(dims.averages);
-        rawAverages=averages;
-    else
-        averages=1;
-        rawAverages=1;
-    end
-end
-dims.extras=0;
-
-
-
-%Find the number of subspecs.  'subspecs' will specify the current number
-%of subspectra in the dataset as it is processed, which may be subject to
-%change.  'rawSubspecs' will specify the original number of acquired 
-%subspectra in the dataset, which is unchangeable.
-%FOR WATER SUPPRESSED DATA:
-if dims.subSpecs ~=0
-    subspecs=sz(dims.subSpecs);
-    rawSubspecs=subspecs;
-else
-    subspecs=1;
-    rawSubspecs=subspecs;
-end
-
-%****************************************************************
-
-
-%Calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
-
-t=[0:dwelltime:(sz(1)-1)*dwelltime];
-
-
-%FOR WATER SUPPRESSED DATA
 %FILLING IN DATA STRUCTURE
 out.fids=fids;
 out.specs=specs;
