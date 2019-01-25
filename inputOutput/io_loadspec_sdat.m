@@ -43,7 +43,7 @@ dims.averages = 2;
 dims.extras = 0;
 
 % We have no way of actually knowing the number of sub-spectra (e.g. for 
-% MEGA-PRESS or HERMES acquisitions, so we will split them averages 
+% MEGA-PRESS or HERMES acquisitions, so we will split the averages 
 % according to the 'subspecs' input.
 % Initialize fids array:
 fids = squeeze(zeros(header.samples, header.rows/subspecs, subspecs));
