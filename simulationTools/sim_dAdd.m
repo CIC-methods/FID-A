@@ -12,11 +12,16 @@
 % INPUTS:
 % d1        = first input density matrix to be added.
 % d2        = second input density matrix to be added.
+% factor    = 1 for sum (default), -1 for diff
 %
 % OUTPUTS:
 % d_out     = sum of d1 and d2.
 
-function d_out = sim_dAdd(d1,d2)
+function d_out = sim_dAdd(d1,d2,factor)
+
+if nargin<3
+    factor=1;
+end
 
 %If d1 is an empty cell, make d_out = d2; otherwise, add them:
 if isempty(d1)
@@ -28,7 +33,7 @@ else
     
     d_out=cell(size(d1));
     for m=1:length(d1)
-        d_out{m}=d1{m}+d2{m};
+        d_out{m}=d1{m}+d2{m}.*factor;
     end
 end
 
