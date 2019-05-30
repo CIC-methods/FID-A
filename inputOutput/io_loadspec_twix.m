@@ -63,8 +63,9 @@ isjnseq=~isempty(strfind(sequence,'jn_')); %Is this another one of Jamie Near's 
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
 isMinn=~isempty(strfind(sequence,'eja_svs_')); %Is this one of Eddie Auerbach's (CMRR, U Minnesota) sequences?
-isSiemens=~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
-            ~isempty(strfind(sequence,'svs_st'));    % or the Siemens STEAM sequence?
+isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
+            ~isempty(strfind(sequence,'svs_st'))) && ... % or the Siemens STEAM sequence?
+            isempty(strfind(sequence,'eja_svs'));    %And make sure it's not 'eja_svs_steam'.
 
 %If this is the SPECIAL sequence, it probably contains both inversion-on
 %and inversion-off subspectra on a single dimension, unless it is the VB
