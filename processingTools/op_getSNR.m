@@ -20,8 +20,10 @@
 %
 % OUTPUTS:
 % SNR            = Estimated SNR of the input spectrum.
+% signal         = The measured raw signal intensity
+% noisesd        = The measured noise standard deviation
 
-function [SNR]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
+function [SNR,signal,noisesd]=op_getSNR(in,NAAppmmin,NAAppmmax,noiseppmmin,noiseppmmax);
 
 
 if nargin<5
