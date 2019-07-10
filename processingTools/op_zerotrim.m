@@ -17,7 +17,7 @@
 function out=op_zerotrim(in,numPointsToTrim);
 
 if ~in.flags.zeropadded
-    disp('WARNING:  Should not trim zeros if Zero padding has not been performed!  ABORTING!');
+    disp('WARNING:  you are trimming points from the end of the FID even though zero padding has not been performed!');
 end
 
 %calculate how many zeros to leave
