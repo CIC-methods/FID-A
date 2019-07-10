@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,ph,sig]=op_alignrcvrs(in,point,mode,coilcombos);
+% [out,coilcombos]=op_alignrcvrs(in,point,mode,coilcombos);
 % 
 % DESCRIPTION:
 % phase align the receiver channels without combining them.
@@ -25,10 +25,11 @@
 %
 % OUTPUTS:
 % out           = Output following alignment of rf channels.  
-% ph            = Vector of coil phases (in degrees) used for alignment.
-% sig           = Vector of coil weights.
+% coilcombos    = Structure containing two fields:
+%                   ph:  Vector of coil phases (in degrees) used for alignment.
+%                   sig: Vector of coil weights.
 
-function [out,ph,sig]=op_alignrcvrs(in,point,mode,coilcombos);
+function [out,coilcombos]=op_alignrcvrs(in,point,mode,coilcombos);
 
 if in.flags.addedrcvrs
     error('ERROR:  Receivers have already been combined!  Aborting!');
@@ -64,18 +65,28 @@ avspecs=av.specs;
 ph=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
 sig=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
 
+if nargin<4
+    coilcombos.ph=zeros(in.sz(in.dims.coils),1);
+    coilcombos.sig=zeros(in.sz(in.dims.coils),1);
+end
+
 %now start finding the relative phases between the channels and populate
 %the ph matrix
 for n=1:in.sz(in.dims.coils)
     if nargin<4
-        ph(:,n)=phase(avfids(point,n,1,1))*ph(:,n);
+        p=phase(avfids(point,n,1,1));
+        coilcombos.ph(n)=p;
+        ph(:,n)=p*ph(:,n);
         switch mode
             case 'w'
-                sig(:,n)=abs(avfids(point,n,1,1))*sig(:,n);
+                S=abs(avfids(point,n,1,1));
+                coilcombos.sig(n)=S;
+                sig(:,n)=S*sig(:,n);
             case 'h'
-                S=max(abs(avfids(:,n,1,1)));
+                S=abs(avfids(point,n,1,1));
                 N=std(avfids(end-100:end,n,1,1));
                 sig(:,n)=(S/(N.^2))*sig(:,n);
+                coilcombos.sig(n)=(S/(N.^2));
         end
     else
         ph(:,n)=coilcombos.ph(n)*ph(:,n);
