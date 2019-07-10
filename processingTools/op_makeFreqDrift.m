@@ -28,7 +28,7 @@ function [out,fDrift]=op_makeFreqDrift(in,totalDrift,noise);
 %First make the matrices needed for multiplication
 T=repmat(in.t',[1 in.sz(2:end)]);
 if any(totalDrift)
-    if isequal(size(totalDrift),[in.averages,in.subspecs])
+    if isequal(size(totalDrift),[in.averages/in.subspecs,in.subspecs])
         f=totalDrift;
     else
         f=linspace(0,totalDrift,in.averages*in.subspecs);

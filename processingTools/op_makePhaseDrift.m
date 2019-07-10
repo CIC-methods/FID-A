@@ -28,7 +28,7 @@ function [out,phDrift]=op_makePhaseDrift(in,totalDrift,noise);
 
 %First make the matrices needed for multiplication
 if any(totalDrift)
-    if isequal(size(totalDrift),[in.averages,in.subspecs])
+    if isequal(size(totalDrift),[in.averages/in.subspecs,in.subspecs])
         ph=totalDrift;
     else
         ph=linspace(0,totalDrift,in.averages*in.subspecs);
