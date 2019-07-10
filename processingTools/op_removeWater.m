@@ -23,8 +23,12 @@
 % OUTPUTS:
 % out       = New spectrum without the water peak in the as a FID-A structure
 % K         = The number of frequency components used to fit the data.
+% wppm      = The frequencies of the components found [ppm]
+% amp       = The amplitudes of the components found [arb units]
+% alpha     = The damping factors of the components found [radians/s]
+% ph        = The phases of the components found [radians]
 
-function [ out, K,amp ] = op_removeWater(in,wlim,Kinit,M,plot_bool)
+function [ out, K, wppm, amp, alpha, ph] = op_removeWater(in,wlim,Kinit,M,plot_bool)
 
 % set default values ( intended for seimens data with 4096 data points)
 if nargin<5
@@ -114,7 +118,7 @@ er = sum(abs(spec-spec_model).^2)/length(spec);
 
 
 % Model the water signal 
-wppm = -(freqs)/(in.txfrq/1000000)+4.7;
+wppm = -(freqs)/(in.txfrq/1000000)+4.65;
 water = find(wppm>wlim(1) & wppm<wlim(2)); % find the frequencies components associated with water
 % water = find(min(freqs));
 % water = find(freqs>72 & freqs<76); % find the frequencies components associated with water
