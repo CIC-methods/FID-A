@@ -13,7 +13,7 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% tau       = echo time in [s]
+% tau       = echo time in [ms]
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using spin-echo 
@@ -32,9 +32,9 @@ end
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                            %EXCITE
-d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
+d=sim_evolve(d,H,tau/2000);                        %Evolve by tau/2
 d=sim_rotate(d,H,180,'y');                       %180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,tau/2);                        %Evolve by tau/2
+d=sim_evolve(d,H,tau/2000);                        %Evolve by tau/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 

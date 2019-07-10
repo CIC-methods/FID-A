@@ -12,8 +12,8 @@
 % INPUTS:
 % Initialize the following variables and then click "run":
 % spinsys       = Spin system.
-% TE            = Echo time [s].
-% TM            = Mixing time [s].
+% TE            = Echo time [ms].
+% TM            = Mixing time [ms].
 % N             = Number of 'phase cycles'
 %
 % OUTPUTS:
@@ -24,8 +24,8 @@
 
 % *********INPUT VARIABLES***********
 spinsys='Lac';      %Spin system.
-TE=0.020;           %Echo time.
-TM=0.005;           %Mixing time.
+TE=20;              %Echo time. [ms]
+TM=5;               %Mixing time. [ms]
 N=32;               %Number of 'phase cycles'
 n=2048;             %Number of spectral points
 sw=2000;            %Spectral width

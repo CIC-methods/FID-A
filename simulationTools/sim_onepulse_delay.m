@@ -18,7 +18,7 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% delay     = delay before the ADC onset [s]
+% delay     = delay before the ADC onset [ms]
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using pulse-acquire 
@@ -38,7 +38,7 @@ end
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                            %EXCITE
-d=sim_evolve(d,H,delay);                         %ADC onset Delay
+d=sim_evolve(d,H,delay/1000);                     %ADC onset Delay
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
@@ -47,7 +47,7 @@ out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
 out.seq='onepulse';
-out.te=0;
+out.te=delay;
 out.sim='ideal';
 
 %Additional fields for compatibility with FID-A processing tools.

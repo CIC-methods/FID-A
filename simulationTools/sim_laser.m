@@ -16,7 +16,7 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% TE        = Echo time in [s] 
+% TE        = Echo time in [ms] 
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using LASER 
@@ -33,7 +33,9 @@ end
 %Calculate Hamiltonian matrices and starting density matrix.
 [H,d]=sim_Hamiltonian(sys,Bfield);
 
-tau=TE/6;
+%Assume equal delays between all echoes (divide by 6), and convert from ms 
+%to seconds.
+tau=TE/6/1000;  
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                            %EXCITE

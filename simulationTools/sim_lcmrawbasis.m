@@ -16,8 +16,8 @@
 % sw        = desired spectral width in [Hz]
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
-% tau1      = first echo time in [s] (if seq='st' or 'l', tau1 = TE)
-% tau2      = second echo time in [s].  (Used in Press, but not used in SE or LASER.
+% tau1      = first echo time in [ms] (if seq='st' or 'l', tau1 = TE)
+% tau2      = second echo time in [ms].  (Used in Press, but not used in SE or LASER.
 %             If seq='st', tau2=TM).
 % addref    = add reference at 0ppm (for use in LCModel makebasis) ['y' or 'n']
 % makeraw   = make output file for lcmodel ['y' or 'n']

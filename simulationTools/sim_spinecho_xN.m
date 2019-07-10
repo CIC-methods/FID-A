@@ -13,7 +13,7 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% tau       = echo time in [s]
+% tau       = echo time in [ms]
 % Nechoes   = number of spin echoes (optional.  Default = 10);
 %
 % OUTPUTS:
@@ -40,9 +40,9 @@ delay=tau/(2*Nechoes);
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                            %EXCITE
 for k=1:Nechoes
-    d=sim_evolve(d,H,delay);                        %Evolve by tau/2
+    d=sim_evolve(d,H,delay/1000);                        %Evolve by tau/2
     d=sim_rotate(d,H,180,'y');                       %180 degree refocusing pulse about y' axis.
-    d=sim_evolve(d,H,delay);                        %Evolve by tau/2
+    d=sim_evolve(d,H,delay/1000);                        %Evolve by tau/2
 end
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************

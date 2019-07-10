@@ -16,8 +16,8 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% te        = echo time in [s]
-% tm        = mixing time in [s]
+% te        = echo time in [ms]
+% tm        = mixing time in [ms]
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using steam
@@ -40,11 +40,11 @@ figure; hold;
 for m=1:4
     %BEGIN PULSE SEQUENCE************
     d=sim_excite_arbPh(d,H,ph(m));                    %EXCITE
-    d=sim_evolve(d,H,te/2);                         %Evolve by te/2
+    d=sim_evolve(d,H,te/2000);                         %Evolve by te/2
     d=sim_rotate(d,H,-90,'x');                      %Second 90 degree pulse about x' axis.
-    d=sim_evolve(d,H,tm);                           %Evolve by TM delay
+    d=sim_evolve(d,H,tm/1000);                           %Evolve by TM delay
     d=sim_rotate_arbPh(d,H,90,ph(m));               %Final 90 degree pulse about x' axis.
-    d=sim_evolve(d,H,te/2);                         %Evolve by te/2
+    d=sim_evolve(d,H,te/2000);                         %Evolve by te/2
     [out_temp,dout]=sim_readout(d,H,n,sw,linewidth,90); %Readout along +y' (90 degree phase);
 %END PULSE SEQUENCE**************
 out=op_addScans(out,out_temp);

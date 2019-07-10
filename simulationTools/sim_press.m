@@ -16,8 +16,8 @@
 % Bfield    = main magnetic field strength in [T]
 % linewidth = linewidth in [Hz]
 % sys       = spin system definition structure
-% tau1      = Echo time in [s] of first press Spin Echo
-% tau2      = Echo time in [s] of second press Spin Echo
+% tau1      = Echo time in [ms] of first press Spin Echo
+% tau2      = Echo time in [ms] of second press Spin Echo
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
@@ -38,9 +38,9 @@ end
 d=sim_excite(d,H,'x');                            %EXCITE
 d=sim_evolve(d,H,tau1/2);                       %Evolve by tau1/2
 d=sim_rotate(d,H,180,'y');                      %First 180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,(tau1+tau2)/2);                %Evolve by (tau1+tau2)/2
+d=sim_evolve(d,H,(tau1+tau2)/2000);             %Evolve by (tau1+tau2)/2
 d=sim_rotate(d,H,180,'y');                      %second 180 degree refocusing pulse about y' axis.
-d=sim_evolve(d,H,tau2/2);                       %Evolve by tau2/2
+d=sim_evolve(d,H,tau2/2000);                    %Evolve by tau2/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 
@@ -49,7 +49,7 @@ out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
 out.seq='press';
-out.te=tau1+tau2;
+out.te=(tau1+tau2);
 out.sim='ideal';
 
 %Additional fields for compatibility with FID-A processing tools.

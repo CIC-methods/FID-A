@@ -66,7 +66,7 @@ out.ppm=out.ppm-(4.65-centreFreq);
 
 %Fill in structure header fields:
 out.seq='onepulse';
-out.te=0;
+out.te=tp/2;
 out.sim='shaped';
 
 %Additional fields for compatibility with FID-A processing tools.

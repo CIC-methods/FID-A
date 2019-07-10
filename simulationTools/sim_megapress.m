@@ -21,9 +21,9 @@
 %   taus(3)     = time in [ms] from 1st edit pulse to 2nd 180
 %   taus(4)     = time in [ms] from 2nd 180 to 2nd edit pulse
 %   taus(5)     = time in [ms] from 2nd edit pulse to ADC
-% refoc1Flip= array of refoc1 flip angles for each spin in system
-% refoc2Flip= array of refoc2 flip angles for each spin in system
-% editFlip  = array of editing flip angles for each spin in system
+% refoc1Flip= cell array of refoc1 flip angles for each spin in system
+% refoc2Flip= cell array of refoc2 flip angles for each spin in system
+% editFlip  = cell array of editing flip angles for each spin in system
 %
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using MEGA-PRESS 
@@ -42,15 +42,15 @@ end
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                            %EXCITE
-d=sim_evolve(d,H,taus(1));                      %Evolve by taus(1)
+d=sim_evolve(d,H,taus(1)/1000);                      %Evolve by taus(1)
 d=sim_rotate(d,H,refoc1Flip,'y');               %First refocusing pulse about y' axis.
-d=sim_evolve(d,H,taus(2));                      %Evolve by taus(2)
+d=sim_evolve(d,H,taus(2)/1000);                      %Evolve by taus(2)
 d=sim_rotate(d,H,editFlip,'y');                 %First editing pulse about y' axis.
-d=sim_evolve(d,H,taus(3));                      %Evolve by taus(3)
+d=sim_evolve(d,H,taus(3)/1000);                      %Evolve by taus(3)
 d=sim_rotate(d,H,refoc2Flip,'y');               %Second refocusing pulse about y' axis.
-d=sim_evolve(d,H,taus(4));                      %Evolve by taus(4)
+d=sim_evolve(d,H,taus(4)/1000);                      %Evolve by taus(4)
 d=sim_rotate(d,H,editFlip,'y');                 %Second editing pulse about y' axis.
-d=sim_evolve(d,H,taus(5));                      %Evolve by taus(5)
+d=sim_evolve(d,H,taus(5)/1000);                      %Evolve by taus(5)
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);  %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
 

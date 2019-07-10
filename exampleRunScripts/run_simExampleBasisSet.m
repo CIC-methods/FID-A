@@ -18,8 +18,8 @@
 %  np       = Spectral points
 %  sw       = Spectral width (Hz)
 %  Bo       = Magnetic Field Strength (Tesla)
-%  te1      = First PRESS echo time, or SPECIAL echo time (s)
-%  te2      = Second PRESS echo time (if applicable) (s).
+%  te1      = First PRESS echo time, or SPECIAL echo time (ms)
+%  te2      = Second PRESS echo time (if applicable) (ms).
 %  seq      = Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam);
 %  ref      = Add reference peak at 0ppm (used in LCModel, y or n);
 %
@@ -56,9 +56,9 @@
  np=8192;      %Spectral points
  sw=4000;      %Spectral width (Hz)
  Bo=7;         %Magnetic Field Strength (Tesla)
- te1=0.010;    %First PRESS echo time, or SPECIAL echo time (s)
- te2=0.125;    %Second PRESS echo time (if applicable) (s).
- seq='p'      %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam, 'l'=laser);
+ te1=10;       %First PRESS echo time, or SPECIAL echo time (ms)
+ te2=125;      %Second PRESS echo time (if applicable) (ms).
+ seq='p'       %Pulse sequence ('se'= SPECIAL, 'p'=press, 'st'=steam, 'l'=laser);
  ref='n'       %Add reference peak at 0ppm (used in LCModel, y or n);
 % *************END OF INPUT PARAMETERS**************************
 
