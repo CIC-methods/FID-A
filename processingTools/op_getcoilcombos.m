@@ -58,7 +58,7 @@ for n=1:in.sz(in.dims.coils);
         case 'w'
             coilcombos.sig(n)=abs(in.fids(point,n,1,1));
         case 'h'
-            S=max(abs(in.fids(:,n,1,1)));
+            S=abs(in.fids(point,n,1,1));
             N=std(in.fids(end-100:end,n,1,1));
             coilcombos.sig(n)=(S/(N.^2));
     end
