@@ -50,6 +50,7 @@ function out=run_simPressShaped_fast(spinSys)
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
 refTp=3.5; %duration of refocusing pulses[ms]
+flipAngle=137;  %Flip Angle of the refocusing pulses [degrees] (e.g. Use 180 for Siemens PRESS.  Use 137 for GE PRESS).
 Npts=2048; %number of spectral points
 sw=2000; %spectral width [Hz]
 Bfield=3; %magnetic field strength [Tesla]
@@ -100,12 +101,12 @@ d=cell(length(refPhCyc1));
 %pulse.  
 %First loop through x direction (first refoc pulse only);
 
-%for RP1=1:length(refPhCycl1)  %Use this if you don't have the MATLAB parallel processing toolbox
+%for X=1:length(x)  %Use this if you don't have the MATLAB parallel processing toolbox
 parfor X=1:length(x)  %Use this if you have the MATLAB parallel processing toolbox
     for RP1=1:length(refPhCyc1)
         disp(['Executing X-position ' num2str(X) ' of ' num2str(length(x)) ', '...
             'First Refoc phase cycle ' num2str(RP1) ' of ' num2str(length(refPhCyc1)) '!!!']);
-        d_temp{X}{RP1}=sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,refRF,refTp,x(X),Gx,refPhCyc1(RP1));
+        d_temp{X}{RP1}=sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,refRF,refTp,x(X),Gx,refPhCyc1(RP1),flipAngle);
     end
 end
 
@@ -131,7 +132,7 @@ parfor Y=1:length(y) %Use this if you do have the MATLAB parallel processing too
                 'First Refoc phase cycle ' num2str(RP1) ' of ' num2str(length(refPhCyc1)) ', '...
                 'Second Refoc phase cycle ' num2str(RP2) ' of ' num2str(length(refPhCyc2)) '!!!']);
             out_temp{Y}{RP1}{RP2}=sim_press_shaped_fastRef2(d{RP1},Npts,sw,Bfield,lw,sys,tau1,tau2,...
-                refRF,refTp,y(Y),Gy,refPhCyc2(RP2));
+                refRF,refTp,y(Y),Gy,refPhCyc2(RP2),flipAngle);
         end
     end
 end
@@ -223,7 +224,7 @@ function d = sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,RF,tp,dx,Gx,phCyc1,f
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-if nargin<16
+if nargin<10
     flipAngle=180;
 end
     
@@ -329,7 +330,7 @@ function out = sim_press_shaped_fastRef2(d,n,sw,Bfield,linewidth,sys,tau1,tau2,R
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-if nargin<16
+if nargin<14
     flipAngle=180;
 end
     
