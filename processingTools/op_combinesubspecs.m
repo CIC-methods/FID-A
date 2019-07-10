@@ -84,6 +84,7 @@ out.specs=specs;
 out.sz=sz;
 out.dims=dims;
 out.subspecs=1;
+out.averages=in.averages/2;
 
 %FILLING IN THE FLAGS
 out.flags=in.flags;
