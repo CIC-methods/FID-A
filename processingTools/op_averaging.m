@@ -17,13 +17,16 @@
 function out=op_averaging(in);
 
 if in.flags.averaged || in.averages<2
-    error('ERROR:  Averaging has already been performed!  Aborting!');
+    %DO NOTHING
+    disp('WARNING: No averages found. Returning input without modification!');
+    return;
 end
 
 if in.dims.averages==0
     %DO NOTHING
     disp('WARNING: No averages found. Returning input without modification!');
     out=in;
+    return;
 else
     
     %add the spectrum along the averages dimension;
