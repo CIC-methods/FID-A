@@ -70,15 +70,19 @@ switch mode
     case 'f'
         parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax),base,@op_freqShiftComplexNest,parsGuess);
         fids=op_freqShiftNest(parsFit,in.fids);
+        frq=parsFit(1);
+        ph=0;
     case 'p'
         parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax),base,@op_phaseShiftComplexNest,parsGuess);
         fids=op_phaseShiftNest(parsFit,in.fids);
+        ph=parsFit(1);
+        frq=0;
     case 'fp'
         parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax),base,@op_freqPhaseShiftComplexNest,parsGuess);
         fids=op_freqPhaseShiftNest(parsFit,in.fids);
+        ph=parsFit(2);
+        frq=parsFit(1);
 end
-ph=parsFit(2);
-frq=parsFit(1);
 %figure
 %plot(in1.t,in1.fids,in.t,fids);
 
