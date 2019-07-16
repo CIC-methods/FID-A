@@ -57,9 +57,11 @@ sequence=twix_obj.hdr.Config.SequenceFileName;
 %Try to find out what sequnece this is:
 isSpecial=~isempty(strfind(sequence,'rm_special')) ||...  %Is this Ralf Mekle's SPECIAL sequence?
             ~isempty(strfind(sequence,'vq_special'));  %or the CIBM SPECIAL sequence?
-isjnSpecial=~isempty(strfind(sequence,'jn_svs_special'));  %or Jamie Near's SPECIAL sequence?
+isjnSpecial=~isempty(strfind(sequence,'jn_svs_special')) ||...  %or Jamie Near's SPECIAL sequence?
+            ~isempty(strfind(sequence,'md_Adiab_Special')); %or Masoumeh Dehghani's Adiabatic SPECIAL sequence?
 isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PRESS sequence?
-isjnseq=~isempty(strfind(sequence,'jn_')); %Is this another one of Jamie Near's sequences?
+isjnseq=~isempty(strfind(sequence,'jn_')) ||... %Is this another one of Jamie Near's sequences 
+        ~isempty(strfind(sequence,'md_'));      %or a sequence derived from Jamie Near's sequences (by Masoumeh Dehghani)?
 isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
 isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
 isMinn=~isempty(strfind(sequence,'eja_svs_')); %Is this one of Eddie Auerbach's (CMRR, U Minnesota) sequences?
