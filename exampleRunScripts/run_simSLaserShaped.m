@@ -80,11 +80,10 @@ out=struct([]);
 parfor X=1:length(x)
     for Y=1:length(y)
         for m=1:length(ph1)
-            disp(['For Metabolite:' sys(1).name(1:3) ' Executing X-position ' ...
-                num2str(X) ' of ' num2str(length(x)) '; Y-position ' num2str(Y) ...
+            disp(['Executing X-position ' num2str(X) ' of ' num2str(length(x)) '; Y-position ' num2str(Y) ...
                 ' of ' num2str(length(y)) '; Phase cycle position ' num2str(m) ' of ' num2str(length(ph1)) '!!' ]);
             out_posxy_rpc{X}{Y}{m}=sim_sLASER_shaped(n,sw,Bfield,lw,sys,te,...
-              hs_rfPulse,refTp,x(X),y(Y),Gx,Gy,ph1(m),ph2(m),ph3(m),ph4(m),centreFreq);
+              rfPulse,refTp,x(X),y(Y),Gx,Gy,ph1(m),ph2(m),ph3(m),ph4(m),centreFreq);
             if m==1 
                  out_posxy{X}{Y}=out_posxy_rpc{X}{Y}{m};
              elseif m==2 || m==3
