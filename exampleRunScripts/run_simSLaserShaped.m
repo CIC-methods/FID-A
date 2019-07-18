@@ -35,8 +35,8 @@ rfPulse=io_loadRFwaveform('sampleAFPpulse_HS2_R15.RF','inv'); % adiabatic RF pul
 refTp=3.5; %= RF pulse duration in [ms]
 flipAngle=180; %= flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
 centreFreq=2.3; %= centre frequency of the spectrum in [ppm] (Optional.  Default = 2.3)
-thkX=2.5; %slice thickness of x refocusing pulse [cm]
-thkY=2.5; %slice thickness of y refocusing pulse [cm]
+thkX=2; %slice thickness of x refocusing pulse [cm]
+thkY=2; %slice thickness of y refocusing pulse [cm]
 fovX=3; %size of the full simulation Field of View in the x-direction [cm]
 fovY=3; %size of the full simulation Field of View in the y-direction [cm]
 nX=16; %Number of grid points to simulate in the x-direction
