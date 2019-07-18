@@ -1,4 +1,4 @@
-% run_sim_sLASER_shaped.m
+% run_simSLaserShaped.m
 % Dana Goerzen (McGill University, 2019).
 %  
 % USAGE:
