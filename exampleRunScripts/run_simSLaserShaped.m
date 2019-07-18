@@ -31,7 +31,7 @@ Bfield=7; %= main magnetic field strength in [T]
 lw=2; %= linewidth in [Hz]
 load spinSystems.mat; %= spin system definition structure
 sys=sysLac;
-rfPulse=io_loadRFwaveform('HS2_R15_512.RF','inv'); % adiabatic RF pulse shaped waveform 
+rfPulse=io_loadRFwaveform('sampleAFPpulse_HS2_R15.RF','inv'); % adiabatic RF pulse shaped waveform 
 refTp=3.5; %= RF pulse duration in [ms]
 flipAngle=180; %= flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
 centreFreq=2.3; %= centre frequency of the spectrum in [ppm] (Optional.  Default = 2.3)
@@ -39,13 +39,13 @@ thkX=2.5; %slice thickness of x refocusing pulse [cm]
 thkY=2.5; %slice thickness of y refocusing pulse [cm]
 fovX=3; %size of the full simulation Field of View in the x-direction [cm]
 fovY=3; %size of the full simulation Field of View in the y-direction [cm]
-nX=32; %Number of grid points to simulate in the x-direction
-nY=32; %Number of grid points to simulate in the y-direction
+nX=16; %Number of grid points to simulate in the x-direction
+nY=16; %Number of grid points to simulate in the y-direction
+te=135;         %sLASER total echo time [ms]
 ph1=[0 0 0 0];  %phase cycling scheme of first refocusing pulse
 ph2=[0 0 90 90]; %phase cycling scheme of second refocusing pulse
 ph3=[0 0 0 0]; %phase cycling scheme of third refocusing pulse
 ph4=[0 90 0 90]; %phase cycling scheme of fourth refocusing pulse
-te=105;
 
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
