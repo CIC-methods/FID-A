@@ -66,32 +66,32 @@ elseif strcmp(shape,'LG') || strcmp(shape,'lg')
     decay = (R*exp(-((l)*deltat)/t2))+((1-R)*exp(-(((l)*deltat)^2)/(2*(sigma^2))));
 end
 
-for n=1:length(H) %JN - Loop through the different parts of the spin-system:
-    M=H(n).HAB;
+for j=1:length(H) %JN - Loop through the different parts of the spin-system:
+    M=H(j).HAB;
     [U,D]=eig(M);D=diag(D);
-    val=2^(2-H(n).nspins);
+    val=2^(2-H(j).nspins);
     k=1;
 
-    Fxy =H(n).Fx+1i*H(n).Fy;
+    Fxy =H(j).Fx+1i*H(j).Fy;
     phase_comp=exp(1i*rcvPhase*pi/180);
     
     while k<(points+1);
         d1=diag(exp(-1i*(k-1)*D*deltat));
         d=U*d1*U';
-        out_parts{n}.fids(k)=trace(d*d_in{n}*d'*(Fxy)*phase_comp);
+        out_parts{j}.fids(k)=trace(d*d_in{j}*d'*(Fxy)*phase_comp);
         k = k+1;
     end
 
-    out_parts{n}.fids = val*(out_parts{n}.fids.*decay);
+    out_parts{j}.fids = val*(out_parts{j}.fids.*decay);
         
 end
 
 d_out=sim_evolve(d_in,H,points*deltat);
 
 %Combine the output FIDs from the different parts of the spin-system:
-out.fids=zeros(size(out_parts{n}.fids));
-for n=1:length(H)
-    out.fids=out.fids+out_parts{n}.fids;
+out.fids=zeros(size(out_parts{length(H)}.fids));
+for m=1:length(H)
+    out.fids=out.fids+out_parts{m}.fids;
 end
 
 out.t=[0:deltat:deltat*(points-1)];
