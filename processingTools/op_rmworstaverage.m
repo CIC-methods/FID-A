@@ -43,15 +43,20 @@ for n=1:in.sz(in.dims.averages)
             metric(n,m)=sum((real(infilt.specs(:,n,m))-(real(inavg.specs(:,m)))).^2);
     end
 end
-for m=1:SS
-    P(m,:)=polyfit([1:in.sz(in.dims.averages)]',metric(:,m),2);
-    figure
-    plot([1:in.sz(in.dims.averages)],metric(:,m),'.',[1:in.sz(in.dims.averages)],polyval(P(m,:),[1:in.sz(in.dims.averages)]));
-end
 
 %find the average and standard deviation of the metric
 avg=mean(metric);
 stdev=std(metric);
+
+%Now z-transform the metric so that it is centered about zero, and they
+%have a standard deviation of 1.0.  
+zmetric=(metric-avg)/stdev;
+
+for m=1:SS
+    P(m,:)=polyfit([1:in.sz(in.dims.averages)]',zmetric(:,m),2);
+    figure
+    plot([1:in.sz(in.dims.averages)],zmetric(:,m),'.',[1:in.sz(in.dims.averages)],polyval(P(m,:),[1:in.sz(in.dims.averages)]));
+end
 
 %Now make a mask that represents the locations of the averages 
 %whose metric values are more than nsd standard deviations away from the 
@@ -61,7 +66,7 @@ for n=1:SS
     %mask(:,n)=metric(:,n)>(avg(n)+(nsd*stdev(n))) | metric(:,n)<(avg(n)-(nsd*stdev(n)));
     %mask(:,n)=metric(:,n)>(polyval(P(n,:),[1:in.sz(in.dims.averages)])'+(nsd*stdev(n))) | metric(:,n)<(polyval(P(n,:),[1:in.sz(in.dims.averages)])'-(nsd*stdev(n)));
     %mask(:,n)=metric(:,n)>(polyval(P(n,:),[1:in.sz(in.dims.averages)])'+(nsd*stdev(n)));
-    mask(:,n)=(metric(:,n)-polyval(P(n,:),[1:in.sz(in.dims.averages)])')==max((metric(:,n)-polyval(P(n,:),[1:in.sz(in.dims.averages)])'));
+    mask(:,n)=(zmetric(:,n)-polyval(P(n,:),[1:in.sz(in.dims.averages)])')==max((zmetric(:,n)-polyval(P(n,:),[1:in.sz(in.dims.averages)])'));
 end
 
 %Unfortunately, if one average is corrupted, then all of the subspecs

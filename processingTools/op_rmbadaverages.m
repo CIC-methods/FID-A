@@ -71,15 +71,20 @@ end
 avg=mean(metric);
 stdev=std(metric);
 
+%Now z-transform the metric so that it is centered about zero, and they
+%have a standard deviation of 1.0.  
+zmetric=(metric-avg)/stdev;
+
+
 for m=1:SS
     
-    P(m,:)=polyfit([1:in.sz(in.dims.averages)]',metric(:,m),2);
+    P(m,:)=polyfit([1:in.sz(in.dims.averages)]',zmetric(:,m),2);
     figure('position',[0 (m-1)*500 560 420]);
-    plot([1:in.sz(in.dims.averages)],metric(:,m),'.',...
+    plot([1:in.sz(in.dims.averages)],zmetric(:,m),'.',...
         [1:in.sz(in.dims.averages)],polyval(P(m,:),[1:in.sz(in.dims.averages)]),...
-        [1:in.sz(in.dims.averages)],(polyval(P(m,:),[1:in.sz(in.dims.averages)])'+(nsd*stdev(m))),':');
+        [1:in.sz(in.dims.averages)],(polyval(P(m,:),[1:in.sz(in.dims.averages)])'+nsd),':');
     xlabel('Scan Number');
-    ylabel('Unlikeness Metric');
+    ylabel('Unlikeness Metric (z-score)');
     title('Metric for rejection of motion corrupted scans');
 end
 
@@ -90,7 +95,7 @@ end
 for n=1:SS
     %mask(:,n)=metric(:,n)>(avg(n)+(nsd*stdev(n))) | metric(:,n)<(avg(n)-(nsd*stdev(n)));
     %mask(:,n)=metric(:,n)>(polyval(P(n,:),[1:in.sz(in.dims.averages)])'+(nsd*stdev(n))) | metric(:,n)<(polyval(P(n,:),[1:in.sz(in.dims.averages)])'-(nsd*stdev(n)));
-    mask(:,n)=metric(:,n)>(polyval(P(n,:),[1:in.sz(in.dims.averages)])'+(nsd*stdev(n)));
+    mask(:,n)=zmetric(:,n)>(polyval(P(n,:),[1:in.sz(in.dims.averages)])'+nsd);
 end
 
 %Unfortunately, if one average is corrupted, then all of the subspecs
