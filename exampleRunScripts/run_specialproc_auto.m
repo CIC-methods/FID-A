@@ -7,7 +7,7 @@
 % DESCRIPTION:
 % Processing script for Siemens SPECIAL MRS data in .dat format (twix raw 
 % data).  Includes combination of reciever channels, removal of bad averages, 
-% freqeuncy drift correction, and leftshifting.
+% frequency drift correction, and leftshifting.
 % 
 % INPUTS:
 % filestring   = String variable for the name of the directory containing
@@ -496,7 +496,7 @@ else
         box off;
         legend('Frequency Drift','Location','SouthEast');
         legend boxoff;
-        title('Estimated Freqeuncy Drift','FontSize',12);
+        title('Estimated Frequency Drift','FontSize',12);
         set(h,'PaperUnits','centimeters');
         set(h,'PaperPosition',[0 0 10 10]);
         saveas(h,fullfile(reportFigsDir,'freqDriftFig'),'jpg');
