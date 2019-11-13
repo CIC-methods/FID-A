@@ -73,7 +73,7 @@ stdev=std(metric);
 
 %Now z-transform the metric so that it is centered about zero, and they
 %have a standard deviation of 1.0.  
-zmetric=(metric-avg)/stdev;
+zmetric=(metric-avg)./stdev;
 
 
 for m=1:SS
