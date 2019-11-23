@@ -36,7 +36,7 @@ end
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                            %EXCITE
-d=sim_evolve(d,H,tau1/2);                       %Evolve by tau1/2
+d=sim_evolve(d,H,tau1/2000);                    %Evolve by tau1/2
 d=sim_rotate(d,H,180,'y');                      %First 180 degree refocusing pulse about y' axis.
 d=sim_evolve(d,H,(tau1+tau2)/2000);             %Evolve by (tau1+tau2)/2
 d=sim_rotate(d,H,180,'y');                      %second 180 degree refocusing pulse about y' axis.
