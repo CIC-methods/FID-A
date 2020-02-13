@@ -33,5 +33,5 @@ NAAwindow=in.specs(in.ppm>NAAppmmin & in.ppm<NAAppmmax);
 ppmwindow=in.ppm(in.ppm>NAAppmmin & in.ppm<NAAppmmax);
 
 maxNAA_index=find(abs(NAAwindow)==max(abs((NAAwindow))));
-h=abs(NAAwindow(maxNAA_index))
+h=abs(NAAwindow(maxNAA_index));
 
