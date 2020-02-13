@@ -47,7 +47,7 @@ fids=zeros(in.sz(in.dims.t),1);
 
 disp('aligning all averages to the Average ISIS subtracted spectrum');
 if in.dims.averages
-    base0=op_averaging(op_combinesubspecs(in,'diff'));
+    base0=op_median(op_combinesubspecs(in,'diff'));
 else
     base0=op_combinesubspecs(in,'diff');
 end
