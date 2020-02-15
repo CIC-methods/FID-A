@@ -1,17 +1,19 @@
-%rf_hs.m
-%Jamie Near, McGill University 2014.
+%rf_goia.m
+%Jamie Near, McGill University 2020.  Based on old code from 2007.
 %
 % USAGE:
-% [RF,FM,mv,sc]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
+% [RF,FM,mv,sc]=rf_goia(N,n,tbw,Tp,trunc,thk)
 % 
 % DESCRIPTION:
-% this funciton creates any desired HS pulse.  N is the number of steps, n
+% this funciton creates a GOIA gradient modulated adiabatic pulse, using 
+% the method of gradient modulated offset-independent adiabaticity as first
+% described by Tannus and Garwood in NMR Biomed 1997; 10:423-434.  N is the 
+% number of steps, n
 % is the order of the HS pulse, tbw is the time bandwidth product of the
 % pulse, Tp is the duration of the pulse and thk is the desired thickness of
 % the pulse.
 % 
 % INPUTS:
-% outfile        = name of output rf file.
 % N              = Number of points in RF waveform.
 % n              = order of the HS pulse.
 % tbw            = Time bandwidth product.
@@ -29,29 +31,7 @@
 %                  mv vectors.
 
 
-function [RF,FM,mv,sc]=rf_hs(outfile,N,n,tbw,Tp,trunc,thk)
-
-
-
-%create outfile names for rf and grd files
-if isempty(outfile)
-   outfileRF = [];
-   outfileGRD = [];
-else
-   outfileRF = [outfile '.RF'];
-   outfileGRD = [outfile '.GRD'];
-   clear outfile;
-   
-	% Check if file exists and confirm overwrite
-	if exist(outfileRF, 'file') || exist(outfileGRD, 'file')
-      r = input(['Delete existing file(s) ' outfileRF ' and ' outfileGRD ' (Y/n)?'],'s');
-      if ~isempty(r)
-         if lower(r(1)) == 'n'
-            return
-         end
-      end
-	end
-end
+function [RF,FM,mv,sc]=rf_hs(N,n,tbw,Tp,trunc,thk)
 
 
 %make sure N is even
