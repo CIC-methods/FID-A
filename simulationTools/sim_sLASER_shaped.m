@@ -27,6 +27,11 @@
 % simulation many times at various points in space (x,y), and then summate
 % and scale together the resulting spectra.  
 % 
+% Feb 2020 - Jamie Near:  This code now accepts gradient modulated pulses.  
+% If the input pulse is gradient modulated (waveform has 4 columns), then 
+% the input parameters Gx and Gy are automatically set to zero, and the 
+% pulse waveform defines the gradient. 
+% 
 % INPUTS:
 % n         = number of points in fid/spectrum
 % sw        = desired spectral width in [Hz]
@@ -57,6 +62,16 @@ if nargin<21
     centreFreq=2.3;
     if nargin<20
         flipAngle=180;
+    end
+end
+
+%Check if this is a gradient modulated pulse.  If so, set Gx and Gy equal
+%to zero:
+if RF.isGM
+    if Gx || Gy
+        disp('WARNING:  GM pulse was supplied, and Gx and Gy were non-zero.  Setting Gx and Gy to zero, and using GM waveform for gradient definition.');
+        Gx=0;
+        Gy=0;
     end
 end
 

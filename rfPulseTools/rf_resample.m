@@ -41,5 +41,8 @@ newWaveform(:,3)=ones(length(newWaveform(:,1)),1);
 if ~isPhsMod
     newWaveform(:,1)=180*(newWaveform(:,1)>100);
 end
+if RF_in.isGM 
+    newWaveform(:,4)=resample(RF_out.waveform(:,4),P,Q);
+end
 
 RF_out.waveform=newWaveform;

@@ -20,7 +20,10 @@
 % RF        = RF pulse definition structure
 % tp        = pulse duration in [ms] (optional.  Default = 5ms).
 % flipAngle = flip angle of pulse [degrees] (optional.  Default = 180 deg).
-% fspan     = frequency span in [kHz] (optional.  Default = 10kHz).
+% fspan     = frequency span in [kHz] or in the case of an rf pulse that 
+%             includes a gradient (as indicated by the presence of 4 
+%             columns in the RF waveform), the position span in [cm].  
+%             (optional.  Default = 10 kHz or 10 cm).
 %
 % OUTPUTS:
 % I         = Refocused component magnitude.
@@ -72,7 +75,11 @@ box off;
 
 subplot(2,1,2);
 plot(sc,ph,'LineWidth',1.2);
-xlabel('Frequency [kHz]','FontSize',20);
+if size(RF,2)<4
+    xlabel('Frequency [kHz]','FontSize',20);
+else
+    xlabel('Position [cm]','FontSize',20);
+end
 ylabel('Phase [deg]','FontSize',20);
 set(gca,'FontSize',16);
 box off;

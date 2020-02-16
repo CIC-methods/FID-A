@@ -15,10 +15,15 @@
 % INPUTS:
 % filename  = filename of RF pulse waveform text file.  Can be in Siemens
 %             format (.pta), Varian/Agilent format (.RF), Bruker format 
-%             (.inv, .ref or .exc) or a plain text file (.txt, with two columns 
-%             (amplitued and phase).  Filename can also be the name of a
-%             three column matlab vector specifing the phase, amplitude and
-%             time vectors of an RF pulse waveform.  
+%             (.inv, .ref or .exc) or a plain text file (.txt, with two, 
+%             three or four columns (amplitude, phase, time-step
+%             (optional),and gradient strength (optional).  Filename can 
+%             also be the name of a two, three or four column matlab vector 
+%             specifing the phase, amplitude, time vectors (optionally) and 
+%             gradient (optionally) of an RF pulse waveform.  Note about 
+%             Units: RF amplitude waveform [arbitrary units], B1 intensity 
+%             [kHz],  phase waveform [degrees], time step vector [arbitrary 
+%             units],  gradient waveform [G/cm].
 % type      = Excitation ('exc'), Refocusing ('ref') or Inversion ('inv'). 
 %             Alternatively, 'type' can specify the exact flip angle [in 
 %             degrees] of the pulse.  This can be useful if you want to use 
@@ -77,9 +82,14 @@ if isstr(filename)
         error('ERROR:  File not found!  Aborting!');
     end  
 else
-    if ismatrix(filename) && ndims(filename)==2 && size(filename,2)==3
+    if ismatrix(filename) && ndims(filename)==2 && ( 2 <= size(filename,2) <= 4 )
         disp('Input is an RF waveform already in the matlab workspace.  Loading waveform now.');
-        rf=filename;
+        if size(filename,2)==2
+            rf=filename;
+            rf(:,3)=ones(length(filename(:,1)),1);
+        elseif size(filename,2)==3 || size(filename,2)==4
+            rf=filename;
+        end
     end
 end
 
@@ -196,7 +206,16 @@ end
 RF_struct.waveform=rf;
 RF_struct.type=type;
 RF_struct.f0=f0;
-RF_struct.tbw=bw*Tp*1000;
+if size(rf,2)>3 && any(rf(:,4))
+    RF_struct.tbw='N/A - gradient modulated pulse';
+    RF_struct.isGM=true;
+    RF_struct.tthk=bw*Tp; %This is the time x sliceThickness product for 
+                         %gradient modulated pulses.  It is in units [cm.s]
+else
+    RF_struct.tbw=bw*Tp*1000;
+    RF_struct.isGM=false;
+    RF_struct.tthk='N/A - frequency selective pulse';
+end
 RF_struct.tw1=tw1;
 
 

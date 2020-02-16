@@ -18,6 +18,11 @@
 % composite rotation: Rotate about Y by -alpha, rotate about Z by -zeta, then 
 % rotate about X by 2*pi*gamma*Beff*dt, then rotate back about Z by zeta and 
 % back about Y by alpha.  
+%
+% Feb 2020: Code now supports gradient modulated pulses.  Thanks to
+% Muhammad Saleh and Steve Hui for helping with this.  Gradient modulated
+% pulses are specified by including a 4th column in the RF pulse waveform
+% definition.  The 4th column specifies the shaped gradient in G/cm.
 % 
 % INPUTS:
 % d_in      = input density matrix structure.
@@ -68,19 +73,39 @@ elseif isstruct(RF)
 end
    
 %Determine whether this is a frequency selective pulse or a slice selective
-%pulse (depends on whether the gradient and position values were given as input arguments):
-if nargin>7 && grad~=0
-    %Both gradient and position provided.  Pulse is spatially selective.
-    simType='g';
-elseif nargin==7
-    %Frequency offset provided but no gradient was provided.  Pulse is frequency selective.
-    grad=0;
-    simType='f';
-elseif nargin<7
-    %Neither offset nor gradient provided.  Pulse is frequency selective.
-    grad=0;
-    dfdx=0;
-    simType='f';
+%pulse (depends on 1.  whether the RF waveform has gradient modulation, 
+%and 2. whether the gradient and position values were given as input arguments):
+if ~RF_struct.isGM
+    if nargin>7 && grad~=0
+        %Both gradient and position provided.  Pulse is spatially selective.
+        simType='g';
+    elseif nargin==7 || (nargin>7 && grad==0)
+        %Frequency offset provided but no gradient was provided.  Pulse is frequency selective.
+        grad=0;
+        simType='f';
+    elseif nargin<7
+        %Neither offset nor gradient provided.  Pulse is frequency selective.
+        grad=0;
+        dfdx=0;
+        simType='f';
+    end
+else %The pulse is gradient modulated:
+    %disp('Gradient modulated pulse detected!');
+    if nargin>7 && grad~=0
+        %PROBLEM:  the pulse is gradient modulated.  You cannot separately 
+        %specify grad strength for a gradient modulated pulse.  
+        error('ERROR!! You cannot supply GM pulse AND separately specify the Gradient strength!  ABORTING!!'); 
+    elseif nargin==7 || (nargin>7 && grad==0)
+        %Position offset provided.  Pulse is gradient modulated, spatially
+        %selective;
+        grad=RF_struct.waveform(:,4);
+        simType='g';
+    elseif nargin<7
+        %No offset provided.  Pulse is gradient modulated, spatially selective.
+        grad=RF_struct.waveform(:,4);
+        dfdx=0;
+        simType='g';
+    end
 end
 
 %Convert gradient value into [T/m], lengths to [m], etc...
@@ -110,8 +135,8 @@ for m=1:length(H)
     %Now calculate the composite rotation matrices for the pulse:
     for y=1:H(m).nspins
         if simType=='g'
-            Beff(:,y)=sqrt((rfB1.^2)+(((grad*dfdx)+(H(m).Bfield*H(m).shifts(y)/1e6))^2));  %Calculate BeffRef for the pulse
-            alpha(:,y)=atan2((grad*dfdx)+(H(m).Bfield*H(m).shifts(y)/1e6),rfB1);  %Calculate alphaRef for the pulse
+            Beff(:,y)=sqrt((rfB1.^2)+(((grad.*dfdx)+(H(m).Bfield*H(m).shifts(y)/1e6)).^2));  %Calculate BeffRef for the pulse
+            alpha(:,y)=atan2((grad.*dfdx)+(H(m).Bfield*H(m).shifts(y)/1e6),rfB1);  %Calculate alphaRef for the pulse
         elseif simType=='f'
             Beff(:,y)=sqrt((rfB1.^2)+(((dfdx/gamma)+(H(m).Bfield*H(m).shifts(y)/1e6))^2));
             alpha(:,y)=atan2(((dfdx/gamma)+(H(m).Bfield*H(m).shifts(y)/1e6)),rfB1);

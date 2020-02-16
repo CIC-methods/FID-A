@@ -31,12 +31,12 @@ Bfield=7; %= main magnetic field strength in [T]
 lw=2; %= linewidth in [Hz]
 load spinSystems.mat; %= spin system definition structure
 sys=sysLac;
-rfPulse=io_loadRFwaveform('sampleAFPpulse_HS2_R15.RF','inv'); % adiabatic RF pulse shaped waveform 
-refTp=3.5; %= RF pulse duration in [ms]
+rfPulse=io_loadRFwaveform('GOIA_R120.txt','inv'); % gradient_modulated adiabatic RF pulse shaped waveform 
+refTp=[]; %= RF pulse duration in [ms] (NOTE:  if this is a gradient modulated pulse, the value will be reset later according to thk);
 flipAngle=180; %= flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
 centreFreq=2.3; %= centre frequency of the spectrum in [ppm] (Optional.  Default = 2.3)
-thkX=2; %slice thickness of x refocusing pulse [cm]
-thkY=2; %slice thickness of y refocusing pulse [cm]
+thkX=2; %slice thickness of x refocusing pulse [cm].  If pulse is GM, this must equal thkY.
+thkY=2; %slice thickness of y refocusing pulse [cm].  If pulse is GM, this must equal thkY.
 fovX=3; %size of the full simulation Field of View in the x-direction [cm]
 fovY=3; %size of the full simulation Field of View in the y-direction [cm]
 nX=16; %Number of grid points to simulate in the x-direction
@@ -62,9 +62,17 @@ gamma=42577000; %gyromagnetic ratio
 rfPulse=rf_resample(rfPulse,100);
 
 %sys=sysRef0ppm
-
-Gx=(rfPulse.tbw/(refTp/1000))/(gamma*thkX/10000); %[G/cm]
-Gy=(rfPulse.tbw/(refTp/1000))/(gamma*thkY/10000); %[G/cm]
+if ~rfPulse.isGM
+    Gx=(rfPulse.tbw/(refTp/1000))/(gamma*thkX/10000); %[G/cm]
+    Gy=(rfPulse.tbw/(refTp/1000))/(gamma*thkY/10000); %[G/cm]
+else
+    if thkX~=thkY
+        error('ERROR: For a gradient modulated pulse, thkX must equal thkY! ABORTING!!');
+    end
+    Gx=0;
+    Gy=0;
+    refTp=1000*rfPulse.tthk/thkX;
+end
 
 %Initialize structures:
 out_posxy_rpc=cell(length(x),length(y),length(ph1));
