@@ -27,10 +27,6 @@
 % together the resulting spectra and scale down by the number of simulations.
 %
 % Feb 2020 - Jamie Near:  This code now accepts gradient modulated pulses.  
-% If the input pulse is gradient modulated (waveform has 4 columns), then 
-% the input parameters Gx and Gy are automatically set to zero, and the 
-% pulse waveform defines the gradient.  
-
 %
 
 %tic;
@@ -43,7 +39,7 @@ lw=2; %= linewidth in [Hz]
 load spinSystems.mat; %= spin system definition structure
 sys=sysLac;
 rfPulse=io_loadRFwaveform('sampleAFPpulse_HS2_R15.RF','inv'); % adiabatic RF pulse shaped waveform
-refTp=3.5; %= RF pulse duration in [ms] (NOTE:  if this is a gradient modulated pulse, the value will be reset later according to thk);
+refTp=3.5; %= RF pulse duration in [ms]
 flipAngle=180; %= flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
 centreFreq=2.3; %= centre frequency of the spectrum in [ppm] (Optional.  Default = 2.3)
 thkX=2; %slice thickness of x refocusing pulse [cm]
@@ -74,15 +70,15 @@ rfPulse=rf_resample(rfPulse,100);
 
 %sys=sysRef0ppm
 if ~rfPulse.isGM
+    %Non-gradient modulated pulse - Calculating the x and y gradient 
+    %strengths for the desired slice thickness
     Gx=(rfPulse.tbw/(refTp/1000))/(gamma*thkX/10000); %[G/cm]
     Gy=(rfPulse.tbw/(refTp/1000))/(gamma*thkY/10000); %[G/cm]
 else
-    if thkX~=thkY
-        error('ERROR: For a gradient modulated pulse, thkX must equal thkY! ABORTING!!');
-    end
-    Gx=0;
-    Gy=0;
-    refTp=1000*rfPulse.tthk/thkX;
+    %Gradient modulated pulse
+    %1.  Calculating the unitless scaling factor for the GM waveform.
+    Gx=(rfPulse.tthk/refTp/1000)/thkX;
+    Gy=(rfPulse.tthk/refTp/1000)/thkY;
 end
 
 %Initialize structures:
@@ -169,10 +165,9 @@ end
 
 %Check if this is a gradient modulated pulse.  If so, set Gx equal to zero:
 if RF.isGM
-    if Gx
-        disp('WARNING:  GM pulse was supplied, and Gx was non-zero.  Setting Gx to zero, and using GM waveform for gradient definition.');
-        Gx=0;
-    end
+    %Scale the GM waveform by the factor Gx and then set Gx equal to zero:
+    RF=rf_scaleGrad(RF,Gx);
+    Gx=0;
 end
 
 if (te/4)<(tp/1000)
@@ -213,10 +208,9 @@ end
 
 %Check if this is a gradient modulated pulse.  If so, set Gy equal to zero:
 if RF.isGM
-    if Gy
-        disp('WARNING:  GM pulse was supplied, and Gy was non-zero.  Setting Gy to zero, and using GM waveform for gradient definition.');
-        Gy=0;
-    end
+    %Scale the GM waveform by the factor Gy and then set Gy equal to zero:
+    RF=rf_scaleGrad(RF,Gy);
+    Gy=0;
 end
 
 if (te/4)<(tp/1000)

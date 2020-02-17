@@ -29,8 +29,8 @@
 % 
 % Feb 2020 - Jamie Near:  This code now accepts gradient modulated pulses.  
 % If the input pulse is gradient modulated (waveform has 4 columns), then 
-% the input parameters Gx and Gy are automatically set to zero, and the 
-% pulse waveform defines the gradient. 
+% the input parameters Gx and Gy are scaling factors for the GM function
+% in order to achieve the desired slice thickness.
 % 
 % INPUTS:
 % n         = number of points in fid/spectrum
@@ -43,8 +43,16 @@
 % tp        = RF pulse duration in [ms]
 % dx        = position offset in x-direction (corresponding to first refocusing pulse) [cm]
 % dy        = position offset in y-direction (corresponding to second refocusing pulse) [cm]
-% Gx        = gradient strength for first selective refocusing pulse [G/cm]
-% Gy        = gradient strength for second selective refocusing pulse [G/cm]
+% Gx        = If RF is not a gradient modulated pulse, Gx is the gradient strength
+%             for first selective refocusing pulse [G/cm].  If RF is a gradient
+%             modulated pulse, then Gx is a scaling factor for the GM
+%             function to achieve the desired slice thickness in the
+%             x-direction.  
+% Gy        = If RF is not a gradient modulated pulse, Gy is the gradient strength
+%             for first selective refocusing pulse [G/cm].  If RF is a gradient
+%             modulated pulse, then Gy is a scaling factor for the GM
+%             function to achieve the desired slice thickness in the
+%             y-direction.  
 % phl    = initial phase of the first refocusing pulse in [degrees];
 % ph2   = initial phase of the second refocusing pulse in [degrees];
 % ph3   = initial phase of the third refocusing pulse in [degrees];
@@ -65,14 +73,16 @@ if nargin<21
     end
 end
 
-%Check if this is a gradient modulated pulse.  If so, set Gx and Gy equal
-%to zero:
+%Check if this is a gradient modulated pulse.  If so, scale the GM functions
+% according to Gx and Gy, and then set Gx and Gy both equal to zero:
 if RF.isGM
-    if Gx || Gy
-        disp('WARNING:  GM pulse was supplied, and Gx and Gy were non-zero.  Setting Gx and Gy to zero, and using GM waveform for gradient definition.');
-        Gx=0;
-        Gy=0;
-    end
+    RFX=rf_gradScale(RF,Gx);
+    RFY=rf_gradScale(RF,Gy);
+    Gx=0;
+    Gy=0;
+else
+    RFX=RF;
+    RFY=RF;
 end
 
  if (te/4)<(tp/1000)
@@ -94,13 +104,13 @@ end
 %BEGIN sLASER PULSE SEQUENCE************ 
 d=sim_excite(d,H,'x');                                  %EXCITE instantaneously
 d=sim_evolve(d,H,tau1/1000);                            %Evolve by tau1
-d=sim_shapedRF(d,H,RF,tp,flipAngle,ph1,dx,Gx);          %1st shaped 180 degree adiabatic refocusing pulse along X gradient
+d=sim_shapedRF(d,H,RFX,tp,flipAngle,ph1,dx,Gx);          %1st shaped 180 degree adiabatic refocusing pulse along X gradient
 d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
-d=sim_shapedRF(d,H,RF,tp,flipAngle,ph2,dx,Gx);          %2nd shaped 180 degree adiabatic refocusing pulse along X gradient
+d=sim_shapedRF(d,H,RFX,tp,flipAngle,ph2,dx,Gx);          %2nd shaped 180 degree adiabatic refocusing pulse along X gradient
 d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
-d=sim_shapedRF(d,H,RF,tp,flipAngle,ph3,dy,Gy);          %3rd shaped 180 degree adiabatic refocusing pulse along Y gradient
+d=sim_shapedRF(d,H,RFY,tp,flipAngle,ph3,dy,Gy);          %3rd shaped 180 degree adiabatic refocusing pulse along Y gradient
 d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
-d=sim_shapedRF(d,H,RF,tp,flipAngle,ph4,dy,Gy);          %4th shaped 180 degree adiabatic refocusing pulse along Y gradient
+d=sim_shapedRF(d,H,RFY,tp,flipAngle,ph4,dy,Gy);          %4th shaped 180 degree adiabatic refocusing pulse along Y gradient
 d=sim_evolve(d,H,tau1/1000);                            %Evolve by tau1
 
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along +y axis (90 degree phase);

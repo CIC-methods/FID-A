@@ -121,8 +121,60 @@ else
     tw1=Tp*w1max;
 end
 
+%now it's time to find out the time-bandwidth product:
+%First make a high resolution plot the pulse profile over a wide bandwidth:
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5+f0/1000,5+f0/1000,100000);
+if isstr(type)
+    if type=='exc'
+        index=find(mv(3,:)<0.5);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='ref'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='inv'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    end
+elseif isnumeric(type)
+    mz=cos(type); %Find out the Mz value immediately following the pulse.
+    thr=(1+mz)/2;  %Find out the Mz value mid-way between 1 and the mz (half-max):
+    index=find(mv(3,:)<thr);  %Find the indices of the corresponding "full width"
+    bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").  
+end
+
+
+%Now make a very high resolution plot the pulse profile over a narrower bandwidth:
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
+if isstr(type)
+    if type=='exc'
+        index=find(mv(3,:)<0.5);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='ref'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    elseif type=='inv'
+        index=find(mv(3,:)<0);
+        bw=sc(index(end))-sc(index(1));
+        %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
+    end
+elseif isnumeric(type)
+    mz=cos(type); %Find out the Mz value immediately following the pulse.
+    thr=(1+mz)/2;  %Find out the Mz value mid-way between 1 and the mz (half-max):
+    index=find(mv(3,:)<thr);  %Find the indices of the corresponding "full width"
+    bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").
+end
+
 
 %save the final result
 RF_out=RF_in;
 RF_out.waveform=rf;
 RF_out.tw1=tw1;
+RF_out.isGM=true;
+RF_out.tbw='N/A - gradient modulated pulse'
+RF_out.tthk=bw*Tp; %This is the time x sliceThickness product for 
+                         %gradient modulated pulses.  It is in units [cm.s]
