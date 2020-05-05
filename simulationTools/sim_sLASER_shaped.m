@@ -76,8 +76,8 @@ end
 %Check if this is a gradient modulated pulse.  If so, scale the GM functions
 % according to Gx and Gy, and then set Gx and Gy both equal to zero:
 if RF.isGM
-    RFX=rf_gradScale(RF,Gx);
-    RFY=rf_gradScale(RF,Gy);
+    RFX=rf_scaleGrad(RF,Gx);
+    RFY=rf_scaleGrad(RF,Gy);
     Gx=0;
     Gy=0;
 else
