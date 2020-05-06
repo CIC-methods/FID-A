@@ -77,8 +77,8 @@ if ~rfPulse.isGM
 else
     %Gradient modulated pulse
     %1.  Calculating the unitless scaling factor for the GM waveform.
-    Gx=(rfPulse.tthk/refTp/1000)/thkX;
-    Gy=(rfPulse.tthk/refTp/1000)/thkY;
+    Gx=(rfPulse.tthk/(refTp/1000))/thkX;
+    Gy=(rfPulse.tthk/(refTp/1000))/thkY;
 end
 
 %Initialize structures:
