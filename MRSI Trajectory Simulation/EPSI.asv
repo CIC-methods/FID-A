@@ -1,0 +1,15 @@
+function traj = EPSI(par)
+    par.dwellTime = 5/100000; %us ->s
+    %par.readOutTime = 50/1000 - 8/100000; %ms -> s 
+    Fov = par.FoV;
+    deltaFov = Fov/par.dataSize;
+    deltaK = 1/Fov;
+    FovK = 1/deltaFov;
+    bandWidth = par.bandWidth;
+    kSpaceX = -FovK/2 + deltak/2:deltak:FovK/2 - deltak/2;
+    kSpaceY = -FovK/2 + deltak/2:deltak:FovK/2 - deltak/2;
+    
+    
+    
+    
+    

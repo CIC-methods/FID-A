@@ -1,0 +1,58 @@
+function [inputTraj, gradientTraj, finalKSpaceTraj, gMax, scanTime] = Rosette(par)
+
+    %some example numbers
+    par.omega1 = 400 * 2 * pi; %rad / s
+    par.omega2 = 400 * 2 * pi; %rad/ s
+    par.kMax = 3.56*100; %cm^-1 -> m^-1
+    par.dwellTime = 5/100000; %us ->s
+    par.readOutTime = 50/1000 - 8/100000; %ms -> s 
+    %par.readOutTime = 125/100000; %one spectral dwell time, ie. length of one spectral point
+    par.slewRate = 200/1000; %mt/m/ms -> T/m/ms
+    par.nAngInts = 128; %number of turns
+    %128 by 128
+    %fov = 18cm
+    %spectalBandwidth = 800Hz
+    
+    
+    omega1 = par.omega1;
+    omega2 = par.omega2;
+    kMax = par.kMax;
+    gyromagneticRatio = 2.675222005e8;    
+    gMax = kMax * max(omega1, omega2) / gyromagneticRatio;
+    slewRate = par.slewRate;
+    scanTime = par.readOutTime + par.repetitionTime
+    t = 0:par.dwellTime:par.readOutTime;
+    inputTraj(:,1) = kMax*sin(omega1*t).*exp(1i*omega2*t);
+
+    %creating rosette trajectory in k space
+    for rotation = 1:par.nAngInts
+        rotationAngle = ((rotation - 1)/par.nAngInts)*2*pi;
+        rotationConverter = exp(1i*rotationAngle); 
+        inputTraj(:,rotation) = rotationConverter*inputTraj(:,1);
+    end
+
+    %calculating the gradient trajectory
+    gradientTraj = ones(size(inputTraj,1), par.nAngInts);
+    for i = 1:par.nAngInts
+        gradientTraj(1:end-1,i) = diff(inputTraj(:,i))/(par.dwellTime * gyromagneticRatio);
+        gradientTraj(end,i) = gradientTraj(end-1,i);
+    end
+    %adding ramping function to the data
+    
+    rampFinal = gMax / slewRate;  
+    rampFinal = rampFinal / 1000; % changing to seconds
+    rampTime = 0:par.dwellTime:rampFinal; %time interval for the ramp
+    rampFunction = (1/rampFinal) * rampTime;  %factor to apply to 
+    for i = 1:par.nAngInts
+      gradientTraj(1:numel(rampFunction), i) = gradientTraj(1:numel(rampFunction), i).*rampFunction';
+    end
+
+    
+    finalKSpaceTraj = ones(size(gradientTraj));
+    for i = 1:par.nAngInts
+        finalKSpaceTraj(:,i) = cumtrapz(t,gradientTraj(:,i))*gyromagneticRatio;
+    end
+    
+    
+    
+end
