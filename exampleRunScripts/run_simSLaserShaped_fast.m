@@ -156,9 +156,9 @@ figure(1),plot(out.ppm,out.specs*exp(1i*-0*pi/180)),xlim([0 4.5])
 %% Simulate in X-direction only
 function d = sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,tp,dx,Gx,ph1,ph2,flipAngle,centreFreq)
 
-if nargin<21
+if nargin<11
     centreFreq=2.3;
-    if nargin<20
+    if nargin<10
         flipAngle=180;
     end
 end
@@ -199,9 +199,9 @@ end
 %% Simulate in Y-direction only
 function out = sim_sLASER_shaped_Ref2(d,n,sw,Bfield,linewidth,sys,te,RF,tp,dy,Gy,ph3,ph4,flipAngle,centreFreq)
 
-if nargin<21
+if nargin<15
     centreFreq=2.3;
-    if nargin<20
+    if nargin<14
         flipAngle=180;
     end
 end

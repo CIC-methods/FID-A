@@ -66,9 +66,9 @@
 
 function out = sim_sLASER_shaped(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
 
-if nargin<21
+if nargin<18
     centreFreq=2.3;
-    if nargin<20
+    if nargin<17
         flipAngle=180;
     end
 end
