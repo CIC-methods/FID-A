@@ -95,7 +95,7 @@ parfor X=1:length(x)
     for m=1:length(ph1)
         disp(['Executing X-position ' num2str(X) ...
             '; Phase cycle position ' num2str(m) ' of ' num2str(length(ph1)) '!!' ]);
-        out_posx_rpc{X}{m}=sim_sLASER_shaped_Ref1(Bfield,sys,te,rfPulse,refTp,x(X),Gx,ph1(m),ph2(m),centreFreq);
+        out_posx_rpc{X}{m}=sim_sLASER_shaped_Ref1(Bfield,sys,te,rfPulse,refTp,x(X),Gx,ph1(m),ph2(m),flipAngle,centreFreq);
 %                            sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,       tp,  dx, Gx,ph1,   ph2,  centreFreq)
     end
 end
@@ -118,7 +118,7 @@ parfor Y=1:length(y) %Use this if you do have the MATLAB parallel processing too
     for m=1:length(ph1)
         disp(['Executing Y-position ' num2str(Y) ...
             '; Phase cycle position ' num2str(m) ' of ' num2str(length(ph1)) '!!' ]);
-        out_posy_rpc{Y}{m}=sim_sLASER_shaped_Ref2(d{m},n,sw,Bfield,lw,sys,te,rfPulse,refTp,y(Y),Gy,ph3(m),ph4(m),centreFreq);
+        out_posy_rpc{Y}{m}=sim_sLASER_shaped_Ref2(d{m},n,sw,Bfield,lw,sys,te,rfPulse,refTp,y(Y),Gy,ph3(m),ph4(m),flipAngle,centreFreq);
 %                            sim_sLASER_shaped_Ref2(d,   n,sw,Bfield,linewidth,sys,te,RF,       tp, dy,  Gy,ph3,    ph4,  centreFreq)
     end
 end
