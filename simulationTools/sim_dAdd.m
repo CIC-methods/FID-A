@@ -24,7 +24,7 @@ if nargin<3
 end
 
 %If d1 is an empty cell, make d_out = d2; otherwise, add them:
-if isempty(d1)
+if isempty(d1{1})
     d_out=d2;
 else
     if size(d1) ~= size(d2)

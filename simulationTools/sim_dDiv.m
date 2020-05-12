@@ -18,8 +18,8 @@
 
 function d_out = sim_dDiv(d_in,factor)
 
-d_out=cell(size(d1));
-for m=1:length(d1)
+d_out=cell(size(d_in));
+for m=1:length(d_in)
     d_out{m}=d_in{m}./factor;
 end
 
