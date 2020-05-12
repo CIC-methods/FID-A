@@ -46,10 +46,10 @@ fovY=3; %size of the full simulation Field of View in the y-direction [cm]
 nX=16; %Number of grid points to simulate in the x-direction
 nY=16; %Number of grid points to simulate in the y-direction
 te=135;         %sLASER total echo time [ms]
-ph1=[0 0 0 0];  %phase cycling scheme of first refocusing pulse
-ph2=[0 0 90 90]; %phase cycling scheme of second refocusing pulse
-ph3=[0 0 0 0]; %phase cycling scheme of third refocusing pulse
-ph4=[0 90 0 90]; %phase cycling scheme of fourth refocusing pulse
+ph1=[0 0 0 0];  %phase cycling scheme of first refocusing pulse (in degrees)
+ph2=[0 0 90 90]; %phase cycling scheme of second refocusing pulse (in degrees)
+ph3=[0 0 0 0]; %phase cycling scheme of third refocusing pulse (in degrees)
+ph4=[0 90 0 90]; %phase cycling scheme of fourth refocusing pulse (in degrees)
 
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
