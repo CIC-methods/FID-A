@@ -19,10 +19,8 @@
 function d_out = sim_evolve(d_in,H,t)
 
 for n=1:length(H) %JN - loop through the different parts of the spin-system
-    d_out{n} = ...
-        expm(-1i*H(n).HAB*t) * ...
-        d_in{n} * ...
-        expm(1i*H(n).HAB*t);
+    p=expm(1i*H(n).HAB*t);
+    d_out{n} = p' * d_in{n} * p;  %Faster than doing expm twice.  Suggested by Martin Froeling.
 end
 
 end
