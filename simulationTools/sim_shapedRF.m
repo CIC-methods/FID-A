@@ -154,19 +154,24 @@ for m=1:length(H)
     d=d_in{m};
     %Now do the density matrix evolutions for each RF pulse element:
     for n=1:length(rfB1)
-        d = expm(-1i*H(m).HABJonly*dt(n))*...  %Kimberly Chan, J-evolution for dt.
-            expm(-1i*Rz(:,:,n))*...
-            expm(-1i*Ry(:,:,n))*...
-            expm(-1i*Rx(:,:,n))*...
-            expm(-1i*-Ry(:,:,n))*...
-            expm(-1i*-Rz(:,:,n))*...
-            d*...                           %start with Mz
-            expm(1i*-Rz(:,:,n))*...         %rotate about z by -zeta
-            expm(1i*-Ry(:,:,n))*...         %rotate about y by -alpha
-            expm(1i*Rx(:,:,n))*...          %rotate about x by theta
-            expm(1i*Ry(:,:,n))*...          %rotate about y by alpha
-            expm(1i*Rz(:,:,n))*...          %rotate about z by zeta
-            expm(1i*H(m).HABJonly*dt(n));      %Kimberly Chan, J-evolution for dt.
+        p=expm(1i*H(m).HABJonly*dt(n));
+        q=expm(1i*Rz(:,:,n));
+        r=expm(1i*Ry(:,:,n));
+        s=expm(1i*Rx(:,:,n));
+        d = p' * q' * r' * s' * r * q * d * q' * r' * s * r * q * p;
+%         d = expm(-1i*H(m).HABJonly*dt(n))*...  %Kimberly Chan, J-evolution for dt.
+%             expm(-1i*Rz(:,:,n))*...
+%             expm(-1i*Ry(:,:,n))*...
+%             expm(-1i*Rx(:,:,n))*...
+%             expm(-1i*-Ry(:,:,n))*...
+%             expm(-1i*-Rz(:,:,n))*...
+%             d*...                           %start with Mz
+%             expm(1i*-Rz(:,:,n))*...         %rotate about z by -zeta
+%             expm(1i*-Ry(:,:,n))*...         %rotate about y by -alpha
+%             expm(1i*Rx(:,:,n))*...          %rotate about x by theta
+%             expm(1i*Ry(:,:,n))*...          %rotate about y by alpha
+%             expm(1i*Rz(:,:,n))*...          %rotate about z by zeta
+%             expm(1i*H(m).HABJonly*dt(n));      %Kimberly Chan, J-evolution for dt.
     end
     
     d_out{m}=d;
