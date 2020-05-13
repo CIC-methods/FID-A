@@ -74,7 +74,7 @@ end
 
 for m=1:length(H) %JN - Looping through the parts of the spin system:
     excite=zeros(2^H(m).nspins,2^H(m).nspins);
-    Rz=zeros(2^H.nspins,2^H.nspins);
+    Rz=zeros(2^H(m).nspins,2^H(m).nspins);
     for n=1:H(m).nspins
         if H(m).shifts(n)>=30
             alpha=0;
