@@ -80,7 +80,8 @@ for m=1:length(H) %JN - loop through the parts of the spin system
             rotMat=rotMat+theta*H(m).Iz(:,:,n);
         end
     end
-    d_out{m} = expm(-1i*rotMat) * d_in{m} * expm(1i*rotMat);
+    p=expm(1i*rotMat);
+    d_out{m} = p'* d_in{m} * p;
 end
 
 
