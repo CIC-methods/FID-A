@@ -84,7 +84,7 @@ end
 %Initialize structures:
 % out_posxy_rpc=cell(length(x),length(y),length(ph1));
 out_posx_rpc =cell(length(x),length(ph1));
-d=cell(length((ph1)));
+d=cell(length((ph1))); %Initialize a cell for the dentity matrix, with elements for each phase cycle;
 
 %loop through space: Don't forget to initialize the parallel processing
 %toolbox workers using 'matlabpool open N' (for N workers, 12 max).
