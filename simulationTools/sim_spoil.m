@@ -28,7 +28,8 @@ for m=1:length(H)
     end
     
     %Do matrix multiplication;
-    d_out{m} = expm(-1i*spoil) * d_in{m} * expm(1i*spoil);
+    p=expm(1i*spoil);
+    d_out{m} = p' * d_in{m} * p;
 end
 
 
