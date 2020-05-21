@@ -1,17 +1,24 @@
-function [out] = op_CSIFourierTransform(out, settings)
-
-% Does spectral and spatial fourier transform 
+%op_CSIFOurierTransform.m
+%
+% Does spectral and spatial fourier transform on MRSI structure. The fast
+% fourier transform is done on the spectral dimension. If the spatial k
+% space is cartesian, the fast fourier transform is applied.
+% USAGE:
+% out = op_CSIFourierTransform(out, (optional) settings)
+%
+%
 % input:    out         = Twix object of CSI data
-%           settings    = Set settings.spectralFT to 1 if you want spectral
+%           settings (optional)= Set settings.spectralFT to 1 if you want spectral
 %                         Fourier Transform
 %                         Set settings.spatialFt to 1 if you want spatial
 %                         fourier transform
+%                         set settings.isCartesian to`1 if k space is cartesian  
 % output:   out         = Twix object with new out.specs field of the
 %                         fourier transformed data
-
+function [out] = op_CSIFourierTransform(out, settings)
 %% Initalization and checks
     tic
-    %default to doing fourier transform on untranformed dimensions
+    %default: doing fourier transform on untranformed dimensions
     if ~exist('settings', 'var')
         if(out.flags.spectralFT == 0)
             settings.spectralFT = 1;
@@ -32,7 +39,7 @@ function [out] = op_CSIFourierTransform(out, settings)
         end
     end
     if ~isfield(settings, 'isCartesian')
-        settings.isCartesian = 0;
+        settings.isCartesian = 1;
     end
     
     %checking if fourier transform is done alread in spectral dimension
@@ -57,10 +64,15 @@ function [out] = op_CSIFourierTransform(out, settings)
         %fourier transform in the spectral domain
         out.specs = fftshift(fft(out.fids,[],out.dims.t),out.dims.t);
         
+        %lower bounds of frequency
+        lb = (-out.spectralwidth/2)+(out.spectralwidth/(2*out.sz(1)));
+        %upper bounds of frequency
+        ub = (out.spectralwidth/2)-(out.spectralwidth/(2*out.sz(1)));
+        %frequency step 
+        step = out.spectralwidth/(out.sz(1));
+        
         %calculating the frequency
-        f=(-out.spectralwidth/2)+(out.spectralwidth/(2*out.sz(1))):...
-            out.spectralwidth/(out.sz(1)):...
-            (out.spectralwidth/2)-(out.spectralwidth/(2*out.sz(1)));
+        f=lb:step:ub;
         
         %calculating the ppm
         ppm=-f/(out.Bo*42.577); 
@@ -73,6 +85,7 @@ function [out] = op_CSIFourierTransform(out, settings)
     if (settings.spatialFT == 1)
         disp('Calculating spatial dimension');
         
+        %calculating the x and y coordinates of the spatial dimensions
         xCoordinates = -out.fovX/2+out.deltaX/2:out.deltaX:out.fovX/2-out.deltaX/2;
         xCoordinates = xCoordinates - out.imageOrigin(1);
         yCoordinates = -out.fovY/2+out.deltaY/2:out.deltaY:out.fovY/2-out.deltaY/2;
@@ -80,20 +93,27 @@ function [out] = op_CSIFourierTransform(out, settings)
 
         
         if(settings.isCartesian == 1)
+            %applying the fast fourier transform if k space is cartesian
             disp('Applying fast fourier transform');
             
             out.specs = fftshift(fft(out.specs, [], out.dims.x),out.dims.x);
             out.specs = fftshift(fft(out.specs, [], out.dims.y),out.dims.y);
         else
-
-            %calculating kSpace trajectory for fourier transform
+            %applying the slow fourier transform if the k space is non
+            %cartesian
+            %calculating kSpace trajectory for fourier transform (needs to
+            %be updated for non cartesian coordinates)
             [k_x,k_y] = meshgrid(out.k_XCoordinates, out.k_YCoordinates);
+            %trajectory of the cartesian trajectory. (needs to be found if
+            %slow fourier transform is done on non cartesian data)
             inTraj = [k_x(:), k_y(:)];
 
-            %calculating cartetian image coordinates for fourier transform
+            %calculating image coordinates to be fourier transformed onto
             [spatialCoordinates, xCoordinates, yCoordinates] = op_calculateCartetianTrajectory(out);
 
-            %creating fourier transform matrix for the spatial domain
+            %creating fourier transform matrix for the spatial domain 
+            %fourier transform applied by out = sftOperator*(fids at values at
+            %inTraj)
             sftOperator = sft2_Operator(inTraj, spatialCoordinates, 0, ...
                 [numel(out.k_XCoordinates), numel(out.k_YCoordinates)]);
 
@@ -102,7 +122,7 @@ function [out] = op_CSIFourierTransform(out, settings)
             counter = 1;
             for i = 1:numel(dimensionNames)
                 if (out.dims.(dimensionNames{i}) ~= 0)
-                    dimentionNumbers(counter) = out.dims.(dimensionNames{i}); %#ok<AGROW>
+                    dimentionNumbers(counter) = out.dims.(dimensionNames{i}); 
                     counter = counter + 1;
                 end
             end
@@ -135,14 +155,11 @@ function [out] = op_CSIFourierTransform(out, settings)
             final = reshape(final, [fidsSize(dimsToFourierTransform), fidsSize(dimentionNumbers)]);
             out.specs = permute(final, permuteBack);
 
-            %updating twix parameters
             
         end
     end
     toc
     out.flags.spatialFT = 1;
-    %since displaying in the scanner coordinates
-    %have to flip the x coordinates
     out.xCoordinates = xCoordinates;
     out.yCoordinates = yCoordinates;
     

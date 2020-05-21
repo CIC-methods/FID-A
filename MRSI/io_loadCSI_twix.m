@@ -1,18 +1,17 @@
-%io_loadspec_twix.m
-%Jamie Near, McGill University 2014.
-%Edits from Franck Lamberton, 2017.
+%io_loadCSI_twix.m
+%Jamie Near, McGill University 2019.
 %
 % USAGE:
-% out=io_loadspec_twix(filename);
+% out=io_loadspec_twix('filename');
+% out=io_loadspec_twix(scan_number);
 % 
 % DESCRIPTION:
 % Reads in siemens twix raw data (.dat file) using the mapVBVD.m and 
 % twix_map_obj.m functions from Philipp Ehses (philipp.ehses@tuebingen.mpg.de).
 % 
-% op_loadspec_twix outputs the data in structure format, with fields corresponding to time
-% scale, fids, frequency scale, spectra, and header fields containing
-% information about the acquisition.  The resulting matlab structure can be
-% operated on by the other functions in this MRS toolbox.
+% io_loadCSI_twix takes a CSI scan and outputs a FID-A csi strucure needed
+% for later processing steps. Fids dimensiosn are arranged acording to the
+% dimension attribute. Image origin in is (x, y, z).
 % 
 % INPUTS:
 % filename   = filename of Siemens twix data to load.
@@ -153,6 +152,14 @@ if ~isempty(dims.y)
 else
     dims.y=0;
 end
+%k space coordinates in the z direction 
+dims.z = find(strcmp(sqzDims,'Sli'));
+if ~isempty(dims.z)
+    %remove the coils dimension from the dimsToIndex vector
+    dimsToIndex=dimsToIndex(dimsToIndex~=dims.y);
+else
+    dims.z=0;
+end
 %And if any further dimensions exist after indexing the sub-spectra, call
 %these the 'extras' dimension.  
 if ~isempty(dimsToIndex)
@@ -199,6 +206,7 @@ spectralwidth=1/dwelltime;
 %Get FoV of the CSI image
 fovX = twix_obj.hdr.MeasYaps.sSliceArray.asSlice{1}.dReadoutFOV;
 fovY = twix_obj.hdr.MeasYaps.sSliceArray.asSlice{1}.dPhaseFOV;
+fovZ = twix_obj.hdr.MeasYaps.sSliceArray.asSlice{1}.dThickness;
 
 %Get TxFrq
 txfrq=twix_obj.hdr.Meas.Frequency;
@@ -228,9 +236,15 @@ out.te=TE/1000;
 out.tr=TR/1000;
 out.pointsToLeftshift=leftshift;
 out.fovX = fovX;    
-out.fovY = fovY;    
+out.fovY = fovY;   
+out.fovZ = fovZ;
 out.deltaX = fovX/size(fids, dims.x);
 out.deltaY = fovY/size(fids, dims.y);
+if dims.z == 0
+    out.deltaZ = fovZ;
+else
+    out.deltaZ = fovZ/size(fids, dims.z);
+end
 out.deltaK_X = 1/fovX;
 out.deltaK_Y = 1/fovY;
 out.fovK_X = 1/out.deltaX;

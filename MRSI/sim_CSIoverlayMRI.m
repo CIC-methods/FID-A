@@ -1,50 +1,67 @@
-function sim_CSIoverlayMRI(in, mriFileName, coilNum)
+% sim_CSIoverlayMRI.m
+%
+% Overlay MRSI structure on spm_image graphic. Displays the MRSI specs onto
+% the axial plane of the brain.
+%
+% USAGE:
+% sim_CSIoverlayMRI(mriFileName, in, (optinal) coilNum);
+%
+%
+% INPUT:
+% mriFileName           = char array or string representing the file path to mriFile
+% in                    = MRSI structure to overlay on MRI
+% coilNum               = coilNum to plot if coils have not been combined
+%                       (default value = 1)
 
-mriFileName = char(mriFileName);
-if ~exist('coilNum','var')
+
+function sim_CSIoverlayMRI(mriFileName, in, coilNum)
+
+%call spm global variable
+global st
+if ~exist('coliNum', 'var')
     coilNum = 1;
 end
 
+%ensure filename is a character array not string
+mriFileName = char(mriFileName);
+%display image using spm
 spm_image('display', mriFileName)
 
-global st;
-%Estimate out the current range of amplitudes of the data so that the data
-%can be plotted all on the same plotting array.
-
-if(in.dims.coils == 0)
-    yrange=max(real(in.specs),[],'all') - min(real(in.specs),[],'all');
+%check if st.callback is a cell array of strings or a string
+if(ischar(st.callback))
+    %create cell array and add overaly() callback onto it
+    callback = st.callback;
+    st.callback = cell(1,2);
+    st.callback{1} = callback;
+    st.callback{2} = 'overlay()';
 else
-    yrange=max(real(in.specs(:,coilNum,:,:)),[],'all') - min(real(in.specs(:,coilNum,:,:)),[],'all');
+    %append the overlay callback to the last spot in the cell array
+    st.callback{size(st.callback, 2) + 1} = 'overlay()';
 end
 
-%scale factors to fit the spectral dimension at each (x,y) coordinates
-scalefactorX=(0.8*in.deltaX)/max(in.t);
-scalefactorY=(0.8*in.deltaY)/yrange;
+%labels for the dropdown menu
+labels={'Reposition', 'Select Spec'};
+plot_labels = {'real', 'imaginary', 'magnitude'};
+%putting the dropdown menu in the figure to reposition or select spec
+selector = uicontrol('Parent',st.fig,'Units','Pixels','Position',[320 405 100 20],...
+    'Style','Popupmenu','String',labels);
 
-tempSpec=op_ampScale(in,scalefactorY);
-dimsToPlot = [in.dims.t, in.dims.x, in.dims.y];
-tempSpec.specs = flip(tempSpec.specs, in.dims.x);
-tempSpec.specs = flip(tempSpec.specs, in.dims.y);
-extraDims = setdiff(numel(size(in.sz)), dimsToPlot);
-tempSpec = permute(tempSpec.specs, [dimsToPlot, extraDims]);
-tempSpec = reshape(tempSpec, [in.sz(dimsToPlot), prod(in.sz(extraDims))]);
-
-axes(st.vols{1}.ax{1}.ax)
-hold;
-xlim([in.xCoordinates(1)-in.deltaX, in.xCoordinates(end)+in.deltaX]);
-xticks(in.xCoordinates);
-ylim([in.yCoordinates(1)-in.deltaX, in.yCoordinates(end)+in.deltaY]);
-yticks(in.yCoordinates);
-
-for x = 1:size(in.specs,in.dims.x)
-    for y = 1:size(in.specs,in.dims.y)
-        %first scale the ppm scale so that the range is correct;
-        time=in.t*scalefactorX;
-        %now shift it to the correct x-position;
-        time = time + ((x-1)*in.deltaX - (0.8*in.deltaX)/2 + in.xCoordinates(1));
-        %Now start plotting
-        plot(time,real(tempSpec(:,x,y,coilNum) + ((y-1)*in.deltaY + in.yCoordinates(1))));
+%selector callback function
+selector.Callback = @selection; 
+    
+%creates a dropdown menu in the figure to decide to plot real, imaginary,
+%or magnitud 
+plot_type = uicontrol('Parent',st.fig,'Units','Pixels','Position',[200 405 100 20],...
+    'Style','Popupmenu','String',plot_labels);
+%assigning callback method used to change the plotting type
+plot_type.Callback = @change_plot;
+    %the callback method used to change the plotting type
+    function change_plot(src,~)
+        overlay(src.String{src.Value})
     end
+%plot the MRSI onto the spm mri graphic along the axial dimension.    
+overlay('real', in, coilNum);
 end
 
-end
+
+    
