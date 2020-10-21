@@ -1,42 +1,69 @@
 function [prot,rstraj] = read_twix_hdr(fid)
 
-% function to read raw data header information from siemens MRI scanners 
+% function to read raw data header information from siemens MRI scanners
 % (currently VB and VD software versions are supported and tested).
 %
 % Author: Philipp Ehses (philipp.ehses@tuebingen.mpg.de), Mar/11/2014
-      
+
     nbuffers = fread(fid, 1,'uint32');
-    
+
     prot = [];
     for b=1:nbuffers
-        %now read string up to null termination     
-        bufname = fread(fid, 10, 'uint8=>char').';
-        bufname = regexp(bufname, '^\w*', 'match');
-        bufname = bufname{1};
-        fseek(fid, numel(bufname)-9, 'cof');        
+        % Read string up to nul termination
+        % ARC 20201020: previous version failed to find nul termination on buffer names > 10 characters
+        bl=64;
+        bufname = fread(fid, bl, 'uint8=>char').';
+
+        nul_ix=min(find(bufname==0)); % ARC: index of nul termination
+
+        if isempty(nul_ix)
+          % This is not a simple buffer name as would be expected.
+          % Since we don't have a good strategy for dealing with this, just
+          % carry on reading until a nul temrinator is found, then discard this
+          % buffer.
+
+          warning('read_twix_hdr: skipping extraordinarily long buffer.');
+
+          % keep reading until we find a nul
+          while isempty(nul_ix)
+            junk = fread(fid, bl, 'uint8=>char').';
+            if numel(junk)==0
+              error('read_twix_hdr: reached EOF before nul. This is perplexing.');
+            end
+            nul_ix=min(find(junk==0));
+          end
+
+          fseek(fid, nul_ix-bl, 'cof');
+
+          continue; % skip to the next buffer
+        end
+
+        bufname=bufname(1:nul_ix-1);
+        fseek(fid, numel(bufname)-(bl-1), 'cof');
+
         buflen         = fread(fid, 1,'uint32');
         buffer         = fread(fid, buflen, 'uint8=>char').';
         buffer         = regexprep(buffer,'\n\s*\n',''); % delete empty lines
         prot.(bufname) = parse_buffer(buffer);
     end
-    
+
     if nargout>1
         rstraj = [];
-        if isfield(prot.Meas,'alRegridMode') && prot.Meas.alRegridMode(1)>1
+        if isfield(prot,'Meas') && isfield(prot.Meas,'alRegridMode') && prot.Meas.alRegridMode(1)>1
             ncol           = prot.Meas.alRegridDestSamples(1);
             dwelltime      = prot.Meas.aflRegridADCDuration(1)/ncol;
             gr_adc         = zeros(1,ncol,'single');
             start          = prot.Meas.alRegridRampupTime(1) - (prot.Meas.aflRegridADCDuration(1)-prot.Meas.alRegridFlattopTime(1))/2;
-            time_adc       = start + dwelltime * (0.5:ncol);            
+            time_adc       = start + dwelltime * (0.5:ncol);
             ixUp           = time_adc <= prot.Meas.alRegridRampupTime(1);
             ixFlat         = (time_adc <= prot.Meas.alRegridRampupTime(1)+prot.Meas.alRegridFlattopTime(1)) & ~ixUp;
             ixDn           = ~ixUp & ~ixFlat;
             gr_adc(ixFlat) = 1;
-            if prot.Meas.alRegridMode(1) == 2  
+            if prot.Meas.alRegridMode(1) == 2
                 % trapezoidal gradient
                 gr_adc(ixUp)   = time_adc(ixUp)/prot.Meas.alRegridRampupTime(1);
                 gr_adc(ixDn)   = 1 - (time_adc(ixDn)-prot.Meas.alRegridRampupTime(1)-prot.Meas.alRegridFlattopTime(1))/prot.Meas.alRegridRampdownTime(1);
-            elseif prot.Meas.alRegridMode(1) == 4  
+            elseif prot.Meas.alRegridMode(1) == 4
                 % sinusoidal gradient
                 gr_adc(ixUp)   = sin(pi/2*time_adc(ixUp)/prot.Meas.alRegridRampupTime(1));
                 gr_adc(ixDn)   = sin(pi/2*(1+(time_adc(ixDn)-prot.Meas.alRegridRampupTime(1)-prot.Meas.alRegridFlattopTime(1))/prot.Meas.alRegridRampdownTime(1)));
@@ -55,8 +82,8 @@ function [prot,rstraj] = read_twix_hdr(fid)
             rstraj = kmax * rstraj;
         end
     end
-    
-end        
+
+end
 
 
 function prot = parse_buffer(buffer)
@@ -105,13 +132,13 @@ function xprot = parse_xprot(buffer)
 end
 
 
-function mrprot = parse_ascconv(buffer)  
-    mrprot = [];    
+function mrprot = parse_ascconv(buffer)
+    mrprot = [];
     % [mv] was: vararray = regexp(buffer,'(?<name>\S*)\s*=\s(?<value>\S*)','names');
     vararray = regexp(buffer,'(?<name>\S*)\s*=\s*(?<value>\S*)','names');
-    
+
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
-    
+
     for var=vararray
 
         try
@@ -119,7 +146,7 @@ function mrprot = parse_ascconv(buffer)
         catch
             value = var.value;
         end
-        
+
         % now split array name and index (if present)
         v = regexp(var.name,'(?<name>\w*)\[(?<ix>[0-9]*)\]|(?<name>\w*)','names');
 
@@ -156,5 +183,5 @@ function mrprot = parse_ascconv(buffer)
             S = substruct(tmp{:});
             mrprot = subsasgn(mrprot,S,value);
         end
-    end 
+    end
 end
