@@ -2,7 +2,7 @@
 % Georg Oeltzschner, Johns Hopkins University 2018.
 %
 % USAGE:
-% data=philipsLoad(filename);
+% [data, header] = philipsLoad(filename);
 % 
 % DESCRIPTION:
 % Reads in philips MRS data (.spar and .sdat files) using code adapted from 
@@ -19,14 +19,21 @@
 function [data, header] = philipsLoad(filename)
 
 % Get the .spar filename
-sparname = [filename(1:(end-4)) 'spar'];
+% ARC 2020 handle uppercase extension
+[~,~,ext]=fileparts(filename);
+if strcmp(ext,'.SDAT')
+  sparname = [filename(1:(end-4)) 'SPAR'];
+else
+  sparname = [filename(1:(end-4)) 'spar'];
+end
+
 
 % Populate the header information from the SPAR file
 % Look for regular expression separated by a colon
 fid_spar = fopen(sparname);
 while ~feof(fid_spar)
     tline = fgets(fid_spar); % get first line
-    [tokens,matches] = regexp(tline,'([\w\[\].]*)\s*:\s*([\w\s.\"\\:\.]*)','tokens','match');
+    [tokens,matches] = regexp(tline,'([\w\[\].]*)\s*:\s*([-\w\s.\"\\:\.]*)','tokens','match');
         % When a matching string is found, parse the results into a struct
         if length(tokens) == 1
             fieldname = regexprep(tokens{1}{1}, '\[|\]',''); % delete invalid characters
