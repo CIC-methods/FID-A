@@ -45,26 +45,33 @@ if nargin<3
     end
 end
 
-if in.flags.addedrcvrs
-    error('ERROR:  must provide data prior to coil combination!!  ABORTING!!');
-end
-
-coilcombos.ph=zeros(in.sz(in.dims.coils),1);
-coilcombos.sig=zeros(in.sz(in.dims.coils),1);
-
-for n=1:in.sz(in.dims.coils);
-    coilcombos.ph(n)=phase(in.fids(point,n,1,1));
-    switch mode
-        case 'w'
-            coilcombos.sig(n)=abs(in.fids(point,n,1,1));
-        case 'h'
-            S=abs(in.fids(point,n,1,1));
-            N=std(in.fids(end-100:end,n,1,1));
-            coilcombos.sig(n)=(S/(N.^2));
+if in.flags.addedrcvrs || ~in.dims.coils
+    %If there is only one coil element, do nothing:
+    disp('WARNING:  Only one receiver channel found!  Coil phase will be 0.0 and coil amplitude will be 1.0.');
+    coilcombos.ph=0;
+    coilcombos.sig=1;
+else
+    %If there are multiple coil elements (most cases), find the complex
+    %weightings
+    
+    coilcombos.ph=zeros(in.sz(in.dims.coils),1);
+    coilcombos.sig=zeros(in.sz(in.dims.coils),1);
+    
+    for n=1:in.sz(in.dims.coils);
+        coilcombos.ph(n)=phase(in.fids(point,n,1,1));
+        switch mode
+            case 'w'
+                coilcombos.sig(n)=abs(in.fids(point,n,1,1));
+            case 'h'
+                S=abs(in.fids(point,n,1,1));
+                N=std(in.fids(end-100:end,n,1,1));
+                coilcombos.sig(n)=(S/(N.^2));
+        end
     end
+    
+    %Now normalize the coilcombos.sig so that the max amplitude is 1;
+    coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
 end
 
-%Now normalize the coilcombos.sig so that the max amplitude is 1;
-coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
 
 
