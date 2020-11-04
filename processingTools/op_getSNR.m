@@ -46,13 +46,13 @@ NAAwindow=in.specs(in.ppm>NAAppmmin & in.ppm<NAAppmmax);
 ppmwindow=in.ppm(in.ppm>NAAppmmin & in.ppm<NAAppmmax);
 
 maxNAA_index=find(abs(NAAwindow)==max(abs((NAAwindow))));
-maxNAA=abs(NAAwindow(maxNAA_index))
+maxNAA=abs(NAAwindow(maxNAA_index));
 
 figure;
 plot(ppmwindow,abs(real(NAAwindow)));
 
 figure
-plot(in.ppm,in.specs);
+plot(in.ppm,real(in.specs));
 %noiseppmmin=input('input lower ppm limit for noise: ');
 %noiseppmmax=input('input upper ppm limit for noise: ');
 
@@ -63,13 +63,15 @@ ppmwindow2=in.ppm(in.ppm>noiseppmmin & in.ppm<noiseppmmax)';
 P=polyfit(ppmwindow2,noisewindow,2);
 noise=noisewindow-polyval(P,ppmwindow2);
 figure
-plot(ppmwindow2,noisewindow,...
-    ppmwindow2,polyval(P,ppmwindow2),...
-    ppmwindow2,noise);
+plot(ppmwindow2,real(noisewindow),...
+    ppmwindow2,real(polyval(P,ppmwindow2)),...
+    ppmwindow2,real(noise));
 
-signal=(maxNAA-mean(real(noisewindow))) %Removes DC offset
+signal=(maxNAA-mean(real(noisewindow))); %Removes DC offset
 
-noisesd=std(real(noise))
+noisesd=std(real(noise));
 
 %SNR=maxNAA/noisesd
 SNR=signal/noisesd;
+
+disp(['The calculated signal-to-noise ratio is:  ' num2str(SNR) '.']);

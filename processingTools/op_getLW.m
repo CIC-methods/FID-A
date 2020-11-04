@@ -58,7 +58,7 @@ FWHM1=FWHM1*(42.577*in.Bo);  %Assumes proton.
 
 
 %METHOD 2:  FIT WATER PEAK TO DETERMINE FWHM PARAM
-sat='n'
+sat='n';
 waterFreq=ppmwindow(maxRef_index);
 while sat=='n'
     parsGuess=zeros(1,5);
@@ -73,7 +73,7 @@ while sat=='n'
     yFit=op_lorentz(parsFit,ppmwindow);
     
     figure;
-    plot(ppmwindow,Refwindow,'.',ppmwindow,yGuess,':',ppmwindow,yFit);
+    plot(ppmwindow,real(Refwindow),'.',ppmwindow,real(yGuess),':',ppmwindow,yFit);
     legend('data','guess','fit');
     
     sat=input('are you satisfied with fit? y/n [y] ','s');
@@ -91,3 +91,5 @@ FWHM2=abs(parsFit(2));
 FWHM2=FWHM2*(42.577*in.Bo);  %Assumes Proton.
 
 FWHM=mean([FWHM1 FWHM2]);  
+
+disp(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
