@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
+% [diffSpec,sumSpec,subSpec1,subSpec2,outw]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS);
 % 
 % DESCRIPTION:
 % Fully automated processing script for Siemens MEGA-PRESS MRS data in .dat 
@@ -32,8 +32,9 @@
 % sumSpec            = Fully processed sum spectrum.
 % subSpec1           = Fully processed MEGA-PRESS subspectrum #1.
 % subSpec2           = Fully processed MEGA-PRESS subspectrum #2.
+% outw               = Fully processed water-unsuppressed spectrum.
 
-function [diffSpec,sumSpec,subSpec1,subSpec2]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS)
+function [diffSpec,sumSpec,subSpec1,subSpec2,outw]=run_megapressproc_auto(filestring,coilcombos,avgAlignDomain,alignSS)
 
 if nargin<4
     alignSS=2;
