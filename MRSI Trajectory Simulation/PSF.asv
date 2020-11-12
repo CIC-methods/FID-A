@@ -1,0 +1,33 @@
+function [lineWidth,leakage] = PSF(inTrajectory)
+%     deltaX = max(diff(inTrajectory(:,1)));
+%     deltaY = max(diff(inTrajectory(:,2)));
+%     freqX = 1/deltaX;
+%     freqY = 1/deltaY;
+
+    [x,y] = meshgrid(-0.05:.001:0.05, -0.05:.001:0.05);
+    pointSpreadCoordinates(:,:) = [x(:), y(:)];
+    
+    sftOperator = sft2_Operator(inTrajectory, pointSpreadCoordinates, 0);
+    kSpace = ones(1,size(inTrajectory,1));
+    pointSpreadFunction = sftOperator*kSpace(:);
+    pointSpreadFunction = reshape(pointSpreadFunction, [size(x,1), size(x,2)]);
+    peak = max(pointSpreadFunction, [], 'all');
+    pointSpreadFunction = pointSpreadFunction./peak;
+
+    figure;
+    subplot(1,2,1), mesh(-0.05:.001:0.05, -0.05:.001:0.05, ...
+    real(pointSpreadFunction)), axis square, title('Point Spread Function')
+    
+    %pointSpread2D = real(pointSpreadFunction(:,(floor(end/2)+1)));
+    %subplot(1,2,2), plot(-0.05:.001:0.05, pointSpread2D);
+    subplot(1,2,2), plot(inTrajectory(1), inTrajectory(2))
+    
+    lineWidth = fwhm(-0.05:.001:0.05, pointSpread2D);
+    
+    
+    middle = find(pointSpread2D == max(pointSpread2D));
+    startOfLeakage = find(pointSpread2D(middle:end) < 0, 1);
+    leakage = sum(sqrt(pointSpread2D(startOfLeakage:end).^2));
+    
+    
+end
