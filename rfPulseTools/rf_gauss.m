@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [rf,AMPINT]=rf_gauss(tp,df,n,bw);
+% [rf,AMPINT]=rf_gauss(tp,bw,n,type,df);
 % 
 % DESCRIPTION:
 % Create an n point gaussian rf waveform.  Waveform can be converted in to siemens
@@ -10,19 +10,29 @@
 % io_writeRF.m.
 % 
 % INPUTS:
-% tp         = duration of rf pulse in ms.
-% df         = frequency of gaussian pulse in Hz.  0 freqeuncy will
-%             correspond to the reference frequency of the rf transmitter.  
+% tp         = duration of rf pulse in [ms].
+% bw         = FWHM of the gaussian inversion profile in the frequency
+%              domain [Hz].
 % n          = number of points in the rf waveform.
-% bw         = FWHM of the gaussian inversion profile in the frequnecy
-%              domain (Hz).
+% type       = Type of pulse ('exc','ref' or 'inv').  If 'exc' is chosen,
+%              the flip angle will be 90 degrees.  If 'ref' or 'inv' is 
+%              chosen, the flip angle will be 180 degrees.  
+% df         = frequency of gaussian pulse in [Hz].  (Optional. Default = 0 
+%              Hz, which corresponds to the reference frequency of the rf 
+%              transmitter.)  
+
 %
 % OUTPUTS:
 % rf         = Output rf waveform for gaussian rf pulse, in FID-A rf 
 %              pulse structure format.
 % AMPINT     = Calculated amplitude integral (for use in Siemens .pta files).
 
-function [rf,AMPINT]=rf_gauss(tp,df,n,bw);
+function [rf,AMPINT]=rf_gauss(tp,bw,n,type,df);
+
+%Make default df value = 0;
+if nargin<5
+    df=0;
+end
 
 %creates an n-point single banded gaussian RF pulse with duration tp(ms).
 %The band will be at df Hz.  Bw is the bandwidth of the selection band in Hz.
@@ -86,7 +96,14 @@ rfwaveform(:,3)=ones(n,1);
 %The pulse is not phase modulated, so we can calculate the w1max:
 %find the B1 max of the pulse in [kHz]:
 
-flipCyc=0.5;  %180 degrees is 0.5 cycles;
+%First find out the flip angle:
+if strcmp(type,'exc')
+    flipCyc=0.25; %90 degrees is 0.25 cycles;
+elseif strcmp(type,'ref') || strcmp(type,'inv')
+    flipCyc=0.5;  %180 degrees is 0.5 cyles;
+else
+    error('ERROR: type not recognized.  Use ''exc'', ''ref'' or ''inv''.  ABORTING!!');
+end
 
 intRF=sum(rfwaveform(:,2).*((-2*(rfwaveform(:,1)>179))+1))/length(rfwaveform(:,2));
 if intRF~=0
@@ -100,9 +117,10 @@ tw1=tp*w1max/1000;
 tbw=tp*bw/1000;
 
 rf.waveform=rfwaveform;
-rf.type='inv';
+rf.type=type;
 rf.tw1=tw1;
 rf.tbw=tbw;
 rf.f0=df;
+rf.isGM=false;
 
 

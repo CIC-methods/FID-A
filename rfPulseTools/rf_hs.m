@@ -19,7 +19,7 @@
 % tbw            = Time bandwidth product.
 % Tp             = Duration of the RF pulse (ms).
 % trunc          = Truncation of the amplitude modulation function.
-% thk            = thickness of the slice selective pulse (optional). 
+% thk            = thickness of the slice selective pulse in [cm] (optional). 
 %
 % OUTPUTS:
 % rf             = Output rf waveform for a HS pulse, in FID-A rf pulse 
@@ -79,8 +79,8 @@ F2=F2/max(F2);
 % subplot(1,2,2)
 % plot(tau,F2);
 
-%calculate a static gradient value based on desired slice thickness and
-%bandwidth.  Ans in Gauss/cm.
+%calculate a static gradient value based on desired slice thickness in [cm] 
+%and bandwidth in [Hz].  Ans in Gauss/cm.
 if nargin > 6
    G=bw/(gyro*thk);
 else
@@ -100,8 +100,10 @@ ph=cumsum(FM)*dt*360;
 waveform(:,1)=ph;
 waveform(:,2)=AM;
 waveform(:,3)=1;
+isGM=false;
 if nargin > 6
    waveform(:,4)=GM;
+   isGM=true;
 end
 
 
@@ -123,6 +125,8 @@ RF.type='inv';
 RF.f0=0;
 RF.tw1=tw1;
 RF.tbw=tbw;
+RF.isGM=isGM;
+RF.tthk=Tp*thk;  
 
 [sc,mv]=bes(RF.waveform,Tp*1000,'f',tw1/Tp/1000,-tbw/Tp,tbw/Tp,40000);
 
