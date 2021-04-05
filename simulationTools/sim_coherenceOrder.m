@@ -5,12 +5,12 @@
 % out = sim_coherenceOrder(spinSys);
 %
 % DESCRIPTION:
-% Creates a n x n matrix corresponding to the coherence order of each
-% proton in spin system. For use in nulling signal incoherences during
-% pulse sequence simulations
+% Creates an n x n matrix that represents the coherence order of each element 
+% of the density matrix for the given spin system For use in nulling signal 
+% incoherences during pulse sequence simulations
 %
 % INPUTS:
-% spinSys     = spin system definition structure.
+% spinSys     = spin system definition structure. 
 %
 % OUTPUTS:
 % out       = n x n coherence order matrix for spin system.
