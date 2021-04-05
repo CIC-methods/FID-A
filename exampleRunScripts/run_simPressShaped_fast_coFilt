@@ -1,8 +1,8 @@
-% run_simPressShaped_fast_coFilt.m
+% run_simPressShaped_fast.m
 % Dana Goerzen and Jamie Near, McGill University 2021.
 % 
 % USAGE:
-% out=run_simPressShaped_fast_coFilt(spinSys);
+% out=run_simPressShaped_fast(spinSys);
 % 
 % DESCRIPTION:
 % This script simulates a PRESS experiment with fully shaped refocusing 
@@ -48,7 +48,7 @@
 % OUTPUTS:
 % out               = Simulation results, summed over all space.
 
-function out=run_simPressShaped_fast_coFilt(sys)
+function out=run_simPressShaped_fast(sys)
 tic
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
@@ -228,10 +228,10 @@ end
 
 %BEGIN PULSE SEQUENCE************
 d=sim_excite(d,H,'x');                                    %EXCITE
-d=sim_selectCoherenceOrder(H,d,-1);
+d=sim_COF(H,d,-1);
 d=sim_evolve(d,H,delays(1)/2000);                            %Evolve by delays(1)/2
 d=sim_shapedRF(d,H,RF,tp,flipAngle,90,dx,Gx);          %1st shaped 180 degree refocusing pulse
-d=sim_selectCoherenceOrder(H,d,1);
+d=sim_COF(H,d,1);
 d=sim_evolve(d,H,(delays(1)+delays(2))/2000);                     %Evolve by (delays(1)+delays(2))/2
 %END PULSE SEQUENCE**************
 
@@ -325,7 +325,7 @@ end
 
 %BEGIN PULSE SEQUENCE************
 d=sim_shapedRF(d,H,RF,tp,flipAngle,90,dy,Gy);          %2nd shaped 180 degree refocusing pulse
-d=sim_selectCoherenceOrder(H,d,-1);
+d=sim_COF(H,d,-1);
 d=sim_evolve(d,H,delays(2)/2000);                            %Evolve by delays(2)/2
 [out,~]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along y (90 degree phase);
 %END PULSE SEQUENCE**************
