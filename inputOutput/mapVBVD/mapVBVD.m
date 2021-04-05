@@ -402,9 +402,11 @@ for s=1:NScans
             date_str = date_str(1:end-1);
         else
             date_str = datetime(twix_obj{s}.image.readerVersion, 'ConvertFrom','posixtime');
+            date_str = datestr(date_str);     %Jamie Near - pass date_str as string for 
+                                              %compatibility with older versions of MATLAB.
+                                              %RME - BUT not in Octave
         end
-        fprintf(' (UTC: %s)\n', datestr(date_str));  %Jamie Near - pass date_str as string for 
-                                                     %compatibility with older versions of MATLAB.                                                  
+        fprintf(' (UTC: %s)\n', date_str);                                                   
     end
     
     % jump to first mdh
