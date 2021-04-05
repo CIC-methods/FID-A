@@ -1,4 +1,4 @@
-% run_simPressShaped_coFilt.m
+% run_simPressShaped.m
 % Dana Goerzen and Jamie Near, McGill University 2021.
 % 
 % USAGE:
@@ -95,7 +95,7 @@ parfor X=1:length(x)
     for Y=1:length(y)
                 disp(['Executing X-position ' num2str(X) ' of ' num2str(length(x)) ', '...
                     'Y-position ' num2str(Y) ' of ' num2str(length(y))])
-                out_posxy{X}{Y}=sim_press_shaped_coFilt(Npts,sw,Bfield,lw,sys,tau1,tau2,...
+                out_posxy{X}{Y}=sim_press_shaped(Npts,sw,Bfield,lw,sys,tau1,tau2,...
                     refRF,refTp,x(X),y(Y),Gx,Gy);
          
         out=op_addScans(out,out_posxy{X}{Y});
