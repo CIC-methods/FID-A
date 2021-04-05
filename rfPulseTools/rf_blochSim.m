@@ -50,17 +50,22 @@ end
 [mv,sc]=bes(RF.waveform,tp,'f',peakB1,f0-fspan/2,f0+fspan/2,10000,ph,M0);
 
 figure
-subplot(3,1,1),plot(sc,mv(1,:),'LineWidth',1.2);
+subplot(4,1,1),plot(sc,mv(1,:),'LineWidth',1.2);
 box off;
 ylabel('M_x');
 
-subplot(3,1,2),plot(sc,mv(2,:),'LineWidth',1.2);
+subplot(4,1,2),plot(sc,mv(2,:),'LineWidth',1.2);
 box off;
 ylabel('M_y');
 
-subplot(3,1,3),plot(sc,mv(3,:),'LineWidth',1.2);
+subplot(4,1,3),plot(sc,sqrt(mv(2,:).^2 + mv(1,:).^2),'LineWidth',1.2);
+box off;
+ylabel('M_xy');
+
+subplot(4,1,4),plot(sc,mv(3,:),'LineWidth',1.2);
 box off;
 ylabel('M_z');
+
 if size(RF.waveform,2)<4
     xlabel('Frequency (kHz)');
 else
