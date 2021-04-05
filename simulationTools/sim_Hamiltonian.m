@@ -2,6 +2,8 @@
 %Robin Simpson and Jamie Near, 2014.
 %Kimberly Chan added separate Hamiltonian for J-coupling only, for use
 %during shaped rf pulses (sim_shapedRF.m).
+%Dana Goerzen added spin system coherence order matrix field for simulation
+%coherence selection. 
 %
 % USAGE:
 % [H,d] = sim_Hamiltonian(sys,Bfield);
@@ -25,7 +27,9 @@ omega0 = -2*pi*Bfield*42576000;
 for n=1:length(sys) %JN - Looping through the parts of the spin system:
     %initialize parameters:
     nspins = length(sys(n).shifts);
-    
+    % add coherence order field to Hamiltonian structure
+    H(n).coherenceOrder=sim_coherenceOrder(sys(n));
+
     %The J matrix and the shifts vector have to be
     %converted into radians and rad/s, respectively:
     H(n).J=sys(n).J*2*pi;
@@ -197,7 +201,6 @@ for n=1:length(sys) %JN - Looping through the parts of the spin system:
         end
     end
 end
-
 
 
 
