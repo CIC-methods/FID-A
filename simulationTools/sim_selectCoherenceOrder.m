@@ -1,8 +1,8 @@
-%sim_selectCoherenceOrder.m
+%sim_COF.m
 %Dana Goerzen and Jamie Near, 2021.
 %
 % USAGE:
-%  d_out=sim_selectCoherenceOrder(H,d_in,order)
+%  d_out=sim_COF(H,d_in,order)
 %
 % DESCRIPTION:
 % This function nulls signal from any undesired coherences in a spin system
@@ -17,7 +17,7 @@
 % OUTPUTS:
 % d_out     = output density matrix structure
 
-function d_out=sim_selectCoherenceOrder(H,d_in,order)
+function d_out=COF(H,d_in,order)
 %initialize mask as permitting all coherences through, then iterate through coherence matrix in Hamiltonian to
 %set any values that don't correspond to the desired coherence order to 0.
 for n=1:length(H) %JN - Looping through the parts of the spin system:
