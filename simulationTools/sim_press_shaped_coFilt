@@ -1,8 +1,8 @@
-% sim_press_shaped_coFilt.m
+% sim_press_shaped.m
 % Robin Simpson and Jamie Near, 2014.
 % 
 % USAGE:
-% out = sim_press_shaped_coFilt(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,flipAngle,centreFreq)
+% out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,flipAngle,centreFreq)
 % 
 % DESCRIPTION:
 % This function simulates the PRESS experiment.  The excitation is
@@ -42,7 +42,7 @@
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-function out = sim_press_shaped_coFilt(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,flipAngle,centreFreq)
+function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,flipAngle,centreFreq)
 
 if nargin<15
     centreFreq=2.3;
