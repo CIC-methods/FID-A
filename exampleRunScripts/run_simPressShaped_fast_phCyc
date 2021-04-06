@@ -1,8 +1,12 @@
-% run_simPressShaped_fast.m
+% 2021 EDIT: This function is now deprecated. The current version of the shaped PRESS 
+% simulation is run_simPressShaped.m. The current version employs coherence selection, 
+% resulting in a 4x simulation speed increase.
+%
+% run_simPressShaped_fast_phCyc.m
 % Jamie Near, McGill University 2018.
 % 
 % USAGE:
-% out=run_simPressShaped_fast(spinSys);
+% out=run_simPressShaped_fast_phCyc(spinSys);
 % 
 % DESCRIPTION:
 % This script simulates a PRESS experiment with fully shaped refocusing 
@@ -45,7 +49,7 @@
 % OUTPUTS:
 % out               = Simulation results, summed over all space.
 
-function out=run_simPressShaped_fast(spinSys)
+function out=run_simPressShaped_fast_phCyc(spinSys)
 
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
