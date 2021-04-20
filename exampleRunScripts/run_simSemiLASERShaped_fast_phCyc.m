@@ -1,12 +1,15 @@
-% run_simSLaserShaped_fast.m
+% 2021 EDIT: This function is now deprecated. The current version of the shaped semi-LASER 
+% simulation is run_simSemiLASERShaped.m. The current version employs coherence selection, 
+% resulting in a 4x simulation speed increase.
+% run_simSemiLASERShaped_fast.m
 
 % Fast version by Muhammad G Saleh (Johns Hopkins University School of Medicine, 2019)
 
 % Dana Goerzen (McGill University, 2019).
 %
 % USAGE:
-% This script runs a spatially resolved, shaped simulation of the sLASER
-% experiment, using the sim_sLASER_shaped.m function.
+% This script runs a spatially resolved, shaped simulation of the semi-LASER
+% experiment, using the sim_semiLASER_shaped.m function.
 % Adjust all parameters as desired and click "Run"
 %
 % DESCRIPTION:
@@ -95,8 +98,8 @@ parfor X=1:length(x)
     for m=1:length(ph1)
         disp(['Executing X-position ' num2str(X) ...
             '; Phase cycle position ' num2str(m) ' of ' num2str(length(ph1)) '!!' ]);
-        out_posx_rpc{X}{m}=sim_sLASER_shaped_Ref1(Bfield,sys,te,rfPulse,refTp,x(X),Gx,ph1(m),ph2(m),flipAngle,centreFreq);
-%                            sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,       tp,  dx, Gx,ph1,   ph2,  centreFreq)
+        out_posx_rpc{X}{m}=sim_semiLASER_shaped_Ref1(Bfield,sys,te,rfPulse,refTp,x(X),Gx,ph1(m),ph2(m),flipAngle,centreFreq);
+%                            sim_semiLASER_shaped_Ref1(Bfield,sys,te,RF,       tp,  dx, Gx,ph1,   ph2,  centreFreq)
     end
 end
 
@@ -118,8 +121,8 @@ parfor Y=1:length(y) %Use this if you do have the MATLAB parallel processing too
     for m=1:length(ph1)
         disp(['Executing Y-position ' num2str(Y) ...
             '; Phase cycle position ' num2str(m) ' of ' num2str(length(ph1)) '!!' ]);
-        out_posy_rpc{Y}{m}=sim_sLASER_shaped_Ref2(d{m},n,sw,Bfield,lw,sys,te,rfPulse,refTp,y(Y),Gy,ph3(m),ph4(m),flipAngle,centreFreq);
-%                            sim_sLASER_shaped_Ref2(d,   n,sw,Bfield,linewidth,sys,te,RF,       tp, dy,  Gy,ph3,    ph4,  centreFreq)
+        out_posy_rpc{Y}{m}=sim_semiLASER_shaped_Ref2(d{m},n,sw,Bfield,lw,sys,te,rfPulse,refTp,y(Y),Gy,ph3(m),ph4(m),flipAngle,centreFreq);
+%                            sim_semiLASER_shaped_Ref2(d,   n,sw,Bfield,linewidth,sys,te,RF,       tp, dy,  Gy,ph3,    ph4,  centreFreq)
     end
 end
 
@@ -154,7 +157,7 @@ figure(1),plot(out.ppm,out.specs*exp(1i*-0*pi/180)),xlim([0 4.5])
 %%%%%NESTED FUNCTIONS BELOW%%%%%%%%%
 
 %% Simulate in X-direction only
-function d = sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,tp,dx,Gx,ph1,ph2,flipAngle,centreFreq)
+function d = sim_semiLASER_shaped_Ref1(Bfield,sys,te,RF,tp,dx,Gx,ph1,ph2,flipAngle,centreFreq)
 
 if nargin<11
     centreFreq=2.3;
@@ -197,7 +200,7 @@ d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
 end
 
 %% Simulate in Y-direction only
-function out = sim_sLASER_shaped_Ref2(d,n,sw,Bfield,linewidth,sys,te,RF,tp,dy,Gy,ph3,ph4,flipAngle,centreFreq)
+function out = sim_semiLASER_shaped_Ref2(d,n,sw,Bfield,linewidth,sys,te,RF,tp,dy,Gy,ph3,ph4,flipAngle,centreFreq)
 
 if nargin<15
     centreFreq=2.3;
