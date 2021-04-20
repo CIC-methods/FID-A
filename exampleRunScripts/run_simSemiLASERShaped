@@ -97,7 +97,7 @@ end
 %1.  Scale down by the total number of simulations run (since these were
 %    all added together.
 numSims=(nX*nY);
-out1=op_ampScale(out,1/numSims);
+out=op_ampScale(out,1/numSims);
 
 %2.  Scale by the total size of the simulated region, relative to the size
 %    of the voxel.
