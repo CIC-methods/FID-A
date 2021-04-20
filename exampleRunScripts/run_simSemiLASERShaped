@@ -114,4 +114,4 @@ out=op_ampScale(out,1/voxRatio);
 %else
 %    plot(out.ppm,out.specs);
 %end
-%op_plotspec(out1
+%op_plotspec(out)
