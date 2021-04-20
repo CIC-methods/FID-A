@@ -17,7 +17,7 @@
 % OUTPUTS:
 % d_out     = output density matrix structure
 
-function d_out=COF(H,d_in,order)
+function d_out=sim_COF(H,d_in,order)
 %initialize mask as permitting all coherences through, then iterate through coherence matrix in Hamiltonian to
 %set any values that don't correspond to the desired coherence order to 0.
 for n=1:length(H) %JN - Looping through the parts of the spin system:
