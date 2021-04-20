@@ -1,4 +1,7 @@
-% run_simSLaserShaped.m
+% 2021 EDIT: This function is now deprecated. The current version of the shaped semi-LASER 
+% simulation is run_simSemiLASERShaped.m. The current version employs coherence selection, 
+% resulting in a 4x simulation speed increase.
+% run_simSemiLASERShaped_phCyc.m
 % Dana Goerzen (McGill University, 2019).
 %  
 % USAGE:
@@ -92,7 +95,7 @@ parfor X=1:length(x)
         for m=1:length(ph1)
             disp(['Executing X-position ' num2str(X) ' of ' num2str(length(x)) '; Y-position ' num2str(Y) ...
                 ' of ' num2str(length(y)) '; Phase cycle position ' num2str(m) ' of ' num2str(length(ph1)) '!!' ]);
-            out_posxy_rpc{X}{Y}{m}=sim_sLASER_shaped(n,sw,Bfield,lw,sys,te,...
+            out_posxy_rpc{X}{Y}{m}=sim_semiLASER_shaped_phCyc(n,sw,Bfield,lw,sys,te,...
               rfPulse,refTp,x(X),y(Y),Gx,Gy,ph1(m),ph2(m),ph3(m),ph4(m),flipAngle,centreFreq);
             if m==1 
                  out_posxy{X}{Y}=out_posxy_rpc{X}{Y}{m};
