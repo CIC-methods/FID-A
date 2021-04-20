@@ -1,8 +1,8 @@
-% sim_sLASER_shaped.m
+% sim_semiLASER_shaped_phCyc.m
 % Dana Goerzen (McGill University, 2019).
 % 
 % USAGE:
-%  out = sim_slaser_shaped(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
+%  out = sim_semiLASER_shaped_phCyc(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
 % 
 % DESCRIPTION:
 % This function simulates the semi-LASER experiment as described by Oz et al. (2018).
@@ -64,7 +64,7 @@
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-function out = sim_sLASER_shaped(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
+function out = sim_semiLASER_shaped_phCyc(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
 
 if nargin<18
     centreFreq=2.3;
