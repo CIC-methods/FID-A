@@ -4,6 +4,7 @@
 %during shaped rf pulses (sim_shapedRF.m).
 %Dana Goerzen added spin system coherence order matrix field for simulation
 %coherence selection. 
+%Brenden Kadota refactored basis, HAB, HABJonly calculations
 %
 % USAGE:
 % [H,d] = sim_Hamiltonian(sys,Bfield);
@@ -35,39 +36,12 @@ for n=1:length(sys) %JN - Looping through the parts of the spin system:
     H(n).J=sys(n).J*2*pi;
     H(n).shifts=sys(n).shifts;
     H(n).shifts_rads = sys(n).shifts*(omega0/10^6);
-    
-    
+
     %add some other "header" information to the Hamiltonian structure;
     H(n).nspins=nspins;
     H(n).Bfield=Bfield;
-    
-    %Creating the set of basis states
-    A=(1:2^nspins);
-    B=dec2bin(A-1);
-    C=zeros(2^nspins,nspins);
-    for k=1:nspins
-        C(:,k)=str2num(B(:,k));
-    end
-    
-    set=-1*(C==0)+C;
-    
-    
-    %Creating the basis tensor
-    H(n).basis = zeros(2^nspins,2^nspins,2*nspins);
-    for k=1:2^nspins
-        for m=1:2^nspins
-            H(n).basis(k,m,:) = [set(k,:) set(m,:)];
-        end
-    end
-    
-    H(n).basisA=H(n).basis(:,:,1:nspins);
-    H(n).basisB=H(n).basis(:,:,nspins+1:2*nspins);
-    
-    H(n).basis = 0.5*H(n).basis;
-    H(n).basisA= 0.5*H(n).basisA;
-    H(n).basisB= 0.5*H(n).basisB;
-    diagonal = eye(2^nspins);
-    
+
+    %Preallocate space for varibles
     H(n).Fz = zeros(2^nspins);
     H(n).Fy = zeros(2^nspins);
     H(n).Fx = zeros(2^nspins);
@@ -75,132 +49,78 @@ for n=1:length(sys) %JN - Looping through the parts of the spin system:
     H(n).Ix = zeros(2^nspins,2^nspins,nspins);
     H(n).Iy = zeros(2^nspins,2^nspins,nspins);
     H(n).Iz = zeros(2^nspins,2^nspins,nspins);
-    
-    %Now create the Hamiltonian and H.Fx,y,z
-    
-    %Create H.Fz
-    H(n).Fz = diagonal.*sum(H(n).basisA,3);
-    d{n}=H(n).Fz;
-    
-    %Store the spin-system scaling factor in the H structure, and scale the 
+    H(n).HABJonly = zeros(2^nspins,2^nspins);
+
+
+    %Basis states
+    I0=[1 0;0 1];
+    Ix=0.5*[0 1;1 0];
+    Iy=(1i/2)*[0 1;-1 0];
+    Iz=(1/2)*[-1 0;0 1];
+
+    %loop through all spins
+    for spin = 1:nspins
+
+        if spin == 1
+            %if spin is one, set temp to be Ix, Iy, Iz
+            temp_Ix = Ix;
+            temp_Iy = Iy;
+            temp_Iz = Iz;
+        else
+            %else set to be I0
+            temp_Ix = I0;
+            temp_Iy = I0;
+            temp_Iz = I0;
+        end
+
+        %loop through spins again starting at 2
+        for pos = 2:nspins
+
+            if spin == pos
+                temp_Ix = kron(temp_Ix, Ix);
+                temp_Iy = kron(temp_Iy, Iy);
+                temp_Iz = kron(temp_Iz, Iz);
+            else
+                temp_Ix = kron(temp_Ix, I0);
+                temp_Iy = kron(temp_Iy, I0);
+                temp_Iz = kron(temp_Iz, I0);
+            end
+        end
+        %Safe final temp value to Ix, Iy, Iz based on spin number
+        H(n).Ix(:,:,spin) = temp_Ix;
+        H(n).Iy(:,:,spin) = temp_Iy;
+        H(n).Iz(:,:,spin) = temp_Iz;
+    end
+    %Sum along the third dimension to get F 
+    H(n).Fx = sum(H(n).Ix, 3);
+    H(n).Fy = sum(H(n).Iy, 3);
+    H(n).Fz = sum(H(n).Iz, 3);
+
+    d{n} = H(n).Fz;
+    %Store the spin-system scaling factor in the H structure, and scale the
     %density matrix for each part of the spin system:
     H(n).scaleFactor=sys(n).scaleFactor;
     d{n}=d{n}*sys(n).scaleFactor;
-    
-    %Create individual H.Izs
-    H(n).Iz=repmat(diagonal,[1,1,nspins]).*H(n).basisA;
-    
-    
-    %Create H.Fy and H.Fx
-    %We also need H.Iy for each spin so create large array containing all
-    %the H.Iys piled on top of each other
-    %We also need H.Ix for each spin so create large array containing all
-    %the H.Ixs piled on top of each other
-    for q=1:nspins
-        deltaFy = -0.5*1i*ones(2^nspins,2^nspins,nspins);
-        deltaFx = 0.5*ones(2^nspins,2^nspins,nspins);
-        deltaIy = -0.5i*ones(2^nspins,2^nspins,nspins);
-        deltaIx = 0.5*ones(2^nspins,2^nspins,nspins);
-        for p=1:nspins
-            if p == q
-                deltaFy(:,:,q) = deltaFy(:,:,q).*...
-                    ((H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins)+1) - ...
-                    (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins)-1));
-                
-                deltaFx(:,:,q) = deltaFx(:,:,q).*...
-                    ((H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins)+1) +...
-                    (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins)-1));
-                
-            else
-                deltaFy(:,:,q) = deltaFy(:,:,q).*...
-                    (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins));
-                
-                deltaFx(:,:,q) = deltaFx(:,:,q).*...
-                    (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins));
-                
-            end
-            %Also, now start constructing the Hamiltonian
-            %First, the z component of JI.S - only appears on the diagonal
-            dotzcomp = H(n).J(q,p)*H(n).basis(:,:,q).*H(n).basis(:,:,p);
-            H(n).HAB(:,:) = H(n).HAB(:,:) + diagonal(:,:).*dotzcomp;
-            H(n).HABJonly=H(n).HAB;  %Added by Kimberly Chan.
-            
-        end
-        
-        H(n).Fy(:,:) = H(n).Fy(:,:) + deltaFy(:,:,q);
-        H(n).Fx(:,:) = H(n).Fx(:,:) + deltaFx(:,:,q);
-        H(n).Iy(:,:,q) = H(n).Iy(:,:,q) + deltaFy(:,:,q);
-        H(n).Ix(:,:,q) = H(n).Ix(:,:,q) + deltaFx(:,:,q);
-        
+
+    %Multiply shift rads by Iz
+    for spin = 1:nspins
+        H(n).HAB = H(n).HAB + H(n).shifts_rads(spin)*H(n).Iz(:,:,spin);
     end
-    
-    
-    
-    %Now the resonance component - each spin has a resonance frequency
-    %omega0-chemshift. This component is resfreq*H.Iz for each spin. In fact
-    %we assume we are in a frame rotating at omega0 so we only have to
-    %include H.shifts*H.Iz for each spin. This means we are not drastically
-    %undersampled as we would otherwise be.
-    for e=1:nspins
-        rescomp = (H(n).shifts_rads(e))*H(n).basis(:,:,e);
-        H(n).HAB(:,:) = H(n).HAB(:,:) + diagonal(:,:).*rescomp;
-    end
-    
-    
-    
-    %Finally the off-diagonal components which are the x and y components
-    %of JI.S
-    for t=1:nspins
-        for u=1:nspins
-            
-            deltaterma = ones(2^nspins,2^nspins);
-            deltatermb = ones(2^nspins,2^nspins);
-            
-            for p=1:nspins
-                if p==u
-                    deltaterma = deltaterma.*...
-                        (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins)+1);
-                elseif p==t
-                    deltaterma = deltaterma.*...
-                        (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins)-1);
-                elseif p~=u && p~=t
-                    deltaterma = deltaterma.*...
-                        (H(n).basis(:,:,p)==H(n).basis(:,:,p+nspins));
-                end
-                
-            end
-            
-            for q=1:nspins
-                if q==u
-                    deltatermb = deltatermb.*...
-                        (H(n).basis(:,:,q)==H(n).basis(:,:,q+nspins)-1);
-                elseif q==t
-                    deltatermb = deltatermb.*...
-                        (H(n).basis(:,:,q)==H(n).basis(:,:,q+nspins)+1);
-                elseif q~=u && q~=t
-                    deltatermb = deltatermb.*...
-                        (H(n).basis(:,:,q)==H(n).basis(:,:,q+nspins));
-                end
-                
-            end
-            
-            H(n).HAB(:,:) = H(n).HAB(:,:) + (deltaterma+deltatermb)*0.5*H(n).J(t,u).*...
-                ((H(n).basis(:,:,t)==(H(n).basis(:,:,t+nspins)+1)).*...
-                (H(n).basis(:,:,u)==(H(n).basis(:,:,u+nspins)-1))+ ...
-                (H(n).basis(:,:,t)==(H(n).basis(:,:,t+nspins)-1)).*...
-                (H(n).basis(:,:,u)==(H(n).basis(:,:,u+nspins)+1)));
-            
-            %Added by Kimberly Chan:
-            H(n).HABJonly=H(n).HABJonly + (deltaterma+deltatermb)*0.5*H(n).J(t,u).*...
-                ((H(n).basis(:,:,t)==(H(n).basis(:,:,t+nspins)+1)).*...
-                (H(n).basis(:,:,u)==(H(n).basis(:,:,u+nspins)-1))+ ...
-                (H(n).basis(:,:,t)==(H(n).basis(:,:,t+nspins)-1)).*...
-                (H(n).basis(:,:,u)==(H(n).basis(:,:,u+nspins)+1)));
-            
-            
+
+
+    %For every J(i,j) multiply by IS of spins I and J.
+    for i = 1:nspins
+        for j = i+1:nspins
+            IS = H(n).Iy(:,:,i)*H(n).Iy(:,:,j) + H(n).Iz(:,:,i)*H(n).Iz(:,:,j) + H(n).Ix(:,:,i)*H(n).Ix(:,:,j);
+            JIS = sys(n).J(i,j)*2*pi*IS;
+            H(n).HABJonly = H(n).HABJonly + JIS;
+            H(n).HAB = H(n).HAB + JIS;
         end
     end
 end
+end
+
+
 
 
 
