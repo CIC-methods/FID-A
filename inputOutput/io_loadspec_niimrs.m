@@ -293,7 +293,6 @@ if allDims(1)*allDims(2)*allDims(3) == 1 % x=y=z=1
             dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=2;dims.extras=0;
         end
     elseif length(sqzDims)==1
-        fids=permute(fids,[dims.t]);
         dims.t=1;dims.coils=0;dims.averages=0;dims.subSpecs=0;dims.extras=0;
     end
     
