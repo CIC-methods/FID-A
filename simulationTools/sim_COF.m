@@ -22,7 +22,6 @@ function d_out=sim_COF(H,d_in,order)
 %set any values that don't correspond to the desired coherence order to 0.
 for n=1:length(H) %JN - Looping through the parts of the spin system:
     mask1=H(n).coherenceOrder==order;    
-    mask1(i,j)=0;   
     %zero any undesired coherences
     d_temp=mask1.*d_in{n};
     d_in{n}=d_temp;
