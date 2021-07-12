@@ -1,4 +1,4 @@
-% run_simSLaserShaped.m
+% run_simSemiLASERShaped_phCyc.m
 % Dana Goerzen (McGill University, 2019).
 %  
 % USAGE:
