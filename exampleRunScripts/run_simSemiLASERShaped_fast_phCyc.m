@@ -1,12 +1,15 @@
-% run_simSLaserShaped_fast.m
-
+% 2021 EDIT: This function is now deprecated. The current version of the shaped semiLASER 
+% simulation is run_simSemiLASERShaped_fast.m. The current version employs coherence selection, 
+% resulting in a 4x simulation speed increase.
+% run_simSemiLASERShaped_fast_phCyc.m
+%
 % Fast version by Muhammad G Saleh (Johns Hopkins University School of Medicine, 2019)
-
+%
 % Dana Goerzen (McGill University, 2019).
 %
 % USAGE:
 % This script runs a spatially resolved, shaped simulation of the sLASER
-% experiment, using the sim_sLASER_shaped.m function.
+% experiment, using the sim_SemiLASER_shaped.m function.
 % Adjust all parameters as desired and click "Run"
 %
 % DESCRIPTION:
@@ -46,8 +49,8 @@ thkX=2; %slice thickness of x refocusing pulse [cm]
 thkY=2; %slice thickness of y refocusing pulse [cm]
 fovX=3; %size of the full simulation Field of View in the x-direction [cm]
 fovY=3; %size of the full simulation Field of View in the y-direction [cm]
-nX=16; %Number of grid points to simulate in the x-direction
-nY=16; %Number of grid points to simulate in the y-direction
+nX=32; %Number of grid points to simulate in the x-direction
+nY=32; %Number of grid points to simulate in the y-direction
 te=135;         %sLASER total echo time [ms]
 ph1=[0 0 0 0];  %phase cycling scheme of first refocusing pulse
 ph2=[0 0 90 90]; %phase cycling scheme of second refocusing pulse
