@@ -1,8 +1,12 @@
-% sim_sLASER_shaped.m
+% 2021 EDIT: This function is now deprecated. The current version of the 
+% shaped PRESS simulation is sim_press_shaped_coFilt.m. The current version employs
+% coherence selection rather than phase cycling to null undesired signal.
+    
+% sim_semiLASER_shaped_phCyc.m
 % Dana Goerzen (McGill University, 2019).
 % 
 % USAGE:
-%  out = sim_slaser_shaped(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
+%  out = sim_semiLASER_shaped_phCyc(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
 % 
 % DESCRIPTION:
 % This function simulates the semi-LASER experiment as described by Oz et al. (2018).
@@ -64,7 +68,7 @@
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-function out = sim_sLASER_shaped(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
+function out = sim_semiLASER_shaped_phCyc(n,sw,Bfield,linewidth,sys,te,RF,tp,dx,dy,Gx,Gy,ph1,ph2,ph3,ph4,flipAngle,centreFreq)
 
 if nargin<18
     centreFreq=2.3;
@@ -104,16 +108,16 @@ end
 %BEGIN sLASER PULSE SEQUENCE************ 
 d=sim_excite(d,H,'x');                                  %EXCITE instantaneously
 d=sim_evolve(d,H,tau1/1000);                            %Evolve by tau1
-d=sim_shapedRF(d,H,RFX,tp,flipAngle,ph1,dx,Gx);          %1st shaped 180 degree adiabatic refocusing pulse along X gradient
+d=sim_shapedRF(d,H,RFX,tp,flipAngle,ph1,dx,Gx);         %1st shaped 180 degree adiabatic refocusing pulse along X gradient
 d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
-d=sim_shapedRF(d,H,RFX,tp,flipAngle,ph2,dx,Gx);          %2nd shaped 180 degree adiabatic refocusing pulse along X gradient
+d=sim_shapedRF(d,H,RFX,tp,flipAngle,ph2,dx,Gx);         %2nd shaped 180 degree adiabatic refocusing pulse along X gradient
 d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
-d=sim_shapedRF(d,H,RFY,tp,flipAngle,ph3,dy,Gy);          %3rd shaped 180 degree adiabatic refocusing pulse along Y gradient
+d=sim_shapedRF(d,H,RFY,tp,flipAngle,ph3,dy,Gy);         %3rd shaped 180 degree adiabatic refocusing pulse along Y gradient
 d=sim_evolve(d,H,tau2/1000);                            %Evolve by tau2
-d=sim_shapedRF(d,H,RFY,tp,flipAngle,ph4,dy,Gy);          %4th shaped 180 degree adiabatic refocusing pulse along Y gradient
+d=sim_shapedRF(d,H,RFY,tp,flipAngle,ph4,dy,Gy);         %4th shaped 180 degree adiabatic refocusing pulse along Y gradient
 d=sim_evolve(d,H,tau1/1000);                            %Evolve by tau1
 
-[out,dout]=sim_readout(d,H,n,sw,linewidth,90);      %Readout along +y axis (90 degree phase);
+[out,dout]=sim_readout(d,H,n,sw,linewidth,90);          %Readout along +y axis (90 degree phase);
 %END PULSE SEQUENCE**************
 
 %Correct the ppm scale:
