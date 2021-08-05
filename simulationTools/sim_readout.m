@@ -61,7 +61,7 @@ l=0:points-1;
 if strcmp(shape,'L') || strcmp(shape,'l')
     decay=exp(-((l)*deltat)/t2);
 elseif strcmp(shape,'G') || strcmp(shape,'g')
-    decay = exp(-(((l)*deltat)^2)/(2*(sigma^2)));
+    decay = exp(-(((l)*deltat).^2)/(2*(sigma^2)));
 elseif strcmp(shape,'LG') || strcmp(shape,'lg')
     decay = (R*exp(-((l)*deltat)/t2))+((1-R)*exp(-(((l)*deltat)^2)/(2*(sigma^2))));
 end
@@ -137,5 +137,5 @@ out.flags.addedrcvrs=1;
 out.flags.subtracted=1;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
-out.flags.isISIS=0;
+out.flags.isFourSteps=0;
 

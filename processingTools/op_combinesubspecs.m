@@ -23,8 +23,8 @@ function out=op_combinesubspecs(in,mode);
 if in.flags.subtracted
     error('ERROR:  Subspectra have already been combined!  Aborting!');
 end
-if in.flags.isISIS
-    error('ERROR:  MEGA-SPECIAL data must first be converted using makesubspecs.m!  Aborting!');
+if in.flags.isFourSteps
+    error('ERROR: data with four steps must first be converted using op_fourStepCombine.m!  Aborting!');
 end
 
 % if ~in.flags.freqcorrected

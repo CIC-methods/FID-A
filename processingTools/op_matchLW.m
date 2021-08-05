@@ -40,8 +40,8 @@ if ~in.flags.averaged || ~ref.flags.averaged
     error('ERROR:  I think it only makes sense to do this after you have combined the averages using op_averaging.  ABORTING!!');
 end
 
-if in.flags.isISIS || ref.flags.isISIS
-    error('ERROR:  I think it only makes sense to do this after you have performed op_ISIScombine.  ABORTING!!');
+if in.flags.isFourSteps || ref.flags.isFourSteps
+    error('ERROR:  I think it only makes sense to do this after you have performed op_fourStepCombine.  ABORTING!!');
 end
 
 % if ~in1.flags.subtracted  || ~in.flags.subtracted

@@ -283,9 +283,9 @@ out.flags.writtentotext=0;
 out.flags.downsampled=0;
 out.flags.avgNormalized=0;
 if out.dims.subSpecs==0
-    out.flags.isISIS=0;
+    out.flags.isFourSteps=0;
 else
-    out.flags.isISIS=(out.sz(out.dims.subSpecs)==4);
+    out.flags.isFourSteps=(out.sz(out.dims.subSpecs)==4);
 end
 
 
@@ -327,8 +327,8 @@ if isRef
     ref.flags.downsampled=0;
     ref.flags.avgNormalized=0;
     if ref.dims.subSpecs==0
-        ref.flags.isISIS=0;
+        ref.flags.isFourSteps=0;
     else
-        ref.flags.isISIS=(ref.sz(ref.dims.subSpecs)==4);
+        ref.flags.isFourSteps=(ref.sz(ref.dims.subSpecs)==4);
     end
 end

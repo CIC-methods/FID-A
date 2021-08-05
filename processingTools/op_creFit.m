@@ -23,7 +23,7 @@
 
 function parsFit=op_creFit(in,ph0,ph1);
 
-if in.flags.isISIS
+if in.flags.isFourSteps
     error('ERROR:  must have combined subspecs in order to do this!  ABORTING');
 end
 

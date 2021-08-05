@@ -148,7 +148,7 @@ while ~feof(fid)
     eval(['out.' metabName '.flags.subtracted=1;']);
     eval(['out.' metabName '.flags.writtentotext=1;']);
     eval(['out.' metabName '.flags.downsampled=0;']);
-    eval(['out.' metabName '.flags.isISIS=0;']);
+    eval(['out.' metabName '.flags.isFourSteps=0;']);
     
 end
 

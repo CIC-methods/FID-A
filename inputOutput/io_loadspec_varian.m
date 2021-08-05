@@ -338,7 +338,7 @@ else
 end
 out.flags.subtracted=0;
 out.flags.writtentotext=0;
-out.flags.isISIS=0;
+out.flags.isFourSteps=0;
 
 
 

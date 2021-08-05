@@ -61,6 +61,7 @@ isjnSpecial=~isempty(strfind(sequence,'jn_svs_special')) ||...  %or Jamie Near's
             ~isempty(strfind(sequence,'md_Adiab_Special')) ||... %or Masoumeh Dehghani's Adiabatic SPECIAL sequence?
             ~isempty(strfind(sequence,'md_Special')) ||... %or another version of Masoumeh Dehghani's SPECIAL sequence?
             ~isempty(strfind(sequence,'md_Inv_special')); %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
+ishdSPECIAL=~isempty(strfind(sequence,'md_dvox_special')); %Is this Masoumeh Dehghani's hadamard-encoded dual-SPECIAL sequence?
 isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PRESS sequence?
 isjnseq=~isempty(strfind(sequence,'jn_')) ||... %Is this another one of Jamie Near's sequences 
         ~isempty(strfind(sequence,'md_'));      %or a sequence derived from Jamie Near's sequences (by Masoumeh Dehghani)?
@@ -93,6 +94,26 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
         data(:,:,2)=squeezedData(:,[2:2:end]);
         sqzSize=[sqzSize(1) sqzSize(2)/2 2];
     end
+    if isjnseq
+        sqzDims{end+1}='Set';
+    else
+        sqzDims{end+1}='Ida';
+    end
+elseif ishdSPECIAL %For Masoumeh Dehghani's hadamard-encoded dual-voxel SPECIAL sequence:
+    squeezedData=squeeze(dOut.data);
+    if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
+        data(:,:,:,1)=squeezedData(:,:,[1:4:end-3]);
+        data(:,:,:,2)=squeezedData(:,:,[2:4:end-2]);
+        data(:,:,:,3)=squeezedData(:,:,[3:4:end-1]);
+        data(:,:,:,4)=squeezedData(:,:,[4:4:end]);
+        sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/4 4];
+    elseif twix_obj.image.NCol>1 && twix_obj.image.NCha==1
+        data(:,:,1)=squeezedData(:,[1:4:end-3]);
+        data(:,:,2)=squeezedData(:,[2:4:end-2]);
+        data(:,:,3)=squeezedData(:,[3:4:end-1]);
+        data(:,:,4)=squeezedData(:,[4:4:end]);
+        sqzSize=[sqzSize(1) sqzSize(2)/4 4];
+    end    
     if isjnseq
         sqzDims{end+1}='Set';
     else
@@ -423,9 +444,9 @@ out.flags.subtracted=0;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
 if out.dims.subSpecs==0
-    out.flags.isISIS=0;
+    out.flags.isFourSteps=0;
 else
-    out.flags.isISIS=(out.sz(out.dims.subSpecs)==4);
+    out.flags.isFourSteps=(out.sz(out.dims.subSpecs)==4);
 end
 
 

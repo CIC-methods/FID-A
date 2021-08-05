@@ -20,8 +20,8 @@
 function RF=io_writelcm(in,outfile,te);
 %function RF=writelcm(in,outfile,te);
 
-if in.flags.isISIS
-    error('ERROR:  Must make subspecs first');
+if in.flags.isFourSteps
+    error('ERROR:  Must first combine four subspecs using op_fourStepCombine');
 end
 
 if in.flags.subtracted

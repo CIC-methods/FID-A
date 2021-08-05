@@ -44,8 +44,8 @@ end
 
 %also, for best results, we will combine all subspectra:
 if nargin<4
-    if in.flags.isISIS
-        av=op_ISIScombine(av);
+    if in.flags.isFourSteps
+        av=op_fourStepCombine(av);
     end
     if in.dims.subSpecs>0
         av=op_combinesubspecs(av,'summ');

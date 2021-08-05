@@ -25,7 +25,7 @@
 
 function [fit,parsFit,residual]=op_peakFit(in,ppmmin,ppmmax,parsGuess);
 
-%if in.flags.isISIS
+%if in.flags.isFourSteps
 %    error('ERROR:  must have combined subspecs in order to do this!  ABORTING');
 %end
 
