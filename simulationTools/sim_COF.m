@@ -21,17 +21,7 @@ function d_out=sim_COF(H,d_in,order)
 %initialize mask as permitting all coherences through, then iterate through coherence matrix in Hamiltonian to
 %set any values that don't correspond to the desired coherence order to 0.
 for n=1:length(H) %JN - Looping through the parts of the spin system:
-    mask1=ones(length(H(n).coherenceOrder));
-    for i=1:length(H(n).coherenceOrder)
-        for j=1:length(H(n).coherenceOrder)
-            if H(n).coherenceOrder(i,j)==order
-                continue;
-            else
-                mask1(i,j)=0;
-            end
-        end
-    end
-       
+    mask1=H(n).coherenceOrder==order;    
     %zero any undesired coherences
     d_temp=mask1.*d_in{n};
     d_in{n}=d_temp;

@@ -351,6 +351,7 @@ out.fids = fids;
 out.specs = specs;
 out.sz = sz;
 out.dims = dims;
+out.Bo = Bo;
 out.averages = averages;
 out.rawAverages = rawAverages;
 out.subspecs = subspecs;
