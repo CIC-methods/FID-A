@@ -2,15 +2,24 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_alignMPSubspecs(in,initPars);
+% [out,fs,phs]=op_alignMPSubspecs(in,mode,initPars);
 % 
 % DESCRIPTION:
 % Apply spectral registration to align MEGA-PRESS subspectra prior to 
 % subtraction.  This function is designed to minimize subtraction artefacts 
 % from choline, and residual water.  This is intended to be used after averaging.
+%
+% August 2021:  In the default operation of this function, the edit-on and
+% edit-off sub-spectra will end up 180 degrees out of phase.  However, I
+% have now added an option to return the output with the sub-spectra
+% in-phase.  This choice is controlled by the new input parameter (mode).  
 % 
 % INPUTS:
 % in        = Input data structure.
+% mode      = (Optional) Mode 'o' will return the output such that the 
+%             sub-spectra are 180 degrees out of phase.  Mode 'i' will
+%             return the output such that the sub-spectra are in phase.
+%             Default = 'o'.  
 % initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
 %
 % OUTPUTS:
@@ -18,7 +27,7 @@
 % fs        = Vector of frequency shifts (in Hz) used for alignment.
 % phs       = Vector of phase shifts (in degrees) used for alignment.
 
-function [out,fs,phs]=op_alignMPSubspecs(in,initPars)
+function [out,fs,phs]=op_alignMPSubspecs(in,mode,initPars)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');
@@ -34,8 +43,19 @@ end
 
 if nargin<3
     parsGuess=[0,0];
+    if nargin<2
+        mode='o';
+    end
 else
     parsGuess=initPars;
+end
+
+%Set the phase shift depending on whether in-phase or out-of-phase
+%subs-spectra are requested.  
+if strcmp(mode,'o') || strcmp(mode,'O')
+    phShift=180;
+elseif strcmp(mode,'i') || strcmp(mode,'I')
+    phShift=0;
 end
 
 fs=0;
@@ -53,13 +73,13 @@ begin=1;
 n=1;
 %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
 parsFit=nlinfit(in.fids(:,2),base,@op_freqPhaseShiftComplexNest,parsGuess);
-A=op_freqPhaseShiftNest(parsFit,in.fids(:,2));
+A=op_freqPhaseShiftNest(parsFit,in.fids(:,2),phShift);
 size(A);
 size(fids);
 fids(:,1)=in.fids(:,1);
 fids(:,2)=A;
 fs=parsFit(1);
-phs=parsFit(2)+180;
+phs=parsFit(2)+phShift;
 %plot(in.ppm,fftshift(ifft(fids(:,1,m))),in.ppm,fftshift(ifft(fids(:,n,m))));
 
 %re-calculate Specs using fft
@@ -94,14 +114,14 @@ out.flags.freqcorrected=1;
         
     end
 
-    function y=op_freqPhaseShiftNest(pars,input)
+    function y=op_freqPhaseShiftNest(pars,input,phadd)
         f=pars(1);     %Frequency Shift [Hz]
         p=pars(2);     %Phase Shift [deg]
         
         
         t=in.t;
         fid=input;
-        p=p+180;
+        p=p+phadd;
         
         shiftedFids=addphase(fid.*exp(-1i*t'*f*2*pi),p);
         y=shiftedFids;

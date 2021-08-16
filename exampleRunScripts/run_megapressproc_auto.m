@@ -383,34 +383,21 @@ out_ph=op_addphase(out_ls,ph0);
 %do same phase corection on unprocessed data
 out_noproc=op_addphase(out_noproc,ph0);
 
-%Now align subspecs if desired:
-switch alignSS    
-    
-    case 2
-        out=op_alignMPSubspecs(out_ph);
-        
-%         figure('position',[0 50 560 420]);
-%         out_ph_filt=op_filter(out_ph,5);
-%         subSpecTool(out_ph_filt,0,7);
-%         disp('***************************************************************************************');
-%         disp('Use GUI interface to align edit-ON and edit-OFF scans by adjusting Phase and Frequency.');
-%         disp('Try to minimize the residual water, residual Creatine, and residual Choline peaks!');
-%         disp('***NOTE If you are using the Siemens MEGA_PRESS WIP (WIP529), then you will');
-%         disp('have to add about 180 degrees of phase to the subspectrum!***');
-%         disp('*************************************************************');
-%         fprintf('\n');
-%         phshft1=input('Input Desired Phase Shift (Degrees) for first spectrum: ');
-%         frqshft1=input('Input Desired Frequncy Shift (Hz) for first spectrum: ');
-%         out=op_freqshiftSubspec(op_addphaseSubspec(out_ph,phshft1),frqshft1);
-%         close all;
-        
-    case 0
-        out=out_ph;        
-  
-    otherwise
-        error('ERROR: alignSS value not valid! ');
+%Now align subspecs:
+if out_ph.dims.subSpecs
+    %Make water suppressed subspecs 'out of phase'.
+    out=op_alignMPSubspecs(out_ph);
+else
+    out=out_ph;    
 end
-
+if water
+    if outw_ls.dims.subSpecs
+        outw_as=op_alignMPSubspecs_fd(outw_ls,3,6.5,'i');
+    else
+        outw_as=outw_ls;
+    end
+end
+        
 %Make fully processed data;
 diffSpec=op_combinesubspecs(out,'diff');
 sumSpec=op_combinesubspecs(out,'summ');
@@ -424,21 +411,12 @@ diffSpec=op_freqshift(diffSpec,frqShift);
 sumSpec=op_freqshift(sumSpec,frqShift);
 subSpec2=op_freqshift(subSpec2,frqShift);
 
-
 %Make final water unsuppressed data
 if water
-    if ~isempty(findstr(outw_ls.seq,'edit_529')) || ~isempty(findstr(outw_ls.seq,'jn_svs_special'))
-        if outw_ls.dims.subSpecs
-            outw=op_combinesubspecs(outw_ls,'diff');
-        else
-            outw=outw_ls;
-        end
+    if outw_ls.dims.subSpecs
+        outw=op_combinesubspecs(outw_as,'diff');
     else
-        if outw_ls.dims.subSpecs
-            outw=op_combinesubspecs(outw_ls,'summ');
-        else
-            outw=outw_ls;
-        end
+        outw=outw_ls;
     end
     outw=op_addphase(outw,-phase(outw.fids(1))*180/pi,0,4.65,1);
 else
