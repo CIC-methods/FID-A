@@ -178,9 +178,11 @@ elseif isnumeric(type)
     bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").  
 end
 
+[~,offset_tmp] = min(mv(3,:));
+offset_sc = sc(offset_tmp);
 
 %Now make a very high resolution plot the pulse profile over a narrower bandwidth:
-[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+offset_sc+f0/1000,bw+offset_sc+f0/1000,100000);
 if isstr(type)
     if type=='exc'
         index=find(mv(3,:)<0.5);
