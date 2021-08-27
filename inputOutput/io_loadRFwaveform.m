@@ -120,7 +120,16 @@ end
 rf(:,2)=rf(:,2)./max(rf(:,2));
 
 Tp=0.005;  %assume a 5 ms rf pulse;
-if ~isPhsMod
+
+%Running bes to determine if there is an RF pulse at 0 Hz - PT,2021
+[mv,sc]=bes(rf,Tp*1000,'f',0.5,-5+f0/1000,5+f0/1000,100000);
+[~,offset_tmp] = min(mv(3,:));
+offset_sc = sc(offset_tmp);
+if abs(offset_sc) < 0.2 %if the offset is less than a threshold of +/-0.2, set to 0 - PT,2021
+    offset_sc = 0;
+end
+
+if ~isPhsMod || offset_sc~=0 %added in condition of if the RF pulse is not at 0 Hz run w1max calculation on the magnitude - PT,2021
     %The pulse is not phase modulated, so we can calculate the w1max:
     %find the B1 max of the pulse in [kHz]:
     if isstr(type)
@@ -134,7 +143,12 @@ if ~isPhsMod
     elseif isnumeric(type) %assume that a flip angle (in degrees) was given
         flipCyc=type/360;
     end
-    intRF=sum(rf(:,2).*((-2*(rf(:,1)>179))+1))/length(rf(:,2));
+    
+    if ~offset_sc
+        intRF=sum(rf(:,2).*((-2*(rf(:,1)>179))+1))/length(rf(:,2));
+    else
+        intRF=sum(rf(:,2))/length(rf(:,2)); %if there is an offset to the pulse, just get the integral of the magnitude - PT,2021
+    end
     if intRF~=0
         w1max=flipCyc/(intRF*Tp); %w1max is in [Hz]
     else
@@ -178,8 +192,6 @@ elseif isnumeric(type)
     bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").  
 end
 
-[~,offset_tmp] = min(mv(3,:));
-offset_sc = sc(offset_tmp);
 
 %Now make a very high resolution plot the pulse profile over a narrower bandwidth:
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+offset_sc+f0/1000,bw+offset_sc+f0/1000,100000);
