@@ -94,6 +94,42 @@ else
 end
 
 
+Tp=0.005;  %assume a 5 ms rf pulse;
+
+%Running a "scout bes scan" to see if the RF pulse is at 0 Hz - PT,2021
+shift_zero=0;
+[mv,sc]=bes(rf,Tp*1000,'f',0.25,-5,5,1000);
+[~,tmp_offset]=min(mv(3,:));
+if abs(sc(tmp_offset))>0.02
+    shift_zero=1;
+end
+
+%Frequency shifting the pulse to zero if flagged. To be shifted back
+%afterwards - PT,2021
+if shift_zero   
+    %Initializations
+    tmp_w1=0.1;
+    tmp_min=1;
+    f_orig=0;
+    
+    %Looping through until a min of <-0.98 is reached
+    while tmp_min > -0.98
+        [mv,sc]=bes(rf,Tp*1000,'f',tmp_w1,-5,5,1000); %running bes with bare settings
+        [tmp_min,tmp_min_pos]=min(mv(3,:)); %finding the min and min position
+        freq_shift=sc(tmp_min_pos)*1000;%the freq shift (in Hz) of the pulse @ 5ms
+        tmp_w1=tmp_w1+0.02;
+    end
+    
+    %frequency shifting the pulse to 0 Hz
+    N=size(rf,1);
+    dt=Tp/N;
+    t=[0:dt:Tp-dt];
+    phaseRamp=t*-freq_shift*360;
+    rf(:,1)=rf(:,1)+phaseRamp'; 
+    f_orig=f0;
+    f0=0;
+end
+
 %Find out if the pulse is phase modulated.  If it is not, then we can
 %determine the time-w1 product of the pulse quite simply.  If it is phase
 %modulated (adiabatic, etc) then the determination of the time-w1 product 
@@ -119,17 +155,7 @@ end
 %scale amplitude function so that maximum value is 1:
 rf(:,2)=rf(:,2)./max(rf(:,2));
 
-Tp=0.005;  %assume a 5 ms rf pulse;
-
-%Running bes to determine if there is an RF pulse at 0 Hz - PT,2021
-[mv,sc]=bes(rf,Tp*1000,'f',0.5,-5+f0/1000,5+f0/1000,100000);
-[~,offset_tmp] = min(mv(3,:));
-offset_sc = sc(offset_tmp);
-if abs(offset_sc) < 0.2 %if the offset is less than a threshold of +/-0.2, set to 0 - PT,2021
-    offset_sc = 0;
-end
-
-if ~isPhsMod || offset_sc~=0 %added in condition of if the RF pulse is not at 0 Hz run w1max calculation on the magnitude - PT,2021
+if ~isPhsMod 
     %The pulse is not phase modulated, so we can calculate the w1max:
     %find the B1 max of the pulse in [kHz]:
     if isstr(type)
@@ -144,11 +170,8 @@ if ~isPhsMod || offset_sc~=0 %added in condition of if the RF pulse is not at 0 
         flipCyc=type/360;
     end
     
-    if ~offset_sc
-        intRF=sum(rf(:,2).*((-2*(rf(:,1)>179))+1))/length(rf(:,2));
-    else
-        intRF=sum(rf(:,2))/length(rf(:,2)); %if there is an offset to the pulse, just get the integral of the magnitude - PT,2021
-    end
+    intRF=sum(rf(:,2).*((-2*(rf(:,1)>179))+1))/length(rf(:,2));
+    
     if intRF~=0
         w1max=flipCyc/(intRF*Tp); %w1max is in [Hz]
     else
@@ -194,7 +217,7 @@ end
 
 
 %Now make a very high resolution plot the pulse profile over a narrower bandwidth:
-[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+offset_sc+f0/1000,bw+offset_sc+f0/1000,100000);
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
 if isstr(type)
     if type=='exc'
         index=find(mv(3,:)<0.5);
@@ -214,6 +237,12 @@ elseif isnumeric(type)
     thr=(1+mz)/2;  %Find out the Mz value mid-way between 1 and the mz (half-max):
     index=find(mv(3,:)<thr);  %Find the indices of the corresponding "full width"
     bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").
+end
+
+%If the pulse was offset from 0 Hz, revert the previous frequency shift - PT,2021
+if shift_zero
+    rf(:,1)=rf(:,1)-phaseRamp'; 
+    f0=f_orig;
 end
 
 %Now store the output structure;
