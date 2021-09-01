@@ -100,6 +100,7 @@ Tp=0.005;  %assume a 5 ms rf pulse;
 shift_zero=0;
 [mv,sc]=bes(rf,Tp*1000,'f',0.25,-5,5,1000);
 [~,tmp_offset]=min(mv(3,:));
+%If the min(Mz) is not within 0 +/- 0.2 Hz shift the pulse to the min - PT,2021
 if abs(sc(tmp_offset))>0.02
     shift_zero=1;
 end
@@ -112,8 +113,14 @@ if shift_zero
     tmp_min=1;
     f_orig=0;
     
-    %Looping through until a min of <-0.98 is reached
-    while tmp_min > -0.98
+    %Looping through until a min of <-0.98 (inv/ref) or <0.2 (exc) is reached
+    switch type
+        case 'exc'
+            min_floor = 0.2;
+        case {'inv','ref'}
+            min_floor = -0.98;
+    end
+    while tmp_min > min_floor
         [mv,sc]=bes(rf,Tp*1000,'f',tmp_w1,-5,5,1000); %running bes with bare settings
         [tmp_min,tmp_min_pos]=min(mv(3,:)); %finding the min and min position
         freq_shift=sc(tmp_min_pos)*1000;%the freq shift (in Hz) of the pulse @ 5ms
