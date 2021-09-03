@@ -37,5 +37,6 @@ rf=rf_struct1;
 rf.waveform(:,1)=phase(combined_waveform_scaled).*180/pi;
 rf.waveform(:,2)=abs(combined_waveform_scaled);
 
-% updating time-bandwidth product
+% updating time-bandwidth product & time-w1max product
 rf.tbw=rf_struct1.tbw+rf_struct2.tbw;
+rf.tw1=rf_struct1.tw1+rf_struct2.tw1;

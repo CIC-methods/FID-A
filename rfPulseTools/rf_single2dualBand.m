@@ -41,5 +41,6 @@ rf = rf_struct;
 rf.waveform(:,1)=phase(combined_waveform_scaled).*180/pi;
 rf.waveform(:,2)=abs(combined_waveform_scaled);
 
-% updating the time-bandwith product
+% updating the time-bandwith product & time-w1max product
 rf.tbw=rf.tbw*2;
+rf.tw1=rf.tw1*2;
