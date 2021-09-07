@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [RF_struct]=io_loadRFwaveform(filename,type,f0);
+% [RF_struct]=io_loadRFwaveform(filename,type,off_res);
 % 
 % DESCRIPTION:
 % Initialize an RF pulse structure to contain an 
@@ -29,15 +29,16 @@
 %             degrees] of the pulse.  This can be useful if you want to use 
 %             a pulse that does not have an exact flip angle of 90 or 180 
 %             degrees (Thanks to Eric Plitman for help with this feature).  
-% f0        = centre frequency of the rf pulse [Hz].  Optional. Default=0.
+% off_res   = set to "1" if the centre of the RF pulse is not at 0 Hz. 
+%             Optional. Default=0.
 %
 % OUTPUTS:
 % RF_struct = RF pulse waveform in FID-A rf pulse structure format.
 
-function RF_struct=io_loadRFwaveform(filename,type,f0);
+function RF_struct=io_loadRFwaveform(filename,type,off_res);
 
 if nargin<3
-    f0=0;
+    off_res=0;
 end
 
 if isnumeric(type)
@@ -96,22 +97,12 @@ end
 
 Tp=0.005;  %assume a 5 ms rf pulse;
 
-%Running a "scout bes scan" to see if the RF pulse is at 0 Hz - PT,2021
-shift_zero=0;
-[mv,sc]=bes(rf,Tp*1000,'f',0.25,-5,5,1000);
-[~,tmp_offset]=min(mv(3,:));
-%If the min(Mz) is not within 0 +/- 0.2 Hz shift the pulse to the min - PT,2021
-if abs(sc(tmp_offset))>0.02
-    shift_zero=1;
-end
-
-%Frequency shifting the pulse to zero if flagged. To be shifted back
+%Frequency shifting the pulse to zero if off_res is 1. To be shifted back
 %afterwards - PT,2021
-if shift_zero   
+if off_res   
     %Initializations
-    tmp_w1=0.1;
+    tmp_w1=0.03;
     tmp_min=1;
-    f_orig=0;
     
     %Looping through until a min of <-0.98 (inv/ref) or <0.2 (exc) is reached
     switch type
@@ -133,8 +124,6 @@ if shift_zero
     t=[0:dt:Tp-dt];
     phaseRamp=t*-freq_shift*360;
     rf(:,1)=rf(:,1)+phaseRamp'; 
-    f_orig=f0;
-    f0=0;
 end
 
 %Find out if the pulse is phase modulated.  If it is not, then we can
@@ -189,7 +178,7 @@ else
     %The pulse is phase modulated, so we will need to run some test to find
     %out the w1max;  To do this, we can plot Mz as a function of w1 and
     %find the value of w1 that results in the desired flip angle.
-    [mv,sc]=bes(rf,Tp*1000,'b',f0/1000,0,5,40000);
+    [mv,sc]=bes(rf,Tp*1000,'b',0,0,5,40000);
     plot(sc,mv(3,:));
     xlabel('w1 (kHz)');
     ylabel('mz');
@@ -200,7 +189,7 @@ end
 
 %now it's time to find out the time-bandwidth product:
 %First make a high resolution plot the pulse profile over a wide bandwidth:
-[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5+f0/1000,5+f0/1000,100000);
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5,5,100000);
 if isstr(type)
     if type=='exc'
         index=find(mv(3,:)<0.5);
@@ -224,7 +213,7 @@ end
 
 
 %Now make a very high resolution plot the pulse profile over a narrower bandwidth:
-[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw,bw,100000);
 if isstr(type)
     if type=='exc'
         index=find(mv(3,:)<0.5);
@@ -247,15 +236,14 @@ elseif isnumeric(type)
 end
 
 %If the pulse was offset from 0 Hz, revert the previous frequency shift - PT,2021
-if shift_zero
-    rf(:,1)=rf(:,1)-phaseRamp'; 
-    f0=f_orig;
+if off_res
+    rf(:,1)=rf(:,1)-phaseRamp';
 end
 
 %Now store the output structure;
 RF_struct.waveform=rf;
 RF_struct.type=type;
-RF_struct.f0=f0;
+RF_struct.f0=0;
 if size(rf,2)>3 && any(rf(:,4))
     RF_struct.tbw='N/A - gradient modulated pulse';
     RF_struct.isGM=true;
