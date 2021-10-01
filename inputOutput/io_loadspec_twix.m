@@ -405,6 +405,11 @@ f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralw
 ppm=-f/(Bo*42.577);
 ppm=ppm+4.65;
 
+%crude way of doing this for specifically 31P, but placeholder for now -
+%PT,2021
+if (floor(txfrq/1e6)==49)
+    ppm=-f/(Bo*17.235);
+end
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
 
