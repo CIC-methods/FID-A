@@ -402,9 +402,9 @@ end
 
 %Calculate t and ppm arrays using the calculated parameters:
 %Switch between different Nuclei - PT,2021
+f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
 switch twix_obj.hdr.Config.Nucleus
     case '1H'
-        f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
         ppm=-f/(Bo*42.577);
         ppm=ppm+4.65;
     case '31P'
