@@ -59,5 +59,6 @@ fprintf(fid,'\nAdditionalInfo: %s\n\n\n',addinfo);
 fprintf(fid,'Signal and FFT\n');
 fprintf(fid,'sig(real)\tsig(imag)\tfft(real)\tfft(imag)\n');
 fprintf(fid,'Signal 1 out of %i in file\n',datsets);
-fprintf(fid,'%1.8f\t%1.8f\t%1.8f\t%1.8f\n',RF');
+fprintf(fid,'%1.8E\t%1.8E\t%1.8E\t%1.8E\n',RF');
 fclose(fid);
+
