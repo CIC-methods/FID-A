@@ -368,7 +368,8 @@ out.ppm = ppm;
 % Dwell time & spectral width & field strength
 out.spectralwidth = sw;
 out.dwelltime = dt;
-
+out.txfrq  = f0 * 10^6;
+out.date = '';
 
 % NIfTI-MRS-SPECIFIC FIELDS
 % Save the NIfTI header

@@ -66,7 +66,7 @@ amp = 0;
 count = 0;
 
 % find the highest number of components
-while sum(find(amp==0))>=1
+while sum(find(amp==0))>=1 || sum(isnan(amp) >= 1)
     
     %initialize K
     K = Kinit-count
