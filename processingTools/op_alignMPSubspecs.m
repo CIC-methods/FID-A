@@ -2,12 +2,15 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [out,fs,phs]=op_alignMPSubspecs(in,mode,initPars);
+% [out,fs,phs]=op_alignMPSubspecs(in,mode,initPars,ppmWeights);
 % 
 % DESCRIPTION:
 % Apply spectral registration to align MEGA-PRESS subspectra prior to 
-% subtraction.  This function is designed to minimize subtraction artefacts 
-% from choline, and residual water.  This is intended to be used after averaging.
+% subtraction.  By default this function is designed to minimize subtraction artefacts 
+% accross the entrie spectrum. This can be adjust by suppling weights to focus on
+% specific parts of the spectrum.
+% 
+% This is intended to be used after averaging.
 %
 % August 2021:  In the default operation of this function, the edit-on and
 % edit-off sub-spectra will end up 180 degrees out of phase.  However, I
@@ -20,14 +23,18 @@
 %             sub-spectra are 180 degrees out of phase.  Mode 'i' will
 %             return the output such that the sub-spectra are in phase.
 %             Default = 'o'.  
-% initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)]. Default=[0,0];
+% initPars	= (Optional) Initial fit parameters [freq(Hz), phase(degrees)].
+%             Default=[0,0];
+% ppmWeights= (Optional) Vector (size(in.ppm)) specifing positive weights
+%             for nlinfit.
+%             Default=ones(size(in.ppm));
 %
 % OUTPUTS:
 % out       = Output following alignment of MEGA-PRESS subspectra.  
 % fs        = Vector of frequency shifts (in Hz) used for alignment.
 % phs       = Vector of phase shifts (in degrees) used for alignment.
 
-function [out,fs,phs]=op_alignMPSubspecs(in,mode,initPars)
+function [out,fs,phs]=op_alignMPSubspecs(in,mode,initPars,ppmWeights)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');
@@ -41,14 +48,27 @@ if in.dims.averages
    error('ERROR:  Signal averaging must be performed before this step.  ABORTING!!');
 end
 
-if nargin<3
-    parsGuess=[0,0];
-    if nargin<2
-        mode='o';
-    end
+if nargin<4
+   ppmWeights = ones(size(in.ppm));
+   if nargin<3
+       parsGuess=[0,0];
+       if nargin<2
+           mode='o';
+       end
+   end
 else
-    parsGuess=initPars;
+   parsGuess=initPars;
 end
+
+% Normalize weights 
+ppmWeights = ppmWeights / sum(ppmWeights);
+
+% do basic error Check on ppmWeights
+if (~isequal(size(ppmWeights), size(in.ppm)) || ...
+    min(ppmWeights) <= 0)
+    error('ppmWeights must be A vector of real positive weights the same size as in.ppm');
+end
+
 
 %Set the phase shift depending on whether in-phase or out-of-phase
 %subs-spectra are requested.  
@@ -72,7 +92,8 @@ begin=1;
 %DO FITTING
 n=1;
 %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
-parsFit=nlinfit(in.fids(:,2),base,@op_freqPhaseShiftComplexNest,parsGuess);
+parsFit=nlinfit(in.fids(:,2),base,@op_freqPhaseShiftComplexNest,parsGuess,...
+                'weights', [ppmWeights ppmWeights]');
 A=op_freqPhaseShiftNest(parsFit,in.fids(:,2),phShift);
 size(A);
 size(fids);

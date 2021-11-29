@@ -1,0 +1,26 @@
+{
+"_schemaVersion": "1.0.0",
+"io_CSIload_rda":
+{
+    "inputs":
+    [
+        {"name":"rda_filename", "kind":"required", "type":["file=*.rda"]}
+    ]
+},
+"io_CSIload_twix":
+{
+    "inputs":
+    [
+        {"name":"filename", "kind":"required", "type":["file=*.dat"]}
+    ]
+},
+"io_CSIwritelcm":
+{
+    "inputs":
+    [
+        {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI object"},
+        {"name":"outfile", "kind":"required", "type":["file"], "purpose":"raw file path"},
+        {"name":"te", "kind":"required", "type":["double"], "purpose":"echo time"}   
+    ]
+}
+}
