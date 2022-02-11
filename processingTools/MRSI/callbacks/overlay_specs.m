@@ -99,7 +99,7 @@ range_bool = CSI_OBJ.ppm >= ppm_min & CSI_OBJ.ppm <= ppm_max;
 ppm = CSI_OBJ.ppm(range_bool);
 
 %permute specs
-specs = permute(CSI_OBJ.specs, nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
+specs = permute(getData(CSI_OBJ), nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
                             CSI_OBJ.dims.z, CSI_OBJ.dims.coils, CSI_OBJ.dims.averages]));
 
 %temp variables

@@ -20,13 +20,13 @@ function out = op_CSISelectVoxels(in, x, y)
         y = [min(selected(:,1)), max(selected(:,1))];
         
     end
-        [out, prev_permute, prev_size] = permute_dims(in, [in.dims.x, in.dims.y]);
-        out.fids = out.fids(x, y, :);
+        [out, prev_permute, prev_size] = reshapeDimensions(in, [in.dims.x, in.dims.y]);
+        out.fids = getData(out)(x, y, :);
         if(isfield(out, 'specs'))
             out.specs = out.specs(x, y, :);
         end
-        prev_size(1) = size(out.fids,1);
-        prev_size(2) = size(out.fids,2);
+        prev_size(1) = size(getData(out),1);
+        prev_size(2) = size(getData(out),2);
         out = permute_back(out, prev_permute, prev_size);
 end
 

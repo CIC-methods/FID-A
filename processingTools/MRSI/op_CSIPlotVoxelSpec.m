@@ -28,7 +28,7 @@ function fig = op_CSIPlotVoxelSpec(in, x, y, ppmmin, ppmmax, xlab, ylab, title)
         error('please provide an x and y coordinate');
     end
     
-    single_vox = CSItoMRS(in, x, y);
+    single_vox = op_CSItoMRS(in, x, y);
     if(~exist('ppmmin', 'var') || ~exist('ppmmax','var'))
         fig = op_plotspec(single_vox);
     elseif(~exist('xlab', 'var'))

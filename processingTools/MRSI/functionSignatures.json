@@ -1,30 +1,54 @@
 {
-"_schemaVersion": "1.0.0",
-"op_CSIoverlayMRI_LCModel":
-{
-    "inputs":
-    [
-        {"name":"in1", "kind":"required", "type":["struct"], "purpose":"MRSI object to plot"},
-        {"name":"in2", "kind":"required", "type":["file=*.nii"], "purpose": "nifti MRI file to plot"},
-        {"name":"in3", "kind":"required", "type":["file=*.csv"], "purpose": "lcmodel table output"}
-    ]
-},
-"op_CSIoverlayMRI":
-{
-    "inputs":
-    [
-        {"name":"mriFileName", "kind":"required", "type":["file=*.nii"], "purpose":"nifti MRI to image"},
-        {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI to overlay"},
-        {"name":"coilNum", "kind":"ordered", "type":["numeric"], "purpose":"coil number to plot"}   
-    ]
-},
-"op_densityCompensation":
-{
-    "inputs":
-    [
-        {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI object"},
-        {"name":"k_file", "kind":"required", "type":["file=*.csv"], "purpose":"k space file"},
-        {"name":"isPlot", "kind":"ordered", "type":["logical","scalar"], "purpose":"plot diagram"}   
-    ]
-}
+    "_schemaVersion": "1.0.0",
+    "op_CSIoverlayMRI_LCModel":
+    {
+        "inputs":
+        [
+            {"name":"in1", "kind":"required", "type":["struct"], "purpose":"MRSI object to plot"},
+            {"name":"in2", "kind":"required", "type":["file=*.nii"], "purpose": "nifti MRI file to plot"},
+            {"name":"in3", "kind":"required", "type":["file=*.csv"], "purpose": "lcmodel table output"}
+        ]
+    },
+    "op_CSIoverlayMRI":
+    {
+        "inputs":
+        [
+            {"name":"mriFileName", "kind":"required", "type":["file=*.nii"], "purpose":"nifti MRI to image"},
+            {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI to overlay"},
+            {"name":"coilNum", "kind":"ordered", "type":["numeric"], "purpose":"coil number to plot"}
+        ]
+    },
+    "op_CSIdensityCompensation":
+    {
+        "inputs":
+        [
+            {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI object"},
+            {"name":"k_file", "kind":"required", "type":["file=*.csv, *.txt"], "purpose":"k space file"},
+            {"name":"isPlot", "kind":"ordered", "type":["logical","scalar"], "purpose":"plot diagram"}
+        ]
+    },
+    "op_CSIFourierTransform":
+    {
+        "inputs":
+        [
+            {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI object"},
+            {"name":"k_file", "kind":"ordered", "type":["file=*.csv, *.txt"], "purpose":"k space file"},
+            {"name":"spatial", "kind":"namevalue", "type":["logical"], "purpose":"Flag to fourier tranform spatial"},
+            {"name":"spectral", "kind":"namevalue", "type":["logical"], "purpose":"Flag to fourier tranform spectral"}
+        ]
+    },
+    "op_CSItoMRS":
+    {
+        "inputs":
+        [
+            {"name":"in", "kind":"required", "type":["struct"], "purpose":"MRSI object"},
+            {"name":"xCoordinate", "kind":"required", "type":["numeric"], "purpose":"x Index"},
+            {"name":"yCoordinate", "kind":"required", "type":["numeric"], "purpose":"y Index"},
+            {"name":"averageIndex", "kind":"namevalue", "type":["numeric"], "purpose":"Average Index"},
+            {"name":"coilIndex", "kind":"namevalue", "type":["numeric"], "purpose":"Coil Index"},
+            {"name":"subSpecIndex", "kind":"namevalue", "type":["numeric"], "purpose":"SubSpec Index"},
+            {"name":"extraIndex", "kind":"namevalue", "type":["numeric"], "purpose":"Extra Index"}
+
+        ]
+    }
 }

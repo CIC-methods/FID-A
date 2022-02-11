@@ -47,7 +47,7 @@ function select_spec(src,~)
         ppm = CSI_OBJ.ppm(range_bool);
         set(ax,'XDir','reverse')
         xlim(ax, [ppm_min ppm_max]);
-        specs = permute(CSI_OBJ.specs, nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
+        specs = permute(getData(CSI_OBJ), nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
                             CSI_OBJ.dims.z, CSI_OBJ.dims.coils, CSI_OBJ.dims.averages]));
                         
         specs = specs(range_bool, voxels(idx).index(1), voxels(idx).index(2), voxels(idx).index(3));
