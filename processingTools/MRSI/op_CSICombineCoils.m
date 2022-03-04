@@ -7,11 +7,11 @@
 % number. Coils are then summed by F = sum(W(i)*f(i)) where W(i) is coil's
 % sensetivity weight at coil i, f(i) is the fids at coil i and F is the
 % final summed signal.
-% 
+%
 % USAGE:
 % in = op_CSICombineCoils(in)
-% 
-% INPUT:    
+%
+% INPUT:
 % in            = input MRSI object for coils to be combined
 % samplePoint(optional)   = samplePoint from fid to be used for phase
 %               correction. Default to first point.
@@ -23,121 +23,69 @@
 % OUTPUT:
 % in            = MRSI object with combined coils in fids and specs.
 
-function [in, phases, weights] = op_CSICombineCoils(in,samplePoint, phaseMap, weightMap)
-arguments
-    in (1,1) struct
-    samplePoint (1,1) double = 1
-    phaseMap (:,:) double = []
-    weightMap (:,:) double = []
+function [MRSIStruct, phaseMap, weightMap] = op_CSICombineCoils(MRSIStruct, ...
+                                        samplePoint, phaseMap, weightMap)
+    arguments
+        MRSIStruct (1,1) struct
+        samplePoint (1,1) double = 1
+        phaseMap (:,:) double = []
+        weightMap (:,:) double = []
+    end
+    checkArguments(MRSIStruct);
+
+    if isempty(phaseMap)
+        %phase map arranged by coils, y coordinate, x coordinate
+        MRSIStruct = reshapeDimensions(MRSIStruct, {'t', 'coils', 'y', 'x', 'averages'});
+        data = getData(MRSIStruct);
+        %calculate the angle of each each coordinate for all the coils
+        phaseMap = squeeze(angle(data(samplePoint, :, :, :, :, :)));
+    end
+    %apply phase map to data
+    data = applyMap(MRSIStruct, exp(-1i*phaseMap), data);
+
+    if isempty(weightMap)
+        %get weights from all positions and coils
+        weights = squeeze(data(samplePoint, :, :, :, :, :));
+        %Get the root sum squared value along coil dimension
+        weightMap = normalize(weights, 1, 'norm', 2); 
+    end
+    %adding weights to each coil
+    data = applyMap(MRSIStruct, weightMap, data);
+    %add coils together
+    dimCoils = getDimension(MRSIStruct, 'coils');
+    data = squeeze(sum(data, dimCoils));
+
+    MRSIStruct = removeDimension(MRSIStruct, 'coils');
+    MRSIStruct = setData(MRSIStruct, data);
+
+    MRSIStruct.flags.addedrcvrs = 1;
 end
 
-            
+
+%check arguments to make sure function runs as expected
+function checkArguments(in)
     %some pre condition checks and setting default values
-    
     if in.flags.addedrcvrs == 1
         error('coils already combined!')
     end
-    
-    if in.flags.spatialFT ~= 1 || in.flags.spectralFT ~= 0
+    if getFlags(in, 'spatialFT') ~= 1
         error('Please us op_CSIFourierTransform along the spatial dimension')
     end
-    
-    
-    if isempty(phaseMap)
-        %phase map arranged by coils, x coordinate, y coordinate
-        phaseArray = zeros(in.sz(nonzeros([in.dims.coils, in.dims.x, in.dims.y, in.dims.averages])));
-        specs = permute(in.specs, nonzeros([in.dims.t, in.dims.x, in.dims.y, in.dims.coils, in.dims.averages]));
-        if(in.dims.averages == 0)
-            ave_dims = 1;
-        else
-            ave_dims = in.sz(in.dims.averages);
-        end
-        for a = 1:ave_dims
-            for x = 1:in.sz(in.dims.x)
-                for y = 1:in.sz(in.dims.y)
-                    for c = 1:in.sz(in.dims.coils)
-                        %calculate the phase of each each coordinate for all the
-                        %coils
-                        phaseArray(c,x,y,a) = phase(specs(samplePoint,x,y,c,a));
-                    end
-                end
-            end
-        end
-        
-        phases = phaseArray; 
-    else
-        phases = phaseMap;
+    if getFlags(in, 'spectralFT') ~= 0
+        error('Please keep the spectrum in the time domain')
     end
-    %permute dims
-    permute_dims = nonzeros([in.dims.coils, in.dims.x, in.dims.y, in.dims.averages, in.dims.t]);
-    
-    %dims used to permute back once permuted
-    permute_back(permute_dims) = 1:length(permute_dims);
-    
-    %permute dims to allow for phase multiplication
-    specs = permute(in.specs, permute_dims);
-    %mutliply phases
-    specs = specs.*exp(-1i*phaseArray);
-    %permute back to original dims
-    in.specs = permute(specs, permute_back);
-    
-    if isempty(weightMap)
-        %initalizing variables for the weighting functions
-        weights = zeros(in.sz(nonzeros([in.dims.coils, in.dims.x, in.dims.y, in.dims.averages])));
-        specs = permute(in.specs, nonzeros([in.dims.t, in.dims.coils, in.dims.x, in.dims.y, in.dims.averages]));
-        %getting all the first points at each voxel
-        if(in.dims.averages == 0)
-            ave_dims = 1;
-        else
-            ave_dims = in.sz(in.dims.averages);
-        end
-        for a = 1:ave_dims
-            for x = 1:in.sz(in.dims.x)
-                for y = 1:in.sz(in.dims.y)
-                    for c = 1:in.sz(in.dims.coils)
-                        %calculate the phase of each each coordinate for all the
-                        %coils
-                        weights(c,x,y,a) = specs(samplePoint,c,x,y,a);
-                    end
-                end
-            end
-        end
-        %Get the root sum squared value of coils
-        weight_sum = squeeze(rssq(weights, 1));
-        %permute for easy multiplication
-        permute_dims = [2,3,4,1];
-        back(permute_dims) = 1:length(permute_dims);
-        weights = permute(weights, permute_dims);
-        %element wise multiplication
-        weights_norm = weights./weight_sum;
-        %permute back
-        weights_norm = permute(weights_norm, back);
-        %getting the weights factor which is first fid
-        
-        weights = weights_norm;
-    else
-        weights = weightMap;
-    end
-    %adding weights to each coil
-    permute_dims = nonzeros([in.dims.coils,in.dims.x,in.dims.y, in.dims.averages, in.dims.t]);
-    permute_back(permute_dims) = 1:length(permute_dims);
-    
-    permuted_specs = permute(in.specs, permute_dims);
-    combinedSpecs = permuted_specs.*weights;
-    combinedSpecs = permute(combinedSpecs, permute_back);
-    combinedSpecs = squeeze(sum(combinedSpecs, in.dims.coils));
-    
-    
-    fn = fieldnames(in.dims);
-    %updating MRSI parameters
-    for names = 1:length(fn)
-        if(in.dims.(fn{names}) > in.dims.coils)
-            in.dims.(fn{names}) = in.dims.(fn{names}) - 1;
-        end
-    end
-    in.dims.coils = 0;
-    in.flags.addedrcvrs = 1;
-    in.specs = combinedSpecs;
-    in.sz = size(in.specs);
+end
 
+
+
+%apply map to data
+function data = applyMap(MRSIStruct, map, data)
+    %mutliply phases
+    tSize = getSizeFromDimensions(MRSIStruct, {'t'});
+    mapWithTime = repmat(map, [ones(1, ndims(map)) tSize]);
+
+    dimensions = 1:ndims(mapWithTime);
+    timeFirstOrder = circshift(dimensions, 1);
+    timeFirstMap = permute(mapWithTime, timeFirstOrder);  
+    data = data.*timeFirstMap;
 end

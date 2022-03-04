@@ -20,14 +20,14 @@
 % OUTPUTS:
 % fig   = figure handle
 function fig = op_CSIPlotVoxelfids(in, x, y, tmax, xlab, ylab, title)
-    if in.flags.spatialFT == 0
+    if getFlags(in,'spatialFT') == 0
         error('please fourier transfrom along the spatial and spectral dimensions')
     end
     if ~exist('x', 'var') || ~exist('y', 'var')
         error('please provide an x and y coordinate');
     end
     
-    single_vox = CSItoMRS(in, x, y);
+    single_vox = op_CSItoMRS(in, x, y);
     if(~exist('tmax', 'var'))
         fig = op_plotfid(single_vox);
     elseif(~exist('xlab', 'var'))

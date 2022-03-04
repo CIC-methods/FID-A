@@ -18,120 +18,171 @@
 %      around k trajectory in the shape selected.
 
 
-function [out, weight_matrix] = op_CSIDensityCompensation(in, k_space_file, NameValueArgs)
+function [MRSIStruct, weightMatrix] = op_CSIDensityCompensation(MRSIStruct, k_space_file, NameValueArgs)
     arguments
-        in (1,1) struct
+        MRSIStruct (1,1) struct
         k_space_file (1,:) char {mustBeFile}
         NameValueArgs.isPlot (1,1) logical = false
         NameValueArgs.areaOfSupport (1, :) {mustBeMember(NameValueArgs.areaOfSupport,{'rectangular','circular'})} = 'circular'
     end
+    if(getFlags(MRSIStruct, 'spatialft') == true)
+        error('Please keep the image data in the k-space when using density compensation')
+    end
     
-    k_table = readtable(k_space_file);
-    k_space = [k_table.K_x, k_table.K_y];
+    border = createBorder(k_space_file, NameValueArgs.areaOfSupport);
+    k_space = getKSpace(k_space_file);
+    %concat border with k_space
+   
     
-    [index, v_outer] = convhull(k_space(:,1), k_space(:,2));
-    inner_traj = k_space;
-    inner_traj(index, :) = [];
-    [~, v_inner] = convhull(inner_traj(:,1), inner_traj(:,2));
+    %get the number of unique points in the bordered_k_space. Duplicate points
+    %prove problimatic for Voronoi diagrams
+    [uniqueKSpacePoints, ~, indexofOccurences] = unique(k_space, 'rows', 'stable');
     
-    alpha = sqrt(v_outer/v_inner);
-    %get max diameter of k space
-    diameter = max(k_space,[] , 'all') - min(k_space,[] , 'all');
+    bordered_k_space = cat(1, uniqueKSpacePoints, border);
+    voronoiArea = calculateVoronoiArea(bordered_k_space);
+    
+    %calculate occurances of duplicate k space points
+    %get occurences and unique indexes 
+    [occurences, indexGroups, ~] = groupcounts(indexofOccurences);
+    %rescale final_vol by the number of occurences.
+    for iCoordinate = 1:length(indexGroups)
+        kSpaceIndex = indexGroups(iCoordinate);
+        voronoiArea(kSpaceIndex) = voronoiArea(kSpaceIndex) / occurences(iCoordinate);
+    end
+    
+    weights = voronoiArea(indexofOccurences);
+    weights = normalize(weights, 'range', [0, 1]);
+    %calculate density (desnity = 1/w_i);
 
-    if(NameValueArgs.areaOfSupport == "circular")
+
+    spatialPoints = calculateNumSpatialPoints(k_space_file);
+    timePoints = floor(getSizeFromDimensions(MRSIStruct, {'t'}) / spatialPoints);
+    TR = length(k_space)/spatialPoints;
+    
+    weightMatrix = reshape(weights, [spatialPoints, TR]);
+
+    %permute so only t and y dimensions are first
+    [MRSIStruct, prev_permute, prev_size] = reshapeDimensions(MRSIStruct, {'t', 'ky'});
+    data = getData(MRSIStruct);
+    %get normal size to reshape back to
+    for iTime = 1:timePoints
+        startTime = spatialPoints * (iTime - 1) + 1;
+        endTime = spatialPoints * iTime;
+        data(startTime:endTime, :, :) = data(startTime:endTime, :, :).*weightMatrix;
+    end
+    MRSIStruct = setData(MRSIStruct, data);
+    MRSIStruct = reshapeBack(MRSIStruct, prev_permute, prev_size);
+
+    if(NameValueArgs.isPlot)
+        plotVoronoi(bordered_k_space, weights, indexofOccurences);
+    end
+
+end
+
+function kSpace = getKSpace(filename)
+    k_table = readtable(filename);
+    kSpace = [k_table.Kx, k_table.Ky];
+end
+
+function diameter = getMaxDiameterofKSpace(fileName)
+    kSpace = getKSpace(fileName);
+    diameter = max(kSpace,[] , 'all') - min(kSpace,[] , 'all');
+end
+
+function border = createBorder(fileName, areaOfSupport)
+    kSpace = getKSpace(fileName);
+    
+    %get convex hull
+    [convexHullIndex, volumeOuter] = convhull(kSpace(:,1), kSpace(:,2));
+    inner_traj = kSpace;
+    %remove convex hull points
+    inner_traj(convexHullIndex, :) = [];
+    %get new convex hull
+    [~, volumeInner] = convhull(inner_traj(:,1), inner_traj(:,2));
+    
+    %difference of volume of both convex hulls becomes alpha
+    alpha = volumeOuter/volumeInner + 0.01;
+    %get max diameter of k space
+    
+    diameter = getMaxDiameterofKSpace(fileName);
+    if(strcmp(areaOfSupport, "circular"))
         %equal spaced points around 2pi
-        theta = 0:0.01:2*pi-0.01;
+        theta = 0:0.005:2*pi-0.005;
         %create  a border around k_space in complex plane
         border = (diameter*alpha/2)*exp(1i*theta);
         border = [real(border)' imag(border)'];
-    elseif(NameValueArgs.areaOfSupport == "rectangular")
+    elseif(strcmp(areaOfSupport, "rectangular"))
         width = diameter*alpha;
         edge = linspace(-width/2,width/2,250);
+        
         top = [edge' repmat(width/2, size(edge,2),1)];
         right = [repmat(width/2, size(edge,2),1), edge'];
         left = [repmat(-width/2, size(edge,2),1), edge'];
         bottom = [edge' repmat(-width/2, size(edge,2),1)];
-        border = cat(1, top, right,left, bottom);
+        border = cat(1, top, right, left, bottom);
     end
-    %concat border with k_space
-    bordered_k_space = cat(1, k_space, border);
-    
-    [unique_k,~,IC] = unique(bordered_k_space, 'rows', 'stable');
-    [occurences, indecies] = groupcounts(IC);
+end
+
+function voronoiArea = calculateVoronoiArea(uniqueKSpacePoints)
+    [~, vertecies, edgeListofVolumes] = calculateVornoi(uniqueKSpacePoints);
+    voronoiArea = zeros(size(edgeListofVolumes, 1), 1);
+    %loop through each edge list of a voronoi hulll
+    for iVolume = 1:length(edgeListofVolumes)
+        %This happends when voronoi diagram goes to inf
+        if(all(edgeListofVolumes{iVolume} ~= 1))
+            %Calculate the volume from Voronoi diagram 
+            [~, voronoiArea(iVolume)] = convhulln(vertecies(edgeListofVolumes{iVolume}, :));
+        end
+    end
+end
+
+function [triangulation, vertecies, edgeListofVolumes] = calculateVornoi(uniqueKSpacePoints)
     %get delaunay triangulation from points
-    tr = delaunayTriangulation(unique_k(:,1), unique_k(:,2));
+    triangulation = delaunayTriangulation(uniqueKSpacePoints(:,1), uniqueKSpacePoints(:,2));
     
     %create voronoi diagram from triangulation
-    [vertecies,edge_indecies] = voronoiDiagram(tr);
-    %preallocation
-    vol = zeros(size(edge_indecies,1), 1);
+    [vertecies, edgeListofVolumes] = voronoiDiagram(triangulation);
+
+end
+
+
+
+function plotVoronoi(bordered_k_space, weights, indexofOccurences)
+    [triangulation, kVertecies, edgeListofVolumes] = calculateVornoi(bordered_k_space);
+    figure
+    %plotting the sampling points
+    subplot(2,2,1)
+    scatter(triangulation.Points(:,1), triangulation.Points(:,2)), title('Sampling Points with Border');
     
-    %loop through 
-    for i = 1:length(edge_indecies)
-        %This happends when voronoi diagram goes to inf
-        if(all(edge_indecies{i}~=1))
-            %Calculate the volume from Voronoi diagram 
-            [~, vol(i)] = convhulln(vertecies(edge_indecies{i}, :));
-        end
+    %plotting voronoi diagram
+    subplot(2,2,2)
+    hold on
+    scatter(triangulation.Points(:,1), triangulation.Points(:,2), 30, '.'), title('Voronoi diagram');
+    edges = cell(length(edgeListofVolumes),1);
+    for i = 1:length(edgeListofVolumes)
+        edges{i} = kVertecies(edgeListofVolumes{i},:);
     end
-    %apply weights for duplicate points
-    final_vol = arrayfun(@(occ, ind) vol(ind)/occ , occurences, indecies);
-    %remove zeros (convex hull)
-    weight_points_index = find(final_vol);
-    final_vol = final_vol(weight_points_index);
-    final_vol = final_vol./max(final_vol, [], 'all');
-
-    %calculate density (rho_i = 1/w_i);
-    density = 1./final_vol;
-
-
-    point_indecies = IC(1:size(k_space,1));
-    weights = arrayfun(@(x) final_vol(IC(x)), point_indecies);
-    num_TR = max(k_table.TR, [], 'all');
-    spatial_points = height(k_table)/num_TR;
-    weight_matrix = reshape(weights, [spatial_points, num_TR]);
-
-
-    for i = 1:spatial_points:in.sz(1)
-        if(i+spatial_points-1 > in.sz(1))
-            in.fids(i:end,:) = in.fids(i:end,:).*weight_matrix(in.sz(1)-i+1,:);
-        else 
-            in.fids(i:i+spatial_points-1,:) = in.fids(i:i+spatial_points-1,:).*weight_matrix;
-        end
-    end
-
-    out = in;
-
-
-    if(NameValueArgs.isPlot)
-        figure
-        %plotting the sampling points
-        subplot(2,2,1)
-        scatter(tr.Points(:,1), tr.Points(:,2)), title('Sampling Points with Border');
-
-        %plotting voronoi diagram
-        subplot(2,2,2)
-        hold on
-        scatter(tr.Points(:,1), tr.Points(:,2), 30, '.'), title('Voronoi diagram');
-        edges = cellfun(@(point) (vertecies(point,:)), edge_indecies, 'UniformOutput', false);
-        cellfun(@(convex_hull) plot(convex_hull(:,1), convex_hull(:,2), '-r'), edges);
-        hold off
-
-        subplot(2,2,3)
-        x = tr.Points(weight_points_index,1);
-        y = tr.Points(weight_points_index,2);
-
-        scatter(x, y, [], final_vol);
-        colorbar
-
-        subplot(2,2,4)
-        x = tr.Points(weight_points_index,1);
-        y = tr.Points(weight_points_index,2);
-        [x_interp,y_interp] = meshgrid(-diameter/2:1/(4*in.fovX):diameter/2,-diameter/2:1/(4*in.fovY):diameter/2);
-        zi = griddata(x,y,density,x_interp,y_interp);
-
-        mesh(x_interp, y_interp, zi);
-        colorbar
-    end
-
+    cellfun(@(convex_hull) plot(convex_hull(:,1), convex_hull(:,2), '-r'), edges);
+    hold off
+    
+    subplot(2,2,3)
+    x = triangulation.Points(indexofOccurences, 1);
+    y = triangulation.Points(indexofOccurences, 2);
+    
+    scatter(x, y, [], weights);
+    colorbar
+    
+    density = 1./weights;
+    subplot(2,2,4)
+    x = triangulation.Points(indexofOccurences, 1);
+    y = triangulation.Points(indexofOccurences, 2);
+    xDiameter = max(x, [], 'all') - min(x, [], 'all');
+    yDiameter = max(y, [], 'all') - min(y, [], 'all');
+    xInterpVector = linspace(-xDiameter/2, xDiameter/2, length(x)/2);
+    yInterpVector = linspace(-yDiameter/2, yDiameter/2, length(y)/2);
+    [xMesh, yMesh] = meshgrid(xInterpVector, yInterpVector);
+    zi = griddata(x, y, density, xMesh, yMesh);
+    
+    mesh(xMesh, yMesh, zi);
+    colorbar
 end
