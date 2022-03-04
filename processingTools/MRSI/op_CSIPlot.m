@@ -143,7 +143,7 @@ function [x, y] = getXandYRanges(indecies, in)
     xCoordinates = getCoordinates(in, 'x');
     if(~isfield(indecies, 'xIndecies') && ~isfield(indecies, 'xRange'))
         x = [1, length(xCoordinates)];
-    elseif(isfield(indecies, 'x_range'))
+    elseif(isfield(indecies, 'xRange'))
         x_val = xCoordinates > indecies.xRange(1) & xCoordinates < indecies.xRange(2);
         x = [find(x_val, 1), find(x_val, 1, 'last')];
     else
@@ -154,7 +154,7 @@ function [x, y] = getXandYRanges(indecies, in)
     yCoordinates = getCoordinates(in, 'y');
     if(~isfield(indecies, 'yIndecies') && ~isfield(indecies, 'yRange'))
         y = [1, length(yCoordinates)];
-    elseif(isfield(indecies, 'y_range'))
+    elseif(isfield(indecies, 'yRange'))
         y_val = yCoordinates > indecies.yRange(1) & yCoordinates < indecies.yRange(2);
         y = [find(y_val, 1), find(y_val, 1, 'last')];
     else

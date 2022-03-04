@@ -20,11 +20,8 @@ function op_CSIoverlayMRI(mriFileName, in, coilNum, average_num)
 if ~exist('spm_image', 'file')
     error('please add spm12 to your path before continuing');
 end
-if ~isfield(in, 'specs')
-    error('please fourier transform along the spatial dimension first');
-end
-if strcmp(mriFileName, '~')
-    
+if ~getFlags(in, 'spatialFT')
+    error('please fourier tranform along the spatial dimension before using')
 end
 %call spm global variable
 global st

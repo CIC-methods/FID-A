@@ -9,8 +9,8 @@ function vox = create_voxels(in)
                                    0:(in.sz(in.dims.y)), ...
                                    0.5:z_size+0.5);
     coord_vector = [x_ind(:), y_ind(:), z_ind(:) ones(numel(z_ind), 1)];
-
-    world_coord = in.affine_matrix * coord_vector';
+    affineMatrix = getAffineMatrix(in);
+    world_coord = affineMatrix * coord_vector';
     
     world_coord = reshape(world_coord(1:3, :), 3, size(x_ind,1), size(x_ind,2), size(x_ind, 3));
 
