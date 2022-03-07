@@ -28,35 +28,40 @@ function [MRSIStruct, phaseMap, weightMap] = op_CSICombineCoils(MRSIStruct, ...
     arguments
         MRSIStruct (1,1) struct
         samplePoint (1,1) double = 1
-        phaseMap (:,:) double = []
-        weightMap (:,:) double = []
+        phaseMap double = []
+        weightMap double = []
     end
     checkArguments(MRSIStruct);
 
+    [MRSIStruct, pastPermute, pastSize] = reshapeDimensions(MRSIStruct, {'t', 'coils', 'y', 'x'});
+    data = getData(MRSIStruct);
     if isempty(phaseMap)
         %phase map arranged by coils, y coordinate, x coordinate
-        MRSIStruct = reshapeDimensions(MRSIStruct, {'t', 'coils', 'y', 'x', 'averages'});
-        data = getData(MRSIStruct);
+        
         %calculate the angle of each each coordinate for all the coils
-        phaseMap = squeeze(angle(data(samplePoint, :, :, :, :, :)));
+        phaseMap = squeeze(angle(data(samplePoint, :, :, :, :)));
     end
     %apply phase map to data
     data = applyMap(MRSIStruct, exp(-1i*phaseMap), data);
 
     if isempty(weightMap)
         %get weights from all positions and coils
-        weights = squeeze(data(samplePoint, :, :, :, :, :));
+        weights = squeeze(data(samplePoint, :, :, :, :));
         %Get the root sum squared value along coil dimension
         weightMap = normalize(weights, 1, 'norm', 2); 
     end
     %adding weights to each coil
     data = applyMap(MRSIStruct, weightMap, data);
     %add coils together
+    
     dimCoils = getDimension(MRSIStruct, 'coils');
+    MRSIStruct = setData(MRSIStruct, data);
+    MRSIStruct = reshapeBack(MRSIStruct, pastPermute, pastSize);
+    data = getData(MRSIStruct);
     data = squeeze(sum(data, dimCoils));
+    MRSIStruct = setData(MRSIStruct, data);
 
     MRSIStruct = removeDimension(MRSIStruct, 'coils');
-    MRSIStruct = setData(MRSIStruct, data);
 
     MRSIStruct.flags.addedrcvrs = 1;
 end

@@ -9,7 +9,7 @@ function dimNumber = getDimension(MRSIStruct, dimLabel)
         case 'y'
             dimNumber = MRSIStruct.dims.y;
         case 'z'
-            dimNumber = MRSIStruct.dims.y;
+            dimNumber = MRSIStruct.dims.z;
         case 'coils'
             dimNumber = MRSIStruct.dims.coils;
         case 'averages'
