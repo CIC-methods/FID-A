@@ -97,11 +97,21 @@ end
 %get a logical array of points to plot for the ppm range
 range_bool = CSI_OBJ.ppm >= ppm_min & CSI_OBJ.ppm <= ppm_max;
 ppm = CSI_OBJ.ppm(range_bool);
+ppm = ppm - min(ppm);
 
 %permute specs
 specs = permute(getData(CSI_OBJ), nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
                             CSI_OBJ.dims.z, CSI_OBJ.dims.coils, CSI_OBJ.dims.averages]));
-
+switch(type)
+    case 'real'
+        specs = real(specs);
+    case 'imaginary'
+        specs = imag(specs);
+    case 'magnitude'
+        specs = abs(specs);
+    otherwise
+        error("please enter a valid plot_type");
+end
 %temp variables
 min_amp = realmax;
 max_amp = realmin;
@@ -125,19 +135,8 @@ for i = 1:numel(transverse_voxels)
     
 end
 %change to plotting type (ie. imaginary, real, or absolute)
-switch(type)
-    case 'real'
-        plot_specs = real(plot_specs);
-        yrange = real(max_amp - min_amp);
-    case 'imaginary'
-        plot_specs = imag(plot_specs);
-        yrange = imag(max_amp - min_amp);
-    case 'magnitude'
-        plot_specs = abs(plot_specs);
-        yrange = abs(max_amp - min_amp);
-    otherwise
-        error("please enter a valid plot_type");
-end
+yrange = max_amp - min_amp;
+
 %get the range of x and y values
 xrange = ppm_max - ppm_min;
 
@@ -157,8 +156,8 @@ ppm_plot = ppm_plot .* scalefactorX - x_pix_width/2 - bb(1,1);
 
 if (numel(transverse_voxels) > 0)
     vox_centers = [transverse_voxels.center];
-    plot_specs = plot_specs + vox_centers(2, :);
-    ppm_plot = ppm_plot + vox_centers(1,:);
+    plot_specs = plot_specs + vox_centers(1, :);
+    ppm_plot = ppm_plot + vox_centers(2,:);
 end
 
 
