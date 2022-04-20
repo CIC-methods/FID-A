@@ -1,17 +1,39 @@
+% getSizeFromDimensions.m
+% Brenden Kadota, Sunnybrook 2022
+%
+% Description: Helper function for MRSI processing. Takes an MRSI structure and 
+% cell array of dimension labels and returns their respective sizes. 
+% If the dimension does not exist, or is empty, set the dimension size to 1.
+%
+% Input:
+%   MRSIStruct = MRSI structure used in FID-A
+%   dimensionLabels = cell array of strings of dimension labels (ie. {'t', 'y', 'x'})
+%
+% Output:
+%   dimensionSizes = dimension sizes from labels. Non-existent dimensions set to 1.
 
 function dimensionSizes = getSizeFromDimensions(MRSIStruct, dimensionLabels)
     arguments
         MRSIStruct (1, 1) struct
         dimensionLabels (1, :) cell
     end
-    %get Dimension numbers
+    % get dimension numbers from labels
     dimNumbers = getMultipleDimensions(MRSIStruct, dimensionLabels);
-    %check for zero size
-    if(any(dimNumbers == 0))
-        label = dimensionLabels(dimNumbers == 0);
-        error('Can not get size from zero dimension %s', char(label));
-    end
     dataSize = getSize(MRSIStruct);
-    dataSize(end + 1:max(dimNumbers)) = 1;
-    dimensionSizes = dataSize(dimNumbers);
+
+    % get zero dimensions 
+    zeroIdx = dimNumbers == 0;
+    biggerIndex = dimNumbers > length(dataSize);
+    nonExistentIndexes = zeroIdx | biggerIndex;
+
+    % get existing dimensions
+    nonZeroIndexes = dimNumbers(~nonExistentIndexes);
+    sizeOfNonZeroDimensions = dataSize(nonZeroIndexes);
+
+    % initalize
+    dimensionSizes = zeros(1, length(dimensionLabels));
+    % set non existent dims to 1
+    dimensionSizes(nonExistentIndexes) = 1;
+    % set existing dimensions
+    dimensionSizes(~nonExistentIndexes) = sizeOfNonZeroDimensions;
 end

@@ -1,15 +1,15 @@
-%op_B0Correction.m
-%Jamie Near, McGill University 2021.
-%Edits from Brenden Kadota, 2021.
+% op_B0Correction.m
+% Jamie Near, McGill University 2021.
+%E dits from Brenden Kadota, 2021.
 %
 % USAGE:
 % [out, phaseMap, freqMap]=op_B0Correction(in, (optional) phaseMap);
-% 
+%
 % DESCRIPTION:
 % Corrects for slight B0 shifts by aligning all voxels to the voxel with
 % the highest water peak. (Possibly not correct output as highest peak may
 % no have the correct ppm shifts)
-% 
+%
 % INPUTS:
 % in   = MRSI struct
 % phaseMap = phaseMap matrix used to apply corrections
@@ -17,10 +17,10 @@
 % OUTPUTS:
 % B0Map        = 2D array of shift intensity at each specific voxel
 % phaseMap     = 2D array of phase shift intensity at each specific voxel
-% freqMap      = 2D array of frequency shift intensity at each specific voxel 
+% freqMap      = 2D array of frequency shift intensity at each specific voxel
 
 function [MRSIStruct, phaseMap, freqMap] = op_CSIB0Correction(MRSIStruct, phaseMap, ...
-                                                        freqMap, plottingArguments)
+        freqMap, plottingArguments)
     arguments
         MRSIStruct (1, 1) struct
         phaseMap double = []
@@ -37,19 +37,22 @@ function [MRSIStruct, phaseMap, freqMap] = op_CSIB0Correction(MRSIStruct, phaseM
     if(getFlags(MRSIStruct, 'spectralft') == 0)
         error("Please fourier transform along the spectral dimension");
     end
-      
+
     %find the coordinate of the highest intensity
     [x, y, a] = findMaxCoord(MRSIStruct);
-    
+
     %create twix object from coordinate with highest intensity
     referenceMRS = op_CSItoMRS(MRSIStruct, x, y, "averageIndex", a);
     referenceMRS = setFlags(referenceMRS, 'averaged', true);
     referenceMRS.flags.isISIS = 0;
-    
-    
+
+
     if(~isempty(phaseMap) && ~isempty(freqMap))
+        [MRSIStruct, prevPermute, prevSize] = reshapeDimensions(MRSIStruct, {'t', 'y', 'x'});
         MRSIStruct = applyFreqMap(MRSIStruct, freqMap);
         MRSIStruct = applyPhaseMap(MRSIStruct, phaseMap);
+        MRSIStruct = reshapeBack(MRSIStruct, prevPermute, prevSize);
+
     else
 
         [MRSIStruct, prevPermute, prevSize] = reshapeDimensions(MRSIStruct, {'t', 'y', 'x'});
@@ -102,7 +105,7 @@ function [x,y,a] = findMaxCoord(in)
     else
         a = 1;
     end
-    
+
 
 end
 
@@ -120,30 +123,34 @@ end
 
 function MRSIStruct = applyFreqMap(MRSIStruct, freqMap)
     %applying the freqMap map if added as an argument
-    for x = 1:getSizeFromDimensions(MRSIStruct, 'x')
-        for y = 1:getSizeFromDimensions(MRSIStruct, 'y')
-            %create twix object from the coordinates
-            alignMRS = op_CSItoMRS(MRSIStruct, x, y);
-            %align twix object with op_freqshift to the equivalent
-            %freqmap coordinate.
-            alignMRS = op_freqshift(alignMRS, freqMap(x, y));
-            %add the specs to MRSI object
-            MRSIStruct.data(:, x, y) = alignMRS.specs;
+    for e = 1:getSizeFromDimensions(MRSIStruct, {'extras'})
+        for x = 1:getSizeFromDimensions(MRSIStruct, {'x'})
+            for y = 1:getSizeFromDimensions(MRSIStruct, {'y'})
+                %create twix object from the coordinates
+                alignMRS = op_CSItoMRS(MRSIStruct, x, y, 'extraIndex', e);
+                %align twix object with op_freqshift to the equivalent
+                %freqmap coordinate.
+                alignMRS = op_freqshift(alignMRS, freqMap(x, y));
+                %add the specs to MRSI object
+                MRSIStruct.data(:, x, y, e) = alignMRS.specs;
+            end
         end
     end
 end
 
 function MRSIStruct = applyPhaseMap(MRSIStruct, phaseMap)
     %applying the freqMap map if added as an argument
-    for x = 1:getSizeFromDimensions(MRSIStruct, 'x')
-        for y = 1:getSizeFromDimensions(MRSIStruct, 'y')
-            %create twix object from the coordinates
-            alignMRS = op_CSItoMRS(MRSIStruct, x, y);
-            %align twix object with op_freqshift to the equivalent
-            %freqmap coordinate.
-            alignMRS = op_addphase(alignMRS, phaseMap(x, y));
-            %add the specs to MRSI object
-            MRSIStruct.data(:, x, y) = alignMRS.specs;
+    for e = 1:getSizeFromDimensions(MRSIStruct, {'extras'})
+        for x = 1:getSizeFromDimensions(MRSIStruct, {'x'})
+            for y = 1:getSizeFromDimensions(MRSIStruct, {'y'})
+                %create twix object from the coordinates
+                alignMRS = op_CSItoMRS(MRSIStruct, x, y, 'extraIndex', e);
+                %align twix object with op_freqshift to the equivalent
+                %freqmap coordinate.
+                alignMRS = op_addphase(alignMRS, phaseMap(x, y));
+                %add the specs to MRSI object
+                MRSIStruct.data(:, x, y, e) = alignMRS.specs;
+            end
         end
     end
 end

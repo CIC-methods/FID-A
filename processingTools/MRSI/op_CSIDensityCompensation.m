@@ -28,30 +28,9 @@ function [MRSIStruct, weightMatrix] = op_CSIDensityCompensation(MRSIStruct, k_sp
     if(getFlags(MRSIStruct, 'spatialft') == true)
         error('Please keep the image data in the k-space when using density compensation')
     end
-    
-    border = createBorder(k_space_file, NameValueArgs.areaOfSupport);
     k_space = getKSpace(k_space_file);
-    %concat border with k_space
-   
-    
-    %get the number of unique points in the bordered_k_space. Duplicate points
-    %prove problimatic for Voronoi diagrams
-    [uniqueKSpacePoints, ~, indexofOccurences] = unique(k_space, 'rows', 'stable');
-    
-    bordered_k_space = cat(1, uniqueKSpacePoints, border);
-    voronoiArea = calculateVoronoiArea(bordered_k_space);
-    
-    %calculate occurances of duplicate k space points
-    %get occurences and unique indexes 
-    [occurences, indexGroups, ~] = groupcounts(indexofOccurences);
-    %rescale final_vol by the number of occurences.
-    for iCoordinate = 1:length(indexGroups)
-        kSpaceIndex = indexGroups(iCoordinate);
-        voronoiArea(kSpaceIndex) = voronoiArea(kSpaceIndex) / occurences(iCoordinate);
-    end
-    
-    weights = voronoiArea(indexofOccurences);
-    weights = normalize(weights, 'range', [0, 1]);
+
+    weights = voronoi(k_space_file, NameValueArgs, k_space);
     %calculate density (desnity = 1/w_i);
 
 
@@ -59,7 +38,7 @@ function [MRSIStruct, weightMatrix] = op_CSIDensityCompensation(MRSIStruct, k_sp
     timePoints = floor(getSizeFromDimensions(MRSIStruct, {'t'}) / spatialPoints);
     TR = length(k_space)/spatialPoints;
     
-    weightMatrix = reshape(weights, [spatialPoints, TR]);
+    
 
     %permute so only t and y dimensions are first
     [MRSIStruct, prev_permute, prev_size] = reshapeDimensions(MRSIStruct, {'t', 'ky'});
@@ -68,14 +47,11 @@ function [MRSIStruct, weightMatrix] = op_CSIDensityCompensation(MRSIStruct, k_sp
     for iTime = 1:timePoints
         startTime = spatialPoints * (iTime - 1) + 1;
         endTime = spatialPoints * iTime;
-        data(startTime:endTime, :, :) = data(startTime:endTime, :, :).*weightMatrix;
+        data(startTime:endTime, :, :) = data(startTime:endTime, :, :) .* weights;
     end
     MRSIStruct = setData(MRSIStruct, data);
     MRSIStruct = reshapeBack(MRSIStruct, prev_permute, prev_size);
 
-    if(NameValueArgs.isPlot)
-        plotVoronoi(bordered_k_space, weights, indexofOccurences);
-    end
 
 end
 
@@ -101,7 +77,7 @@ function border = createBorder(fileName, areaOfSupport)
     [~, volumeInner] = convhull(inner_traj(:,1), inner_traj(:,2));
     
     %difference of volume of both convex hulls becomes alpha
-    alpha = volumeOuter/volumeInner + 0.01;
+    alpha = volumeOuter/volumeInner;
     %get max diameter of k space
     
     diameter = getMaxDiameterofKSpace(fileName);
@@ -178,11 +154,44 @@ function plotVoronoi(bordered_k_space, weights, indexofOccurences)
     y = triangulation.Points(indexofOccurences, 2);
     xDiameter = max(x, [], 'all') - min(x, [], 'all');
     yDiameter = max(y, [], 'all') - min(y, [], 'all');
-    xInterpVector = linspace(-xDiameter/2, xDiameter/2, length(x)/2);
-    yInterpVector = linspace(-yDiameter/2, yDiameter/2, length(y)/2);
+    xInterpVector = linspace(-xDiameter/2, xDiameter/2, length(x)/10);
+    yInterpVector = linspace(-yDiameter/2, yDiameter/2, length(y)/10);
     [xMesh, yMesh] = meshgrid(xInterpVector, yInterpVector);
     zi = griddata(x, y, density, xMesh, yMesh);
     
     mesh(xMesh, yMesh, zi);
     colorbar
+end
+
+function weights = voronoi(k_space_file, NameValueArgs, k_space)
+    % get border for vornoi diagrams
+    border = createBorder(k_space_file, NameValueArgs.areaOfSupport);
+
+    %get the number of unique points in the bordered_k_space. Duplicate points
+    %prove problimatic for Voronoi diagrams
+    [uniqueKSpacePoints, ~, indexofOccurences] = unique(k_space, 'rows', 'stable');
+    
+    bordered_k_space = cat(1, uniqueKSpacePoints, border);
+    voronoiArea = calculateVoronoiArea(bordered_k_space);
+    
+    %calculate occurances of duplicate k space points
+    %get occurences and unique indexes 
+    [occurences, indexGroups, ~] = groupcounts(indexofOccurences);
+    %rescale final_vol by the number of occurences.
+    for iCoordinate = 1:length(indexGroups)
+        kSpaceIndex = indexGroups(iCoordinate);
+        voronoiArea(kSpaceIndex) = voronoiArea(kSpaceIndex) / occurences(iCoordinate);
+    end
+    
+    weights = voronoiArea(indexofOccurences);
+    weights = normalize(weights, 'range', [0.1, 1]);
+
+    
+    spatialPoints = calculateNumSpatialPoints(k_space_file);
+    TR = length(k_space)/spatialPoints;
+
+    weights = reshape(weights, [spatialPoints, TR]);
+    if(NameValueArgs.isPlot)
+        plotVoronoi(bordered_k_space, weights, indexofOccurences);
+    end
 end

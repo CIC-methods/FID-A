@@ -1,4 +1,4 @@
-%op_CSICombineCoils.m
+% op_CSICombineCoils.m
 %
 % Combines the coils of MRSI data. First, coil's phases are adjusted to
 % match the phase of the first coil. Then, sensetivity weights for coils are
@@ -34,12 +34,16 @@ function [MRSIStruct, phaseMap, weightMap] = op_CSICombineCoils(MRSIStruct, ...
     checkArguments(MRSIStruct);
 
     [MRSIStruct, pastPermute, pastSize] = reshapeDimensions(MRSIStruct, {'t', 'coils', 'y', 'x'});
+    
     data = getData(MRSIStruct);
+    extraDimension = 4;
     if isempty(phaseMap)
-        %phase map arranged by coils, y coordinate, x coordinate
+        %phase map arranged by coils, y coordinate, x coordinate and extra
+        %dimension
         
         %calculate the angle of each each coordinate for all the coils
         phaseMap = squeeze(angle(data(samplePoint, :, :, :, :)));
+        phaseMap = mean(phaseMap, extraDimension);
     end
     %apply phase map to data
     data = applyMap(MRSIStruct, exp(-1i*phaseMap), data);
@@ -49,21 +53,13 @@ function [MRSIStruct, phaseMap, weightMap] = op_CSICombineCoils(MRSIStruct, ...
         weights = squeeze(data(samplePoint, :, :, :, :));
         %Get the root sum squared value along coil dimension
         weightMap = normalize(weights, 1, 'norm', 2); 
+        weightMap = mean(weightMap, extraDimension);
     end
     %adding weights to each coil
     data = applyMap(MRSIStruct, weightMap, data);
     %add coils together
+    MRSIStruct = combineCoilData(MRSIStruct, data, pastPermute, pastSize);
     
-    dimCoils = getDimension(MRSIStruct, 'coils');
-    MRSIStruct = setData(MRSIStruct, data);
-    MRSIStruct = reshapeBack(MRSIStruct, pastPermute, pastSize);
-    data = getData(MRSIStruct);
-    data = squeeze(sum(data, dimCoils));
-    MRSIStruct = setData(MRSIStruct, data);
-
-    MRSIStruct = removeDimension(MRSIStruct, 'coils');
-
-    MRSIStruct.flags.addedrcvrs = 1;
 end
 
 
@@ -83,9 +79,10 @@ end
 
 
 
-%apply map to data
+% apply phase or weight map to data. Maps are in dimensiosn (coils, y, x).
+% Applies to each fid point and extra dimension.
 function data = applyMap(MRSIStruct, map, data)
-    %mutliply phases
+    % repmat maps to same legnth as time dimension
     tSize = getSizeFromDimensions(MRSIStruct, {'t'});
     mapWithTime = repmat(map, [ones(1, ndims(map)) tSize]);
 
@@ -93,4 +90,24 @@ function data = applyMap(MRSIStruct, map, data)
     timeFirstOrder = circshift(dimensions, 1);
     timeFirstMap = permute(mapWithTime, timeFirstOrder);  
     data = data.*timeFirstMap;
+end
+
+
+% sets the weighted data from phase and weight maps to MRSI Struct and sums
+% along coil dimension. Finally updates properties of the MRSI struct.
+function MRSIStruct = combineCoilData(MRSIStruct, data, pastPermute, pastSize)
+    coilDimension = getDimension(MRSIStruct, 'coils');
+    % set weighted data back to structure
+    MRSIStruct = setData(MRSIStruct, data);
+    %permute back to original dimensions
+    MRSIStruct = reshapeBack(MRSIStruct, pastPermute, pastSize);
+    
+    % sum along coil dimensions
+    data = getData(MRSIStruct);
+    data = squeeze(sum(data, coilDimension));
+    MRSIStruct = setData(MRSIStruct, data);
+
+    % update structure
+    MRSIStruct = removeDimension(MRSIStruct, 'coils');
+    MRSIStruct = setFlags(MRSIStruct, 'addedrcvrs', true);
 end

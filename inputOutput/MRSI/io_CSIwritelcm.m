@@ -29,8 +29,8 @@ end
 % zop=0;
 % t0=0;
   Bo=in.Bo;
-  hzppm=42.577*Bo;
-  dwelltime=in.dwelltime;
+  hzppm=getGamma('overTwoPi', true)*Bo/1e6;
+  dwelltime=in.spectralDwellTime;
 % Nuc=0;
 % PatName='No Name';
 % scanner='TrioTim';

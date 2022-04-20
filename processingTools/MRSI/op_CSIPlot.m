@@ -36,9 +36,9 @@
 function fig = op_CSIPlot(MRSIStruct, plotType, indecies)
     arguments
         MRSIStruct (1, 1) struct
-        plotType.plane_type char {mustBeMemberi(plotType.plane_type, {'real', 'imag', 'abs', 'phase'})} = 'real'
-        plotType.tDim char {mustBeMemberi(plotType.tDim, {'ppm', 't'})}
-        indecies.timeRange (1, 2) double
+        plotType.plane_type char {mustBeMember(plotType.plane_type, {'real', 'imag', 'abs', 'phase'})} = 'real'
+        plotType.tDim char {mustBeMember(plotType.tDim, {'ppm', 't'})}
+        indecies.ppmRange (1, 2) double
         indecies.coilIndex (1, 1) double = 1
         indecies.averageIndex (1, 1) double = 1
         indecies.extraIndex (1, 1) double = 1
@@ -50,17 +50,17 @@ function fig = op_CSIPlot(MRSIStruct, plotType, indecies)
     plotType = setDefaultTimeDim(MRSIStruct, plotType);
     %check arguments to make sure they are okay
     checkArguments(MRSIStruct, indecies, plotType);
-
     %get x and y range from indecies
     [xRange, yRange] = getXandYRanges(indecies, MRSIStruct);
 
     %set default time parameters
-    indecies.timeRange = setDefaultTime(MRSIStruct, plotType.tDim, indecies);
-    [timeRange, timeVector] = getTimeBounds(MRSIStruct, indecies.timeRange, plotType.tDim);
+    indecies.ppmRange = setDefaultTime(MRSIStruct, plotType.tDim, indecies);
+    [ppmRange, timeVector] = getTimeBounds(MRSIStruct, indecies.ppmRange, plotType.tDim);
     
     [nonZeroIndex, data] = permuteData(MRSIStruct);
-    data = indexData(timeRange, xRange, yRange, indecies, nonZeroIndex, data);
+    data = indexData(ppmRange, xRange, yRange, indecies, nonZeroIndex, data);
     data = changePlane(plotType, data);
+    
 
     [scalefactorX, scalefactorY] = getScaleFactors(data, MRSIStruct, timeVector);
 
@@ -69,15 +69,17 @@ function fig = op_CSIPlot(MRSIStruct, plotType, indecies)
     yCoordinate = getCoordinates(MRSIStruct, 'y');
     voxSizeY = getVoxSize(MRSIStruct, 'y');
     %start time vector at zero
-    timeVector = timeVector - timeVector(end);
+    if(getFlags(MRSIStruct, 'spectralFT') == 1)
+         %timeVector = flip(timeVector);
+         timeVector = flip(timeVector);
+    end
+    timeVector = timeVector - timeVector(1);
     %scale to be plotted in a voxel 
     timeVector = timeVector * scalefactorX;
-    timeVector = flip(timeVector);
     %offset ppm by starting coordinate
     timeVector = timeVector - voxSizeX/2 + xCoordinate(xRange(1));
 
     data = data.*scalefactorY;
-    data = flip(data, 3);
 
     %create figure and hold
     fig = figure;
@@ -93,21 +95,12 @@ function fig = op_CSIPlot(MRSIStruct, plotType, indecies)
         for y_idx = 1:size(data, 2)
             %first scale the ppm scale so that the range is correct;
             timeVectorPlot = timeVector + (x_idx - 1)*voxSizeX;
-            y_coords = data(:, y_idx, x_idx) + (y_idx - 1)*voxSizeY - mean(data(:, y_idx, x_idx)) + yCoordinate(yRange(1));
+            y_coords = data(:, y_idx, x_idx) + (size(data, 2) - y_idx)*voxSizeY + yCoordinate(yRange(1));
             %Now start plotting
-            plot(ax, timeVectorPlot, y_coords, 'PickableParts', 'none');
+            plot(ax, timeVectorPlot, y_coords, 'PickableParts', 'none', 'LineWidth', 1);
         end
     end
     hold(ax, 'off');
-end
-
-
-function mustBeMemberi(a, members)
-    if ~(strcmpi(a, members))
-        eidType = 'mustBeMemberi:notAMember';
-        msgType = strcat("Value must be a member of this set:  ", strjoin(string(members), ', '));
-        throwAsCaller(MException(eidType,msgType))
-    end
 end
 
 function checkArguments(in, indecies, plotType)
@@ -226,8 +219,8 @@ function data = changePlane(plotType, data)
 end
 
 function timeRange = setDefaultTime(MRSIStruct, plotType, indecies)
-    if(isfield(indecies, 'timeRange'))
-        timeRange = indecies.timeRange;
+    if(isfield(indecies, 'ppmRange'))
+        timeRange = indecies.ppmRange;
     else
         if strcmp(plotType, 't')
             time = getSpectralTime(MRSIStruct);

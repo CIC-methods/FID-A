@@ -24,6 +24,7 @@ function MRSIStruct = op_CSIFourierTransform(MRSIStruct, k_file, fourierTransfor
         fourierTransform.spatial (1,1) logical {mustHaveSpatial(fourierTransform.spatial, MRSIStruct)}
         fourierTransform.spectral (1,1)  logical {mustHaveSpectral(fourierTransform.spectral, MRSIStruct)}
     end
+    % set default values for spatial and spectral fourier transform
     fourierTransform = setDefaultFlags(fourierTransform, MRSIStruct);
 
     % spatial dimension fourier transform
@@ -33,7 +34,7 @@ function MRSIStruct = op_CSIFourierTransform(MRSIStruct, k_file, fourierTransfor
             %applying the fast fourier transform if k space is cartesian
             MRSIStruct = applyFastFourierTransformSpatial(MRSIStruct);
         else
-            [kTrajectory, numSpatial, numSpectral] = readKFile(k_file, MRSIStruct);
+            [kTrajectory, numSpatial, numSpectral] = readKSpaceFile(k_file, MRSIStruct);
             MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, numSpectral);
             MRSIStruct = calculateSpectralValues(MRSIStruct, numSpatial, numSpectral);
         end
@@ -42,9 +43,10 @@ function MRSIStruct = op_CSIFourierTransform(MRSIStruct, k_file, fourierTransfor
         %waterRemoved = op_CSIRemoveWater(MRSIStruct);
     end
 
+    % spectral fourier transform
     if (fourierTransform.spectral)
+        % fast fourier transform along the time dimension
         disp('Calculating spectral dimension');
-
         MRSIStruct = fastFourierTransformTime(MRSIStruct);
     end
 
@@ -173,13 +175,6 @@ function MRSIStruct = applyFastFourierTransformSpatial(MRSIStruct)
     MRSIStruct = setDimension(MRSIStruct, 'kz', 0);
 end
 
-function [kTrajectory, spatial_points, temporal_points] = readKFile(kFileName, MRSIStruct)
-    kSpaceTable = readtable(kFileName);
-    kTrajectory = [kSpaceTable.Kx, kSpaceTable.Ky];
-    
-    spatial_points = calculateNumSpatialPoints(kFileName);
-    temporal_points = floor(getSizeFromDimensions(MRSIStruct, {'t'})/spatial_points);
-end
 
 function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, numSpectral)
     
