@@ -137,20 +137,8 @@ function [out] = io_CSIload_rda(rda_filename)
     %Combine the real and imaginary into the complex matrix
     fids = complex(hmm(1,:,:,:,:),hmm(2,:,:,:,:));
     fids = squeeze(fids);
-    fids = flip(fids, 2);
     
-    [~, maxIndex] = maxk(fids(1, :), 50);
-    rotationDirection = 0;
-    for i = 1:length(maxIndex)
-        rotationDirection = rotationDirection + getRotationDirection(fids(:, maxIndex(i)), 1, 200);
-    end
-    if(rotationDirection < -1)
-        fids = conj(fids);
-    end
-
-
-
-    % get the spectrum from the fid
+    %fids = conj(fids);
 
     % make calculations for the output mrs structure
     sz = size(fids);
@@ -160,6 +148,7 @@ function [out] = io_CSIload_rda(rda_filename)
     dims.t = 1;
     dims.subSpecs = 0;
     dims.x = 2;
+    fids = flip(fids, dims.x);
     dims.y = 3;
     dims.z = 0;
     dims.coils = 0;
@@ -193,7 +182,6 @@ function [out] = io_CSIload_rda(rda_filename)
     out = setAdcTime(out, t);
     out = setSpectralTime(out, t);
     out = setSpectralDwellTime(out, dwelltime);
-    out = setAdcTime(out, dwelltime);
     out = setSpectralWidth(out, spectralwidth);
     out.txfrq = txfrq;
     out.date = datetime(str2double(date(1:4)), str2double(date(5:6)), str2double(date(7:8)));
@@ -212,13 +200,17 @@ function [out] = io_CSIload_rda(rda_filename)
     out = setFov(out, 'z', rda.FoV3D);
     out = setVoxelSize(out, 'x', getFov(out, 'x')/getSizeFromDimensions(out, {'x'}));
     out = setVoxelSize(out, 'y', getFov(out, 'y')/getSizeFromDimensions(out, {'y'}));
-    out = setVoxelSize(out, 'z', getFov(out, 'z')/getSizeFromDimensions(out, {'z'}));
+    if(getDimension(out, 'z') ~= 0)
+        out = setVoxelSize(out, 'z', getFov(out, 'z')/getSizeFromDimensions(out, {'z'}));
+    else
+        out = setVoxelSize(out, 'z', getFov(out, 'z'));
+    end
 
     affine_matrix = calculateAffineMatrix(rda);
     out.affineMatrix = affine_matrix;
     out = setImageOrigin(out, rda.imageOrigin);
     out = findCoordinates(out);
-    out = setFlags(out, rotationDirection);
+    out = setFlags(out);
 end
 
 function affine_matrix = calculateAffineMatrix(rda)
@@ -228,17 +220,17 @@ function affine_matrix = calculateAffineMatrix(rda)
     
     affine_matrix_translate = eye(4);
     affine_matrix_translate(1,4) = rda.PositionVector(1);
-    affine_matrix_translate(2,4) = -rda.PositionVector(2);
+    affine_matrix_translate(2,4) = rda.PositionVector(2);
     affine_matrix_translate(3,4) = rda.PositionVector(3);
 
     affine_matrix_scale = eye(4);
     affine_matrix_scale(1,1) = rda.PixelSpacingCol;
-    affine_matrix_scale(2,2) = -rda.PixelSpacingRow;
+    affine_matrix_scale(2,2) = rda.PixelSpacingRow;
     affine_matrix_scale(3,3) = rda.PixelSpacing3D;
     affine_matrix = affine_matrix_rotation * affine_matrix_translate * affine_matrix_scale;
 end
 
-function out = setFlags(out, rotationDirection)
+function out = setFlags(out)
     %FILLING IN THE FLAGS
     out.flags.writtentostruct = 1;
     out.flags.gotparams = 1;
@@ -255,7 +247,6 @@ function out = setFlags(out, rotationDirection)
     out.flags.spatialFT = 1;
     out.flags.spectralFT = 0;
     out.flags.isCartesian = 1;
-    out.flags.rotationDirection = rotationDirection;
     if out.dims.subSpecs == 0
         out.flags.isISIS = 0;
     else

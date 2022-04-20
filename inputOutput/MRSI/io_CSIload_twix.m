@@ -29,6 +29,8 @@ function MRSIStruct = io_CSIload_twix(filename)
     dOut.data = twix_obj.image();
     %Squeeze the data to remove singleton dims
     data = squeeze(dOut.data);
+    % reverse the direction of rotation
+    data = conj(data);
 
     %get version number and dims
     %version = twix_obj.image.softwareVersion;
@@ -55,15 +57,6 @@ function MRSIStruct = io_CSIload_twix(filename)
     %get matrix size
     [numX, numY, numZ] = getNumberOfVoxels(isCartesian, data, dims);
 
-    [~, maxIndex] = maxk(data(1, :), 50);
-    rotationDirection = 0;
-    for i = 1:length(maxIndex)
-        rotationDirection = rotationDirection + getRotationDirection(data(:, maxIndex(i)), 1, 200);
-    end
-
-    if(rotationDirection < -1)
-        data = conj(data);
-    end
 
     sz = size(data);
     %Find the number of averages.  'averages' will specify the current numbe
@@ -88,7 +81,10 @@ function MRSIStruct = io_CSIload_twix(filename)
     dwelltime = twix_obj.hdr.MeasYaps.sRXSPEC.alDwellTime{1}*1e-9;  %Franck Lamberton
     spectralwidth = 1/dwelltime;
     adcTime = 0:dwelltime:(sz(dims.t)-1)*dwelltime;
-
+    if(isCartesian)
+        data = flip(data, dims.ky);
+        data = flip(data, dims.kx);
+    end
     %Now get the size of the data array:
     sz = size(data);
     %****************************************************************
@@ -120,7 +116,7 @@ function MRSIStruct = io_CSIload_twix(filename)
     MRSIStruct = findImageOrigin(MRSIStruct, twix_obj);
     MRSIStruct = calculateVoxelCoodinates(MRSIStruct);
     MRSIStruct = calculateAffineMatrix(MRSIStruct, twix_obj);
-    MRSIStruct = setDefaultFalgValues(MRSIStruct, isCartesian, rotationDirection);
+    MRSIStruct = setDefaultFlagValues(MRSIStruct, isCartesian);
 end
 
 
@@ -157,7 +153,7 @@ function out = initalizeOneIfEmpty(value)
     end
 end
 
-function out = setDefaultFalgValues(out, isCartesian, rotationDirection)
+function out = setDefaultFlagValues(out, isCartesian)
     %FILLING IN THE FLAGS
     out.flags.writtentostruct = 1;
     out.flags.gotparams = 1;
@@ -176,7 +172,6 @@ function out = setDefaultFalgValues(out, isCartesian, rotationDirection)
     out.flags.coilCombined = 0;
     out.flags.isFourSteps = 0;
     out.flags.isCartesian = isCartesian;
-    out.flags.rotationDirection = rotationDirection;
 end
 
 function twix_obj = readTwixFile(filename)
@@ -233,13 +228,13 @@ function MRSIStruct = calculateAffineMatrix(MRSIStruct, twixObj)
     %get scaling matrix
     affineScaleMatrix = eye(4);
     affineScaleMatrix(1,1) = MRSIStruct.voxelSize.x;
-    affineScaleMatrix(2,2) = -MRSIStruct.voxelSize.y;
+    affineScaleMatrix(2,2) = MRSIStruct.voxelSize.y;
     affineScaleMatrix(3,3) = MRSIStruct.voxelSize.z;
 
     %get translate matrix
     affineTranslateMatrix = eye(4);
     affineTranslateMatrix(1,4) = -MRSIStruct.imageOrigin(1) - MRSIStruct.fov.x/2;
-    affineTranslateMatrix(2,4) = -MRSIStruct.imageOrigin(2) + MRSIStruct.fov.y/2;
+    affineTranslateMatrix(2,4) = -MRSIStruct.imageOrigin(2) - MRSIStruct.fov.y/2;
     affineTranslateMatrix(3,4) = MRSIStruct.imageOrigin(3) - MRSIStruct.fov.z/2;
 
     %ORDER MATTERS HERE!!! First we scale image coordinates to be voxel sizes.

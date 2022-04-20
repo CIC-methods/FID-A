@@ -24,14 +24,14 @@ function select_spec(src,~)
     %only start if the users clicks with the right mouse button
     if ~strcmpi(get(gcbf,'SelectionType'),'alt')
         %get where the user clicked on the plot
-        mousePos=get(src,'CurrentPoint');
+        mouseSelectCoordinates = get(src,'CurrentPoint');
         %get x and y coordinates
-        mousePos=mousePos(1:2:3) + st.bb(1,1:2);
+        mouseSelectCoordinates = mouseSelectCoordinates(1:2:3) + st.bb(1,1:2);
         %get all the MRSI line plots
         
-        centers = [voxels.center];
-        diff = mousePos' - centers(1:2,:);
-        [~, idx] = min(sum(diff.^2, 1))
+        voxelCenterCoordinates = [voxels.center];
+        distance = mouseSelectCoordinates' - voxelCenterCoordinates(1:2,:);
+        [~, indexOfClosestVoxel] = min(sum(distance.^2, 1));
         %display the linear index of the closest MRSI spec
         %get the corresponding x,y indecies from linear indexing
         
@@ -49,8 +49,7 @@ function select_spec(src,~)
         xlim(ax, [ppm_min ppm_max]);
         specs = permute(getData(CSI_OBJ), nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
                             CSI_OBJ.dims.z, CSI_OBJ.dims.coils, CSI_OBJ.dims.averages]));
-                        
-        specs = specs(range_bool, voxels(idx).index(1), voxels(idx).index(2), voxels(idx).index(3));
+        specs = specs(range_bool, voxels(indexOfClosestVoxel).index(1), voxels(indexOfClosestVoxel).index(2), voxels(indexOfClosestVoxel).index(3));
         switch(type)
             case 'real'
                 specs = real(specs);

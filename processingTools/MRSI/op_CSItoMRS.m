@@ -45,6 +45,7 @@ function MRS = op_CSItoMRS(MRSIStruct, xCoordinate, yCoordinate, index)
     MRS.sz = size(MRS.specs);
     MRS.t = MRSIStruct.spectralTime;
     MRS.dwelltime = MRSIStruct.spectralDwellTime;
+    MRS.spectralwidth = MRSIStruct.spectralWidth;
     if(isfield(MRSIStruct, 'ppm'))
         MRS.ppm = MRSIStruct.ppm;
     else
