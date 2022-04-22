@@ -181,7 +181,7 @@ function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, 
     [xCoordinates, yCoordinates, imageTrajectory] = getImageTrajectory(MRSIStruct);
     
     %creating fourier transform operator for spatial domain
-    sftOperator = sft2_Operator(kTrajectory, imageTrajectory, 1);
+    sftOperator = sft2_Operator(kTrajectory, imageTrajectory, 0);
     
     %permute so first 3 dimensions are x, y and t
     [MRSIStruct, prevPermute, prevSize] = reshapeDimensions(MRSIStruct, {'t', 'ky'});
