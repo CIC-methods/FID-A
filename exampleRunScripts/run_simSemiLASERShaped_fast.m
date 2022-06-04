@@ -105,8 +105,8 @@ d=cell(1,1); %Initialize a cell for the dentity matrix, with elements for each p
 
 %if you do not have the parallel computing toolbox, uncomment the first
 %for loop and delete "parfor X=1:length(x)"
-parfor X=1:length(x)
-%  for X=1:length(x)
+%parfor X=1:length(x)
+  for X=1:length(x)
         disp(['Executing X-position ' num2str(X) '!!' ]);
         out_posx_rpc{X}=sim_sLASER_shaped_Ref1(Bfield,sys,te,rfPulse,refTp,x(X),Gx,flipAngle,centreFreq);
 %                            sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,       tp,  dx, Gx,ph1,   ph2,  centreFreq)
@@ -159,9 +159,9 @@ end
 %% Simulate in X-direction only
 function d = sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,tp,dx,Gx,flipAngle,centreFreq)
 
-if nargin<11
+if nargin<9
     centreFreq=2.3;
-    if nargin<10
+    if nargin<8
         flipAngle=180;
     end
 end
@@ -205,9 +205,9 @@ end
 %% Simulate in Y-direction only
 function out = sim_sLASER_shaped_Ref2(d,n,sw,Bfield,linewidth,sys,te,RF,tp,dy,Gy,flipAngle,centreFreq)
 
-if nargin<15
+if nargin<13
     centreFreq=2.3;
-    if nargin<14
+    if nargin<12
         flipAngle=180;
     end
 end

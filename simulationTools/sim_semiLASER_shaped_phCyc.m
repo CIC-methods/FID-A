@@ -1,5 +1,5 @@
 % 2021 EDIT: This function is now deprecated. The current version of the 
-% shaped PRESS simulation is sim_press_shaped_coFilt.m. The current version employs
+% shaped semiLASER simulation is sim_semiLASER_shaped.m, which employs
 % coherence selection rather than phase cycling to null undesired signal.
     
 % sim_semiLASER_shaped_phCyc.m

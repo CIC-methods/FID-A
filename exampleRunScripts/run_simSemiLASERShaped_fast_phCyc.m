@@ -1,6 +1,6 @@
 % 2021 EDIT: This function is now deprecated. The current version of the shaped semiLASER 
-% simulation is run_simSemiLASERShaped_fast.m. The current version employs coherence selection, 
-% resulting in a 4x simulation speed increase.
+% simulation is run_simSemiLASERShaped_fast.m, which employs coherence selection, 
+% instead of phase cycling, resulting in a 4x simulation speed increase.
 % run_simSemiLASERShaped_fast_phCyc.m
 %
 % Fast version by Muhammad G Saleh (Johns Hopkins University School of Medicine, 2019)

@@ -1,5 +1,5 @@
 % 2021 EDIT: This function is now deprecated. The current version of the 
-% shaped PRESS simulation is sim_press_shaped_coFilt.m. The current version employs
+% shaped PRESS simulation is sim_press_shaped.m, which employs
 % coherence selection rather than phase cycling to null undesired signal.
 
 % sim_press_shaped_phCyc.m
@@ -55,7 +55,7 @@
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-function out = sim_press_shaped(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle,centreFreq)
+function out = sim_press_shaped_phCyc(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,dy,Gx,Gy,phCyc1,phCyc2,flipAngle,centreFreq)
 
 if nargin<17
     centreFreq=2.3;
