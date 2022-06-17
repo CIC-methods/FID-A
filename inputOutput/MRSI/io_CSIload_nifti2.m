@@ -1,4 +1,4 @@
-function nifti = MRSI_load_nifti_2(filename)
+function nifti = io_CSIload_nifti2(filename)
     arguments
         filename (1, :) char {mustBeFile}
     end
@@ -32,8 +32,13 @@ function nifti = MRSI_load_nifti_2(filename)
         data = reshape(data, nifti.dim(2:end));
         nifti.data = data;
     catch matlabError
+        % catch here to catch errors in io. Then close file.
     end
+    
+    %close file
     fclose(fileID);
+
+    % throw matlab error
     if ~isempty(matlabError)
         rethrow(matlabError);
     end

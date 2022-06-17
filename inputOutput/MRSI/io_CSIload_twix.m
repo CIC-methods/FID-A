@@ -1,5 +1,5 @@
-%io_CSIload_twix.m
-%Brenden Kadota, Jamie Near, Sunnybrook 2021.
+% io_CSIload_twix.m
+% Brenden Kadota, Jamie Near, Sunnybrook 2021.
 %
 % USAGE:
 % out = io_CSIload_twix('filename');

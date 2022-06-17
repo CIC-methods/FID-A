@@ -77,15 +77,9 @@ function overlay_conc(in, met, x_range, y_range)
         transverse_voxels(t:end) = [];
     end
 
-
     %3D bounding box of the MRI scan in mm. ie the coordinates where the MRI is
     %plotted onto.
     bb = st.bb;
-
-
-    %PLOTING IN THE TRANSVERSE PLANE
-    %set current axis object to be of the transverse image. (st.vols{1}.ax{2} and
-    %st.vols{1}.ax{3} are objects for the sagital and coronal)
 
     %don't plot unless in the correct z position
     trans_plot = findobj(st.vols{1}.ax{4}.ax,'Tag','trans_plot');

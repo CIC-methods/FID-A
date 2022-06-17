@@ -1,6 +1,6 @@
 %Helper function to be used to plot voxels onto coronal plane
 
-function plot_plane(axis, voxels, planeLabel, cursorPosition)
+function plot_plane(axis, intersectingVoxels, planeLabel, cursorPosition)
     
     % Get the spm plotting object
     global st
@@ -24,24 +24,24 @@ function plot_plane(axis, voxels, planeLabel, cursorPosition)
         plottingDimensions = [1, 3];
     end
 
-
-    voxelOffset = [sagitalBoundingBox(1), coronalBoundingBox(1), axialBoundingBox(1)]';
+    % offset to center world coordinates with plotting coordinates
+    coordinateOffset = [sagitalBoundingBox(1), coronalBoundingBox(1), axialBoundingBox(1)]';
 
     % Delete previous plot
     planePlot = findobj(axis, 'Tag', planeLabel);
     delete(planePlot);
 
     % go through all voxels and find where they intersect with the current plane
-    voxelIntersectionPositions = cell(1, numel(voxels));
-    for iVoxel = 1:numel(voxels)
+    voxelIntersectionPositions = cell(1, numel(intersectingVoxels));
+    for iVoxel = 1:numel(intersectingVoxels)
         if(strcmp(planeLabel, 'sagital'))
-            coordinates = voxels(iVoxel).find_intersection(planeLabel, cursorSagitalPosition);
+            coordinates = intersectingVoxels(iVoxel).find_intersection(planeLabel, cursorSagitalPosition);
             % sagital plane is reversed so we need to swap the y coordinates
-            coordinates(1, :) = -coordinates(1,:);
+            coordinates(2, :) = -coordinates(2,:);
         else
-            coordinates = voxels(iVoxel).find_intersection(planeLabel, cursorCoronalPosition);
+            coordinates = intersectingVoxels(iVoxel).find_intersection(planeLabel, cursorCoronalPosition);
         end
-        coordinates = coordinates(plottingDimensions, :) - voxelOffset(plottingDimensions);
+        coordinates = coordinates(plottingDimensions, :) - coordinateOffset(plottingDimensions);
         voxelIntersectionPositions{iVoxel} = coordinates;
     end
 
@@ -51,3 +51,4 @@ function plot_plane(axis, voxels, planeLabel, cursorPosition)
         'w', 'FaceAlpha', 0, 'LineWidth', 1, 'Tag', planeLabel, ...
         'EdgeColor', 'g', 'HitTes', 'off'), voxelIntersectionPositions)
     hold(axis, 'off');
+end

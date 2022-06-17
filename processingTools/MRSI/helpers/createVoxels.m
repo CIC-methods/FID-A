@@ -9,10 +9,10 @@ function vox = createVoxels(MRSIStruct)
     numberOfSagitalPoints = dimSizes(2);
     numberOfAxialPoints = dimSizes(3);
 
-    %g et affine matrix
+    % get affine matrix
     affineMatrix = getAffineMatrix(MRSIStruct);
 
-    % initalization
+    % initalize 3d array holding voxels
     vox(numberOfCoronalPoints, numberOfSagitalPoints, numberOfAxialPoints) = Voxel();
 
     for zVoxelIndex = 0:numberOfAxialPoints - 1
@@ -29,7 +29,7 @@ function vox = createVoxels(MRSIStruct)
                 currentIndex = currentIndex + 1;
                 % Coronal indexing is reversed in FID-A!!! THis is to conform with
                 % matlab imaging indexing for the y dimension
-                currentIndex(2) = numberOfCoronalPoints - yVoxelIndex;
+                %currentIndex(2) = numberOfCoronalPoints - yVoxelIndex;
                 vox(yVoxelIndex + 1, xVoxelIndex + 1, zVoxelIndex + 1) =...
                     Voxel(sagital, coronal, axial, currentIndex(1:3));
             end

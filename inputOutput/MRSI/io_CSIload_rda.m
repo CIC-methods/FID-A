@@ -216,8 +216,8 @@ end
 function affine_matrix = calculateAffineMatrix(rda)
     %may have to update x and y orientations
     affine_matrix_rotation = [rda.RowVector', rda.ColumnVector', rda.sliceVector', [0 0 0]'];
-    affine_matrix_rotation = cat(1, affine_matrix_rotation,  [0, 0, 0,1]);
-    
+    affine_matrix_rotation = cat(1, affine_matrix_rotation,  [0, 0, 0, 1]);
+
     affine_matrix_translate = eye(4);
     affine_matrix_translate(1,4) = rda.PositionVector(1);
     affine_matrix_translate(2,4) = rda.PositionVector(2);
@@ -227,7 +227,23 @@ function affine_matrix = calculateAffineMatrix(rda)
     affine_matrix_scale(1,1) = rda.PixelSpacingCol;
     affine_matrix_scale(2,2) = rda.PixelSpacingRow;
     affine_matrix_scale(3,3) = rda.PixelSpacing3D;
-    affine_matrix = affine_matrix_rotation * affine_matrix_translate * affine_matrix_scale;
+
+    % for some reason rotation seems to be in the wrong direction. Fix here
+    affine_reverse_rotation = affine_matrix_rotation';
+    middleVoxelY = rda.CSIMatrix_Size(2)/2;
+    middleVoxelX = rda.CSIMatrix_Size(1)/2;
+    middleCoordinate = affine_matrix_scale * [middleVoxelX; middleVoxelY; 0; 1];
+    middleCoordinateRoate = affine_reverse_rotation * middleCoordinate;
+    adjacentTriangleEdge = middleCoordinateRoate(2);
+    hypotenuseLength = middleCoordinate(2);
+    rotationDistanceAxial = acos(adjacentTriangleEdge/hypotenuseLength);
+    oppositeTriangleEdge = sin(rotationDistanceAxial) * hypotenuseLength;
+    affine_matrix_coorection = [1 0 0 0
+                                0 1 0 0   
+                                0 0 1 -abs(2*oppositeTriangleEdge)
+                                0 0 0 1];
+
+    affine_matrix = affine_matrix_translate * affine_matrix_coorection * affine_reverse_rotation * affine_matrix_scale;
 end
 
 function out = setFlags(out)

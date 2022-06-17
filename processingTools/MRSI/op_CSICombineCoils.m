@@ -69,12 +69,8 @@ function checkArguments(in)
     if in.flags.addedrcvrs == 1
         error('coils already combined!')
     end
-    if getFlags(in, 'spatialFT') ~= 1
-        error('Please us op_CSIFourierTransform along the spatial dimension')
-    end
-    if getFlags(in, 'spectralFT') ~= 0
-        error('Please keep the spectrum in the time domain')
-    end
+    checkSpatialFT(in);
+%    checkSpectralFT(in);
 end
 
 

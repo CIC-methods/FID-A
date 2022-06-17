@@ -174,7 +174,5 @@ function checkArguments(in)
     if ~exist('spm_image', 'file')
         error('please add spm12 to your path before continuing');
     end
-    if ~getFlags(in, 'spatialFT')
-        error('please fourier tranform along the spatial dimension before using')
-    end
+    checkSpatialFT(in)
 end
