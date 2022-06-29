@@ -21,7 +21,7 @@ function [MRSIStruct] = op_CSIRemoveLipids(MRSIStruct, basisArguments, plottingA
         basisArguments.lipidComponenets (1, 1) double = 1000
         basisArguments.lineWidthRange (1, 2) double = [1 80]
         basisArguments.lipidPPMRange (1, 2) double = [0.3 1.9000]
-        basisArguments.beta (1, 1) double = 1
+        basisArguments.beta (1, 1) double = 1e-4
         plottingArguments.plotBasis (1, 1) logical = false
     end
     % extract arguments from name value pairs
