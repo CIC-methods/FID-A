@@ -33,10 +33,10 @@ function MRS = op_CSItoMRS(MRSIStruct, xCoordinate, yCoordinate, index)
     timeDimension = getDimension(MRSIStruct, 't');
     if(getFlags(MRSIStruct, 'spectralft') == true)
         MRS.specs = data(MRSIndex{:});
-        MRS.fids = ifft(fftshift(MRS.specs, timeDimension), [],  timeDimension);
+        MRS.fids = fft(fftshift(MRS.specs, timeDimension), [],  timeDimension);
     else
         MRS.fids = data(MRSIndex{:});
-        MRS.specs = fftshift(fft(MRS.fids, [], timeDimension), timeDimension);
+        MRS.specs = fftshift(ifft(MRS.fids, [], timeDimension), timeDimension);
     end
     MRS = rmfield(MRS, 'data');
     MRS.specs = squeeze(MRS.specs);
