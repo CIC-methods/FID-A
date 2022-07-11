@@ -67,7 +67,7 @@ fovX=3; %size of the full simulation Field of View in the x-direction [cm]
 fovY=3; %size of the full simulation Field of View in the y-direction [cm]
 nX=32; %Number of grid points to simulate in the x-direction
 nY=32; %Number of grid points to simulate in the y-direction
-te=105;         %semiLASER total echo time [ms]
+te=135;         %semiLASER total echo time [ms]
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS
 %             sequence.
@@ -105,8 +105,8 @@ d=cell(1,1); %Initialize a cell for the dentity matrix, with elements for each p
 
 %if you do not have the parallel computing toolbox, uncomment the first
 %for loop and delete "parfor X=1:length(x)"
-%parfor X=1:length(x)
-  for X=1:length(x)
+parfor X=1:length(x)
+%  for X=1:length(x)
         disp(['Executing X-position ' num2str(X) '!!' ]);
         out_posx_rpc{X}=sim_sLASER_shaped_Ref1(Bfield,sys,te,rfPulse,refTp,x(X),Gx,flipAngle,centreFreq);
 %                            sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,       tp,  dx, Gx,ph1,   ph2,  centreFreq)
