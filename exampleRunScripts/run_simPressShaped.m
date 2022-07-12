@@ -60,6 +60,8 @@ nY=16; %Number of grid points to simulate in the y-direction
 tau1=6; %TE1 for first spin echo [ms]
 tau2=6; %TE2 for second spin echo [ms]
 spinSys='Lac'; %spin system to simulate
+flipAngle=180; %Refocusing pulse flip angle [degrees]
+centreFreq=1.3; %Centre frequency of refocusing pulses [ppm]
 % ************END OF INPUT PARAMETERS**********************************
 
 %set up spatial grid
@@ -96,7 +98,7 @@ parfor X=1:length(x)
                 disp(['Executing X-position ' num2str(X) ' of ' num2str(length(x)) ', '...
                     'Y-position ' num2str(Y) ' of ' num2str(length(y))])
                 out_posxy{X}{Y}=sim_press_shaped(Npts,sw,Bfield,lw,sys,tau1,tau2,...
-                    refRF,refTp,x(X),y(Y),Gx,Gy);
+                    refRF,refTp,x(X),y(Y),Gx,Gy,flipAngle,centreFreq);
          
         out=op_addScans(out,out_posxy{X}{Y});
         
@@ -117,8 +119,8 @@ out=op_ampScale(out,1/voxRatio);
 
 %Uncomment this part to view the results of the spatially resolved simulation:
  if length(x)>1 && length(y)>1
-     ppmmin=0;
-     ppmmax=3;
+     ppmmin=1.0;
+     ppmmax=1.6;
      sim_make2DSimPlot(out_posxy,ppmmin,ppmmax);
  else
      plot(out.ppm,out.specs);

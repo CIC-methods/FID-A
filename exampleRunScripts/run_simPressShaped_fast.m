@@ -53,7 +53,7 @@ tic
 % ************INPUT PARAMETERS**********************************
 refocWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
 refTp=3.5; %duration of refocusing pulses[ms]
-flipAngle=137;  %Flip Angle of the refocusing pulses [degrees] (e.g. Use 180 for Siemens PRESS.  Use 137 for GE PRESS).
+flipAngle=180;  %Flip Angle of the refocusing pulses [degrees] (e.g. Use 180 for Siemens PRESS.  Use 137 for GE PRESS).
 Npts=2048; %number of spectral points
 sw=2000; %spectral width [Hz]
 Bfield=3; %magnetic field strength [Tesla]
@@ -66,6 +66,7 @@ nX=32; %Number of grid points to simulate in the x-direction
 nY=32; %Number of grid points to simulate in the y-direction
 tau1=8; %TE1 for first spin echo [ms]
 tau2=8; %TE2 for second spin echo [ms]
+centreFreq=2.3; %Centre frequency of simulation [ppm]
 % ************END OF INPUT PARAMETERS**********************************
 
 %set up spatial grid
@@ -105,7 +106,7 @@ d=cell(1,1);
 %for X=1:length(x)  %Use this if you don't have the MATLAB parallel processing toolbox
 parfor X=1:length(x)  %Use this if you have the MATLAB parallel processing toolbox
         disp(['Executing X-position ' num2str(X) ' of ' num2str(length(x)) '!!!']);
-        d_temp{X}=sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,refRF,refTp,x(X),Gx,flipAngle);
+        d_temp{X}=sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,refRF,refTp,x(X),Gx,flipAngle,centreFreq);
 end
 
 %calculate the average density matrix (Doing this inside a separate for 
@@ -124,7 +125,7 @@ out=struct([]);
 parfor Y=1:length(y) %Use this if you do have the MATLAB parallel processing toolbox
 %            disp(['Executing Y-position ' num2str(Y) ' of ' num2str(length(y)) '!!!']);
             out_temp{Y}=sim_press_shaped_fastRef2(d{1},Npts,sw,Bfield,lw,sys,tau1,tau2,...
-                refRF,refTp,y(Y),Gy,flipAngle);
+                refRF,refTp,y(Y),Gy,flipAngle,centreFreq);
 end
 
 %Now combine the outputs;  Again, doing this inside a separate for loop
@@ -155,7 +156,7 @@ end
 
 
 %Nested Function #1
-function d = sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,RF,tp,dx,Gx,flipAngle)
+function d = sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,RF,tp,dx,Gx,flipAngle,centreFreq)
 % 
 % USAGE:
 % d = sim_press_shaped_fastRef1(n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dx,Gx,phCyc1,flipAngle)
@@ -197,9 +198,11 @@ function d = sim_press_shaped_fastRef1(Bfield,sys,tau1,tau2,RF,tp,dx,Gx,flipAngl
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
-
-if nargin<9
-    flipAngle=180;
+if nargin<10
+    centreFreq=2.3;
+    if nargin<9
+        flipAngle=180;
+    end
 end
     
 if tau1<tp/1000
@@ -209,8 +212,7 @@ if tau2<tp/1000
     error('ERROR:  Echo-time 2 cannot be less than duration of refocusing pulse! ABORTING!!');
 end
 
-%Set water to centre
-centreFreq=2.3;
+%Set centre frequency
 for k=1:length(sys)
     sys(k).shifts=sys(k).shifts-centreFreq;
 end
@@ -251,7 +253,7 @@ end
 
 
 %Nested Function #2
-function out = sim_press_shaped_fastRef2(d,n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dy,Gy,flipAngle)
+function out = sim_press_shaped_fastRef2(d,n,sw,Bfield,linewidth,sys,tau1,tau2,RF,tp,dy,Gy,flipAngle,centreFreq)
 %
 % USAGE:
 % out = sim_press_shaped_fastRef2(d,n,sw,Bfield,linewidth,sys,tau2,RF,tp,dy,Gy,phCyc2,flipAngle)
@@ -295,10 +297,13 @@ function out = sim_press_shaped_fastRef2(d,n,sw,Bfield,linewidth,sys,tau1,tau2,R
 % out       = simulated spectrum, in FID-A structure format, using PRESS 
 %             sequence.
 
-if nargin<13
-    flipAngle=180;
+if nargin<14
+    centreFreq=2.3;
+    if nargin<13
+        flipAngle=180;
+    end
 end
-    
+   
 if tau1<tp/1000
     error('ERROR:  Echo-time 1 cannot be less than duration of refocusing pulse! ABORTING!!');
 end
@@ -306,8 +311,7 @@ if tau2<tp/1000
     error('ERROR:  Echo-time 2 cannot be less than duration of refocusing pulse! ABORTING!!');
 end
 
-%Set water to centre
-centreFreq=2.3;
+%Set centre Frequency
 for k=1:length(sys)
     sys(k).shifts=sys(k).shifts-centreFreq;
 end

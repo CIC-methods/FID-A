@@ -67,7 +67,7 @@ fovX=3; %size of the full simulation Field of View in the x-direction [cm]
 fovY=3; %size of the full simulation Field of View in the y-direction [cm]
 nX=32; %Number of grid points to simulate in the x-direction
 nY=32; %Number of grid points to simulate in the y-direction
-te=105;         %semiLASER total echo time [ms]
+te=135;         %semiLASER total echo time [ms]
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS
 %             sequence.
@@ -159,9 +159,9 @@ end
 %% Simulate in X-direction only
 function d = sim_sLASER_shaped_Ref1(Bfield,sys,te,RF,tp,dx,Gx,flipAngle,centreFreq)
 
-if nargin<11
+if nargin<9
     centreFreq=2.3;
-    if nargin<10
+    if nargin<8
         flipAngle=180;
     end
 end
@@ -205,9 +205,9 @@ end
 %% Simulate in Y-direction only
 function out = sim_sLASER_shaped_Ref2(d,n,sw,Bfield,linewidth,sys,te,RF,tp,dy,Gy,flipAngle,centreFreq)
 
-if nargin<15
+if nargin<13
     centreFreq=2.3;
-    if nargin<14
+    if nargin<12
         flipAngle=180;
     end
 end

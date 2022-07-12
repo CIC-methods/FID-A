@@ -3,7 +3,7 @@
 %  
 % USAGE:
 % This script runs a spatially resolved, shaped simulation of the sLASER 
-% experiment, using the sim_sLASER_shaped.m function.
+% experiment, using the sim_sLASER_shaped_phCyc.m function.
 % Adjust all parameters as desired and click "Run"
 %
 % DESCRIPTION:
