@@ -125,11 +125,12 @@ function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
     ppmAxisToPlot = ppmAxisToPlot .* scalefactorX - sagitalVoxelWidth/2 - boundingBox_mm(1,1);
 
     if (numel(axialVoxels) > 0)
-        voxelCenterCoordinates = [axialVoxels.center];
-        sagitalCenters = voxelCenterCoordinates(1, :);
-        coronalCenters = voxelCenterCoordinates(2, :);
-        spectrumToPlot = spectrumToPlot + coronalCenters;
-        ppmAxisToPlot = ppmAxisToPlot + sagitalCenters;
+        voxelCenterCoordinates = arrayfun(@(voxel) voxel.getVoxelCenter, axialVoxels, 'UniformOutput', false);
+        voxelCenterCoordinates = cell2mat(voxelCenterCoordinates);
+        sagitalCoordinates = voxelCenterCoordinates(1, :);
+        coronalCoordinates = voxelCenterCoordinates(2, :);
+        spectrumToPlot = spectrumToPlot + coronalCoordinates;
+        ppmAxisToPlot = ppmAxisToPlot + sagitalCoordinates;
     end
 
 
@@ -162,54 +163,51 @@ end
 
 
 function isIntersect = intersect(lowerCoords, upperCoords, plane)
-
     isIntersect = upperCoords >= plane && lowerCoords <= plane;
 end
 
 function [sagitalVoxels, coronalVoxels, axialVoxels] = getInersectingVoxels(center)
-    currentSagitalposition = center(1);
-    currentCoronalPosition = center(2);
-    currentAxialPosition = center(3);
+    % get the position in each plane
+    Sagitalposition = center(1);
+    CoronalPosition = center(2);
+    AxialPosition = center(3);
     global voxels
     %counters
-    sagitalVoxelCounters = 1;
-    coronalVoxelCounters = 1;
-    axialVoxelCounters = 1;
-    %initalize variables 
+    numSagitalVoxel = 1;
+    numCoronalVoxel = 1;
+    numAxialVoxel = 1;
+
+    %initalize voxel arrays 
     sagitalVoxels(numel(voxels)) = Voxel();
     coronalVoxels(numel(voxels)) = Voxel();
     axialVoxels(numel(voxels)) = Voxel();
+
+    % loop through all voxels and see if they intersect with the current planes
     for iVoxel = 1:numel(voxels)
         currentVoxel = voxels(iVoxel);
         %check which voxels intersect with the current sagital plane.
-        if(intersect(currentVoxel.getVoxelMinimumCoordinate('sagital'), ...
-                    currentVoxel.getVoxelMaximumCoordinate('sagital'), ...
-                    currentSagitalposition))
-            sagitalVoxels(sagitalVoxelCounters) = currentVoxel;
-            sagitalVoxelCounters = sagitalVoxelCounters + 1;  
+        if(currentVoxel.intersect(Sagitalposition, 'sagital'))
+            sagitalVoxels(numSagitalVoxel) = currentVoxel;
+            numSagitalVoxel = numSagitalVoxel + 1;  
         end
         %check which voxels intersectwith the sagital plane
-        if(intersect(currentVoxel.getVoxelMinimumCoordinate('coronal'), ...
-                    currentVoxel.getVoxelMaximumCoordinate('coronal'), ...
-                    currentCoronalPosition))
-            coronalVoxels(coronalVoxelCounters) = currentVoxel;
-            coronalVoxelCounters = coronalVoxelCounters + 1;
+        if(currentVoxel.intersect(CoronalPosition, 'coronal'))
+            coronalVoxels(numCoronalVoxel) = currentVoxel;
+            numCoronalVoxel = numCoronalVoxel + 1;
         end
         %check which voxels intersect with the axial plane
-        if(intersect(currentVoxel.getVoxelMinimumCoordinate('axial'), ...
-                    currentVoxel.getVoxelMaximumCoordinate('axial'), ...
-                    currentAxialPosition))
-            axialVoxels(axialVoxelCounters) = currentVoxel;
-            axialVoxelCounters = axialVoxelCounters + 1;
+        if(currentVoxel.intersect(AxialPosition, 'axial'))
+            axialVoxels(numAxialVoxel) = currentVoxel;
+            numAxialVoxel = numAxialVoxel + 1;
         end
     end
-    if(sagitalVoxelCounters < numel(voxels))
-        sagitalVoxels(sagitalVoxelCounters:numel(voxels)) = [];
+    if(numSagitalVoxel < numel(voxels))
+        sagitalVoxels(numSagitalVoxel:numel(voxels)) = [];
     end
-    if(coronalVoxelCounters < numel(voxels))
-        coronalVoxels(coronalVoxelCounters:numel(voxels)) = [];
+    if(numCoronalVoxel < numel(voxels))
+        coronalVoxels(numCoronalVoxel:numel(voxels)) = [];
     end
-    if(axialVoxelCounters < numel(voxels))
-        axialVoxels(axialVoxelCounters:numel(voxels)) = [];
+    if(numAxialVoxel < numel(voxels))
+        axialVoxels(numAxialVoxel:numel(voxels)) = [];
     end
 end

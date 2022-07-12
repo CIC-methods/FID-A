@@ -23,9 +23,9 @@ function out = op_CSIZeroFill(in, x, y)
         x (1,1) double {mustBeInteger, mustBeGreaterThan(x, -1)} = 0
         y (1,1) double {mustBeInteger, mustBeGreaterThan(y, -1)} = 0
     end
-    if(getFlags(in, 'spatialft') == true)
-        error('Please keep the data in k space before zero filling')
-    end
+
+    checkArguments(in);
+    
     dim_size = getSize(in);
     x_split_left = ceil(x/2);
     x_split_right = floor(x/2);
@@ -40,7 +40,6 @@ function out = op_CSIZeroFill(in, x, y)
     dim_size = size(data);
     data = pad(dim_size, yDimension, y_split_top, y_split_bottom, data);
     
-
     out = in;
     out = setData(out, data);
     fovX = getFov(out, 'x');
@@ -80,4 +79,8 @@ function data = pad(dim_size, dimension, leftPad, rightPad, data)
     paddingLeft = getPadding(dim_size, dimension, leftPad);
     paddingRight = getPadding(dim_size, dimension, rightPad);
     data = cat(dimension, paddingLeft, data, paddingRight);
+end
+
+function checkArguments(MRSIStruct) 
+    checkSpatialFT(MRSIStruct); 
 end

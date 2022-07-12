@@ -69,7 +69,7 @@ count = 0;
 while sum(find(amp==0))>=1 || sum(isnan(amp) >= 1)
     
     %initialize K
-    K = Kinit-count
+    K = Kinit-count;
     
     % truncate the data
     Uk = U(:,1:K);
