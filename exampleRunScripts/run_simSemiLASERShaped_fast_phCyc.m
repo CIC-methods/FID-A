@@ -1,6 +1,6 @@
 % 2021 EDIT: This function is now deprecated. The current version of the shaped semiLASER 
-% simulation is run_simSemiLASERShaped_fast.m. The current version employs coherence selection, 
-% resulting in a 4x simulation speed increase.
+% simulation is run_simSemiLASERShaped_fast.m, which employs coherence selection, 
+% instead of phase cycling, resulting in a 4x simulation speed increase.
 % run_simSemiLASERShaped_fast_phCyc.m
 %
 % Fast version by Muhammad G Saleh (Johns Hopkins University School of Medicine, 2019)
@@ -40,7 +40,7 @@ sw=5000; %= desired spectral width in [Hz]
 Bfield=7; %= main magnetic field strength in [T]
 lw=2; %= linewidth in [Hz]
 load spinSystems.mat; %= spin system definition structure
-sys=sysLac;
+sys=sysCr;
 rfPulse=io_loadRFwaveform('sampleAFPpulse_HS2_R15.RF','inv'); % adiabatic RF pulse shaped waveform
 refTp=3.5; %= RF pulse duration in [ms]
 flipAngle=180; %= flip angle of refocusing pulses [degrees] (Optional.  Default = 180 deg)
@@ -52,10 +52,10 @@ fovY=3; %size of the full simulation Field of View in the y-direction [cm]
 nX=32; %Number of grid points to simulate in the x-direction
 nY=32; %Number of grid points to simulate in the y-direction
 te=135;         %sLASER total echo time [ms]
-ph1=[0 0 0 0];  %phase cycling scheme of first refocusing pulse
-ph2=[0 0 90 90]; %phase cycling scheme of second refocusing pulse
-ph3=[0 0 0 0]; %phase cycling scheme of third refocusing pulse
-ph4=[0 90 0 90]; %phase cycling scheme of fourth refocusing pulse
+ph1=[0 0 0 0 90 90 90 90 0 0 0 0 90 90 90 90];  %phase cycling scheme of first refocusing pulse
+ph2=[0 0 90 90 0 0 90 90 0 0 90 90 0 0 90 90]; %phase cycling scheme of second refocusing pulse
+ph3=[0 0 0 0 0 0 0 0 90 90 90 90 90 90 90 90]; %phase cycling scheme of third refocusing pulse
+ph4=[0 90 0 90 0 90 0 90 0 90 0 90 0 90 0 90]; %phase cycling scheme of fourth refocusing pulse
 
 % OUTPUTS:
 % out       = simulated spectrum, in FID-A structure format, using PRESS
@@ -130,7 +130,7 @@ end
 %becuase I can't figure out how to do this inside the parfor loop:
 for Y=1:length(y)
     for m=1:length(ph1)
-        out=op_addScans(out,out_posy_rpc{Y}{m},xor(ph2(m),ph4(m)));
+        out=op_addScans(out,out_posy_rpc{Y}{m},xor(xor(ph1(m),ph3(m)),xor(ph2(m),ph4(m))));
     end
 end
 

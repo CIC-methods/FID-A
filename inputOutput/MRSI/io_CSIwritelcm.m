@@ -29,14 +29,14 @@ end
 % zop=0;
 % t0=0;
   Bo=in.Bo;
-  hzppm=42.577*Bo;
-  dwelltime=in.dwelltime;
+  hzppm=getGamma('overTwoPi', true)*Bo/1e6;
+  dwelltime=in.spectralDwellTime;
 % Nuc=0;
 % PatName='No Name';
 % scanner='TrioTim';
 % addinfo='jnear';
 
-specs = ifft(fftshift(in.specs, in.dims.t), [], in.dims.t);
+specs = ifft(fftshift(getData(in), in.dims.t), [], in.dims.t);
 vec_signal = specs(:);
 
 RF = [imag(vec_signal) real(vec_signal)];

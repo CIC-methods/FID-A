@@ -5,47 +5,45 @@
 % [out]=io_loadspec_rda(rda_filename);
 % 
 % DESCRIPTION:
-% Removes the first the first time points in all fids until new_start_idx is reached
+% Removes the first the first time point in all fids until startIndex is reached
 % 
 % INPUTS:
-% in   = FID-A CSI structure
-% new_start_idx    = Number of points to pad in the x direction
+% MRSIStruct   = FID-A CSI structure
+% startIndex    = Number of points to pad MRSIStruct the x direction
 %
 % OUTPUTS:
 % out        = Output CSI structure with zero padding
 
-function out = op_CSITrimTime(in, new_start_idx)
-    if(in.flags.spectralFT == 1)
-        fids = ifft(fftshift(in.specs, in.dims.t), [], in.dims.t);
-    else
-        fids = in.specs;
+function MRSIStruct = op_CSITrimTime(MRSIStruct, startIndex)
+    
+    [MRSIStruct, prev_permute, prev_shape] = reshapeDimensions(MRSIStruct, {'t'});
+    timeDimension = getDimension(MRSIStruct, 't');
+    prev_shape(timeDimension) = prev_shape(timeDimension) - startIndex + 1; 
+    data = getData(MRSIStruct);
+    data = data(startIndex:end,:);
+    MRSIStruct = setData(MRSIStruct, data);
+    MRSIStruct = reshapeBack(MRSIStruct, prev_permute, prev_shape);
+
+    newTimeLength = getSizeFromDimensions(MRSIStruct, {'t'});
+    time = getAdcTime(MRSIStruct);
+    newTime = time(1:newTimeLength);
+    MRSIStruct = setAdcTime(MRSIStruct, newTime);
+    if(getFlags(MRSIStruct, 'isCartesian') == 1)
+        MRSIStruct = setSpectralTime(MRSIStruct, newTime);
     end
-    permute_dims = nonzeros([in.dims.t, in.dims.x, in.dims.y, in.dims.coils, in.dims.averages]);
-    permute_back(permute_dims) = 1:length(permute_dims);
-    fids = permute(fids, permute_dims);
-    sz = size(fids);
-    fids = reshape(fids, size(fids, 1), []);
-    fids = fids(new_start_idx:end, :);
-    sz(1) = length(new_start_idx:sz(1));
-    fids = reshape(fids, sz);
-    fids = permute(fids, permute_back);
-    
-    if(in.flags.spectralFT == 1)
-        fids = fftshift(fft(fids, [], in.dims.t), in.dims.t);
+    if(getFlags(MRSIStruct, 'spectralft') == true)
+        spectralWidth = getSpectralWidth(MRSIStruct);
+        step = spectralWidth/newTimeLength;
+        lb = -spectralWidth/2 + step/2;
+        ub = spectralwidth/2 - step/2;
+
+        frequency=lb:step:ub;
+
+        gamma = 42.577478518e6;
+        %calculating the ppm
+        ppm = (-frequency/(MRSIStruct.Bo*gamma))*10e6;
+        ppm = ppm + 4.65;
+
+        MRSIStruct = setPPM(MRSIStruct, flip(ppm));
     end
-    in.specs = fids;
-    out = in;
-    out.t = out.t(new_start_idx:sz(in.dims.t));
-    out.sz = size(fids);
-    
-    lb = (-out.spectralwidth/2)+(out.spectralwidth/(2*out.sz(out.dims.t)));
-    ub = (out.spectralwidth/2)-(out.spectralwidth/(2*out.sz(out.dims.t)));
-    step = out.spectralwidth/(size(out.specs,1));
-    
-    f=lb:step:ub;
-    
-    %calculating the ppm
-    ppm=-f/(in.Bo*42.577);
-    ppm=ppm+4.65;
-    out.ppm = flip(ppm);
 end

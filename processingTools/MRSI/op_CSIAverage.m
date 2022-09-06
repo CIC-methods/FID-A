@@ -14,24 +14,30 @@
 % out = Averaged CSI FID-A structure
 
 
-function out = op_CSIAverage(in)
+function MRSIStruct = op_CSIAverage(MRSIStruct)
+    flag = checkArguments(MRSIStruct);
+    %if check arguments returns true, abort
+    if(flag); return; end
+
+    data = getData(MRSIStruct);
+
+    averageDimension = getDimension(MRSIStruct, 'averages');
+    data = squeeze(mean(data, averageDimension));
+
+    MRSIStruct = setData(MRSIStruct, data);
+    MRSIStruct = setFlags(MRSIStruct, 'averaged',  1);
+    MRSIStruct = removeDimension(MRSIStruct, 'averages');
+end
+
+% check if dims have been averaged already or dim dimension exists.
+function flag = checkArguments(in)
+    flag = false;
     if(in.dims.averages == 0)
-        error('no dims to average');
+        disp('No average Dim! Aborting')
+        flag = true;
     end
     if(in.flags.averaged)
-        error('already averaged')
+        disp('Already averaged! Aborting')
+        flag = true;
     end
-    out = in;
-    out.specs = squeeze(mean(in.specs, in.dims.averages));
-    out.flags.averaged = 1;
-    
-    fn = fieldnames(in.dims);
-    %updating MRSI parameters
-    for names = 1:length(fn)
-        if(out.dims.(fn{names}) > out.dims.averages)
-            out.dims.(fn{names}) = out.dims.(fn{names}) - 1;
-        end
-    end
-    out.dims.averages = 0;
-    out.sz = size(out.specs);
 end

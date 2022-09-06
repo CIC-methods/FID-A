@@ -1,38 +1,54 @@
 %Helper function to be used to plot voxels onto coronal plane
 
-function plot_plane(ax, vox, dims, center)
-%Get the CSI object
-global st
-bb = st.bb;
+function plot_plane(axis, intersectingVoxels, planeLabel, cursorPosition)
+    
+    % Get the spm plotting object
+    global st
 
-if(dims == 1)
-    tag = 'sagital';
-elseif(dims == 2)
-    tag = 'coronal';
-end
-offset = [bb(1,1), -bb(2,2), bb(1,3)]';
-%Get plots if they exis
+    % bouding box for the MRI
+    boundingBox = st.bb;
+    sagitalBoundingBox = boundingBox(:, 1);
+    coronalBoundingBox = boundingBox(:, 2);
+    axialBoundingBox = boundingBox(:, 3);
+    
+    % Cursor position
+    cursorSagitalPosition = cursorPosition(1);
+    cursorCoronalPosition = cursorPosition(2);
+    cursorAxialPosition = cursorPosition(3);
 
-%see if we are in the correct position to plot
-all_dims = [1,2,3];
-diff = setdiff(all_dims, dims);
-
-plane = findobj(ax, 'Tag', tag);
-delete(plane);
-voxel_positions = zeros(2, 5, numel(vox));
-for i = 1:numel(vox)
-    if(dims == 1)
-        coordinates = vox(i).find_intersection(dims, center(dims));
-        coordinates(1,:) = -coordinates(1,:);
-    else
-        coordinates = vox(i).find_intersection(dims, center(dims));
+    % get the proper coordinate dimension. Dimensions are [sagital, coronal,
+    % axial]
+    if(strcmp(planeLabel, 'sagital'))
+        plottingDimensions = [2, 3];
+    elseif(strcmp(planeLabel, 'coronal'))
+        plottingDimensions = [1, 3];
     end
-    coordinates = coordinates - offset(diff);
-    voxel_positions(:,:, i) = coordinates;
- 
 
+    % offset to center world coordinates with plotting coordinates
+    coordinateOffset = [sagitalBoundingBox(1), coronalBoundingBox(1), axialBoundingBox(1)]';
+
+    % Delete previous plot
+    planePlot = findobj(axis, 'Tag', planeLabel);
+    delete(planePlot);
+
+    % go through all voxels and find where they intersect with the current plane
+    voxelIntersectionPositions = cell(1, numel(intersectingVoxels));
+    for iVoxel = 1:numel(intersectingVoxels)
+        if(strcmp(planeLabel, 'sagital'))
+            coordinates = intersectingVoxels(iVoxel).find_intersection(planeLabel, cursorSagitalPosition);
+            % sagital plane is reversed so we need to swap the y coordinates
+            coordinates(2, :) = -coordinates(2,:);
+        else
+            coordinates = intersectingVoxels(iVoxel).find_intersection(planeLabel, cursorCoronalPosition);
+        end
+        coordinates = coordinates(plottingDimensions, :) - coordinateOffset(plottingDimensions);
+        voxelIntersectionPositions{iVoxel} = coordinates;
+    end
+
+    %plot voxel bounding box along the plane
+    hold(axis, 'on');
+    cellfun(@(voxel) patch(axis, voxel(1, :), voxel(2, :), ...
+        'w', 'FaceAlpha', 0, 'LineWidth', 1, 'Tag', planeLabel, ...
+        'EdgeColor', 'g', 'HitTes', 'off'), voxelIntersectionPositions)
+    hold(axis, 'off');
 end
-hold(ax, 'on');
-    patch(ax, squeeze(voxel_positions(1,:, :)), squeeze(voxel_positions(2,:, :)), ...
-        'w', 'FaceAlpha', 0, 'LineWidth', 1, 'Tag', tag, 'EdgeColor', 'g', 'HitTes', 'off');
-hold(ax, 'off');

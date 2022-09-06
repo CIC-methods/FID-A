@@ -1,13 +1,13 @@
 % op_CSIplot.m
 % Brenden Kadota, McGill University 2019.
-% 
+%
 % USAGE:
 % sim_plotCSI(in)
-% sim_plotCSI(in, 'min_range', 0, 'max_range', 4, 'coilNum', 3, 'averageNum', 1, 
+% sim_plotCSI(in, 'min_range', 0, 'max_range', 4, 'coilNum', 3, 'averageIndex', 1,
 %             'x_indecies', [10,20], 'y_range', [-100, 100])
-% 
+%
 % DESCRIPTION:
-% This function takes a processed MRSI twix file and plots the data using 
+% This function takes a processed MRSI twix file and plots the data using
 % the matlab plot function. Horizontal coordinates are the x coordinates
 % and vertical are y coordinates. The plots at specific (x,y) positions are
 % the spectral coordintaes
@@ -18,7 +18,7 @@
 %   Name: 'min_range' Value: double, minimum ppm range or time range to plot
 %   Name: 'max_range' Value: double, maximum ppm range or time range to plot
 %   Name: 'coilNum' Value: integer, index of coil to plot
-%   Name: 'averageNum' Value: integer, index of average to plot
+%   Name: 'averageIndex' Value: integer, index of average to plot
 %   Name: 'x_indecies' Value: (2,1) integer, bounds (inclusive) of x indecies to plot.
 %                              First index must be smaller than the second.
 %   Name: 'y_indecies' Value: (2,1) integer, bounds (inclusive) of y indecies to plot.
@@ -27,180 +27,249 @@
 %                              First index must be smaller than the second.
 %   Name: 'y_range' Value: (2,1) double, bounds (inclusive) of y indecies to plot.
 %                              First index must be smaller than the second.
-%                                           
-%                
 %
-% OUTPUTS: 
+%
+%
+% OUTPUTS:
 % fig   = figure handle.
 
-function fig = op_CSIPlot(in, plot_type, ppm_arguments, indecies)
-arguments
-    in (1,1) struct
-    plot_type.plane_type char {mustBeMemberi(plot_type.plane_type, {'real', 'imag', 'abs'})} = 'real'
-    plot_type.plot_dim char {mustBeMemberi(plot_type.plot_dim, {'ppm', 't', 'time'})} = 't'
-    ppm_arguments.min_range (1,1) double = get_default_range(in, 'min')
-    ppm_arguments.max_range (1,1) double = get_default_range(in, 'max')
-    indecies.coilNum (1,1) double = 1
-    indecies.averageNum (1,1) double = 1
-    indecies.x_indecies (2,1) double
-    indecies.y_indecies (2,1) double
-    indecies.x_range (2,1) double
-    indecies.y_range (2,1) double
-end
-
-%Argument checks
-if(~isfield(in, 'specs'))
-    error('please fourier transform along the spatial dimension before plotting')
-end
-if(in.dims.coils == 0)
-    if(indecies.coilNum > 1)
-        error('op_CSIPlot:argumentError', 'No coils to plot')
+function fig = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
+    arguments
+        MRSIStruct (1, 1) struct
+        plotType.plane_type char {mustBeMember(plotType.plane_type, {'real', 'imag', 'abs', 'phase'})} = 'real'
+        dimensionIndexes.ppmBounds (1, 2) double
+        dimensionIndexes.coilIndex (1, 1) double = 1
+        dimensionIndexes.averageIndex (1, 1) double = 1
+        dimensionIndexes.extraIndex (1, 1) double = 1
+        dimensionIndexes.xIndecies (2, 1) double
+        dimensionIndexes.yIndecies (2, 1) double
+        dimensionIndexes.xRange (2, 1) double
+        dimensionIndexes.yRange (2, 1) double
     end
-elseif(in.sz(in.dims.coils) < indecies.coilNum)
-    error('op_CSIPlot:argumentError', 'Coil index is larger than number of coils')
-end
+    % check arguments to make sure they are okay
+    checkArguments(MRSIStruct, dimensionIndexes);
 
-if(in.dims.averages == 0) 
-    if(indecies.averageNum > 1)
-        error('op_CSIPlot:argumentError', 'No averages to plot')
-    end
-elseif(in.sz(in.dims.averages) < indecies.averageNum)
-    error('op_CSIPlot:argumentError', 'Average index is larger than number of averages') 
-end
+    % get x and y range from indecies
+    [xRange, yRange] = setDefaultXandYBounds(MRSIStruct, dimensionIndexes);
+    [ppmRange, ppmVector] = getTimeBounds(MRSIStruct, dimensionIndexes);
+   
+    data = indexData(ppmRange, xRange, yRange, dimensionIndexes, MRSIStruct);
+    data = changePlaneToRealImagOrAbs(plotType, data);
+    ppmVector = setPPMVectorStartToZero(MRSIStruct, ppmVector);
+    %scale to be plotted in a voxel 
+    %offset ppm by starting coordinate
+    [ppmVector, data] = scalePPMandData(ppmVector, data, MRSIStruct);
 
-if(exist('indecies.x_indecies', 'var') && exist('indecies.x_range', 'var'))
-    error('op_CSIPlot:argumentError', 'Only x_indecies or x_range should be used, not both');
-end
-if(exist('indecies.y_indecies', 'var') && exist('indecies.y_range', 'var'))
-    error('op_CSIPlot:argumentError', 'Only y_indecies or y_range should be used, not both');
-end
-
-
-if(~isfield(indecies, 'x_indecies') && ~isfield(indecies, 'x_range'))
-    x = [1, length(in.xCoordinates)];
-elseif(isfield(indecies, 'x_range'))
-    x_val = in.xCoordinates > indecies.x_range(1) & in.xCoordinates < indecies.x_range(2);
-    x = [find(x_val, 1 ), find(x_val, 1, 'last' )];
-else
-    x = indecies.x_indecies;
-end
-
-if(~isfield(indecies, 'y_indecies') && ~isfield(indecies, 'y_range'))
-    y = [1, length(in.yCoordinates)];
-elseif(isfield(indecies, 'y_range'))
-    y_val = in.yCoordinates > indecies.y_range(1) & in.yCoordinates < indecies.y_range(2);
-    y = [find(y_val, 1 ), find(y_val, 1, 'last' )];
-else
-    y = indecies.y_indecies;
-end
-
-
-
-ppmmin = ppm_arguments.min_range;
-ppmmax = ppm_arguments.max_range;
-%check if ppm exists to plot
-if ~isfield(in, 'ppm')
-    range_bool = in.t >= ppmmin & in.t <= ppmmax;
-    ppm = in.t(range_bool);
+    xCoordinate = getCoordinates(MRSIStruct, 'x');
+    voxSizeX = getVoxSize(MRSIStruct, 'x');
+    yCoordinate = getCoordinates(MRSIStruct, 'y');
+    voxSizeY = getVoxSize(MRSIStruct, 'y');
+    %create figure and hold
+    [fig, ax] = setUpFigureAndAxes(xRange, yRange, MRSIStruct);
     
-else
-    %if ppm doesn't exist plot time domain
-    range_bool = in.ppm >= ppmmin & in.ppm <= ppmmax;
-    ppm = in.ppm(range_bool);
-    plot_type.plot_dim = 'ppm';
+    for x_idx = 1:size(data, 3)
+        for y_idx = 1:size(data, 2)
+            %first scale the ppm scale so that the range is correct;
+            timeVectorPlot = ppmVector + (x_idx - 1)*voxSizeX - voxSizeX/2 + xCoordinate(xRange(1));
+            % scale y vector to the right position
+            y_coords = data(:, y_idx, x_idx) + (size(data, 2) - y_idx)*voxSizeY + yCoordinate(yRange(1));
+            %Now start plotting
+            plot(ax, timeVectorPlot, y_coords, 'PickableParts', 'none', 'LineWidth', 1);
+        end
+    end
+    hold(ax, 'off');
 end
 
 
-%TODO: figure out permutations when there is zero dim. (ie. no coil or
-%average dimensions)
-[~, non_z_idx, vals] = find([in.dims.t, in.dims.x, in.dims.y, in.dims.coils, ...
-                           in.dims.averages]);
-specs = permute(in.specs, vals);
 
-idx = {range_bool, x(1):x(2), y(1):y(2), indecies.coilNum, indecies.averageNum};
-idx = idx(non_z_idx);
-specs = specs(idx{:});
-
-
-%get lowercase
-complex_plot = lower(plot_type.plane_type);
-
-%convert to plot type
-if(strcmp(complex_plot, 'real'))
-    specs = real(specs);
-elseif (strcmp(complex_plot, 'imag'))
-    specs = imag(specs);
-else
-    specs = abs(specs);
+function [xBounds, yBounds] = setDefaultXandYBounds(MRSIStruct, indecies)
+    xBounds = getSpatialBoundsFromIndeciesOrCoords(MRSIStruct, indecies, 'x');
+    yBounds = getSpatialBoundsFromIndeciesOrCoords(MRSIStruct, indecies, 'y');
 end
 
-%max difference in a voxel
-yrange = max(max(specs, [], 1) - min(specs, [], 1), [], 'all');
-
-
-%scale factors to fit at each (x,y) coordinates
-scalefactorX=(0.8*in.deltaX)/(ppm(end)-ppm(1));
-scalefactorY=(0.8*in.deltaY)/yrange;
-specs = specs.*scalefactorY;
-%scale the intensity of the specs to the scalefactorY
-
-
-%create figure and hold 
-figure
-ax = axes;
-hold(ax, 'on');
-
-if(strcmp(plot_type.plot_dim, 'ppm'))
-    specs = flip(specs, 1);
-end
-
-%set the x and y limits
-xlim(ax, [(in.xCoordinates(x(1))-in.deltaX), (in.xCoordinates(x(2))+in.deltaX)]);
-xticks(ax, in.xCoordinates(x(1):x(2)));
-ylim(ax, [in.yCoordinates(y(1))-in.deltaX, in.yCoordinates(y(2))+in.deltaY]);
-yticks(ax, in.yCoordinates(y(1):y(2)));
-
-for x_idx = 1:size(specs,2)
-    for y_idx = 1:size(specs,3)
-        %first scale the ppm scale so that the range is correct;
-        ppm_plot=(ppm-ppm(1))*scalefactorX;
-        %now shift it to the correct x-position;
-        ppm_plot = ppm_plot + (x_idx-1)*in.deltaX - (0.8*in.deltaX)/2 + in.xCoordinates(x(1));
-        y_coords = specs(:,x_idx,y_idx) + (size(specs,3)-y_idx)*in.deltaY + in.yCoordinates(y(1)) - specs(end, x_idx,y_idx);
-        %Now start plotting
-        plot(ax, ppm_plot, y_coords, 'PickableParts', 'none');        
+function [ppmLogicalIndex, ppmVector] = getTimeBounds(MRSIStruct, indecies)
+    % set default ppm range
+    [ppmBounds, isPPMDimension] = getDefaultPPMBounds(MRSIStruct, indecies);
+    
+    minPPM = ppmBounds(1);
+    maxPPM = ppmBounds(2);
+    
+    if(isPPMDimension)
+        ppm = getPPM(MRSIStruct);
+        ppmLogicalIndex = ppm >= minPPM & ppm <= maxPPM;
+        ppmVector = ppm(ppmLogicalIndex);
+    else
+        time = getSpectralTime(MRSIStruct);
+        timeLogicalIndex = time >= minPPM & time <= maxPPM;
+        timeVector = time(timeLogicalIndex);
+        ppmLogicalIndex = timeLogicalIndex;
+        ppmVector = timeVector;
     end
 end
-hold(ax, 'off');
+
+function [indexs, data] = permuteData(MRSIStruct)
+    %permute data into a resonable order
+    dimensionOrder = {'t', 'y', 'x', 'coils', 'averages', 'extras'};
+    dimensionOrderKSpace = {'t', 'ky', 'kx', 'coils', 'averages', 'extras'};
+    dimNumbers = getMultipleDimensions(MRSIStruct, dimensionOrder);
+    dimNumbersKSpace = getMultipleDimensions(MRSIStruct, dimensionOrderKSpace);
+    finalDim = zeros(size(dimNumbers));
+    for iDim = 1:length(dimNumbers)
+        if(dimNumbers(iDim) ~= 0)
+            finalDim(iDim) = dimNumbers(iDim);
+        end
+        if(dimNumbersKSpace(iDim) ~= 0)
+            finalDim(iDim) = dimNumbersKSpace(iDim);
+        end
+    end
+    indexs = dimNumbers > 0 | dimNumbersKSpace > 0;
+    data = getData(MRSIStruct);
+    data = permute(data, finalDim(indexs));
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%FUNCTION END%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-
-function bound = get_default_range(in, str)
-if(isfield(in, 'ppm'))
-    range = in.ppm;
-else
-    range = in.t;
+function data = indexData(timeRange, xRange, yRange, indecies, MRSIStruct)
+    [nonZeroIndex, data] = permuteData(MRSIStruct);
+    %index for the dataindexData
+    index = {timeRange, yRange(1):yRange(2), xRange(1):xRange(2), ...
+        indecies.coilIndex, indecies.averageIndex, indecies.extraIndex};
+    %remove dimensions that are not exsitent
+    index = index(nonZeroIndex);
+    %index data
+    data = data(index{:});
 end
 
-if(strcmp(str, 'min'))
-    bound = min(range);
-else
-    bound = max(range);
-end
-end
 
-function mustBeMemberi(a, members)
-    if ~(strcmpi(a, members))
-        eidType = 'mustBeMemberi:notAMember';
-        msgType = strcat("Value must be a member of this set:  ", strjoin(string(members), ', '));
-        throwAsCaller(MException(eidType,msgType))
+function data = changePlaneToRealImagOrAbs(plotType, data)
+    %get lowercase
+    plottingPlane = lower(plotType.plane_type);
+    if(strcmp(plottingPlane, 'real'))
+        data = real(data);
+    elseif (strcmp(plottingPlane, 'imag'))
+        data = imag(data);
+    elseif (strcmp(plottingPlane, 'abs'))
+        data = abs(data);
     end
 end
+
+% set default time range 
+function [timeBounds, isPPMDimension] = getDefaultPPMBounds(MRSIStruct, indecies)
+    % if indecies has ppmRange value don't set default
+    if(isfield(indecies, 'ppmBounds'))
+        isPPMDimension = true;
+        timeBounds = indecies.ppmBounds;
+        return
+    end   
+    if(getFlags(MRSIStruct, 'spatialft'))
+        isPPMDimension = true;
+    else
+        isPPMDimension = false;
+    end
+    if isPPMDimension
+        ppm = getPPM(MRSIStruct);
+    else
+        ppm = getSpectralTime(MRSIStruct);
+    end
+    minPPM = min(ppm);
+    maxPPM = max(ppm);
+    % set time range indecies
+    timeBounds = [minPPM, maxPPM];
+end
+
+function [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct, timeVector)
+    %max spectrum difference in a voxel
+    spectrumHight = max(max(data, [], 1) - min(data, [], 1), [], 'all');
+
+    %scale factors to fit at each (x,y) coordinates
+    
+    voxSizeX = getVoxSize(MRSIStruct, 'x');
+    voxSizeY = getVoxSize(MRSIStruct, 'y');
+    scalefactorX = abs((0.8 * voxSizeX) / (timeVector(end) - timeVector(1)));
+    scalefactorY = abs((0.8 * voxSizeY) / spectrumHight);
+end
+
+% Argument checks
+function checkArguments(in, indecies)
+    % check indexing
+    checkDimensionIndexingforErrors(in, indecies.coilIndex, 'coils');
+    checkDimensionIndexingforErrors(in, indecies.averageIndex, 'averages');
+    
+    % only indecies or rage can be accepted
+    if(exist('indecies.x_indecies', 'var') && exist('indecies.x_range', 'var'))
+        error('op_CSIPlot:argumentError', 'Only x_indecies or x_range should be used, not both');
+    end
+    if(exist('indecies.y_indecies', 'var') && exist('indecies.y_range', 'var'))
+        error('op_CSIPlot:argumentError', 'Only y_indecies or y_range should be used, not both');
+    end
+end
+
+function checkDimensionIndexingforErrors(in, dimensionIndex, dimensionLabel)
+    % check if dimension exists and dimension is being indexed
+    dimensionNumber = getDimension(in, dimensionLabel);
+    if(dimensionNumber == 0 && dimensionIndex > 1)
+        error('op_CSIPlot:argumentError', '%s index is larger than 1! No %s dimension exist', ...
+                                            dimensionLabel, dimensionLabel)
+    end
+    % check if plotting index is larger than dimension index
+    dimensionSize = getSizeFromDimensions(in, {dimensionLabel});
+    if(dimensionIndex > dimensionSize)
+        error('op_CSIPlot:argumentError', '%s index is larger than number of coils', dimensionLabel)
+    end
+end
+
+% take coordinate index field and get index bounds (ie. [2, 6] is second till sixth index to plot). 
+function coordinateBounds = getSpatialBoundsFromIndeciesOrCoords(in, indecies, dimensionLabel)
+    Coordinates = getCoordinates(in, dimensionLabel);
+    
+    indeciesField = [dimensionLabel, 'Indecies'];
+    rangeField = [dimensionLabel, 'Range'];
+
+    if(isfield(indecies, indeciesField))
+        coordinateBounds = indecies.xIndecies;
+    elseif(isfield(indecies, rangeField))
+        coordinateRange = indecies.(rangeField);
+        x_val = Coordinates > coordinateRange(1) & Coordinates < coordinateRange(2);
+        coordinateBounds = [find(x_val, 1), find(x_val, 1, 'last')];
+    else
+        coordinateBounds = [1, length(Coordinates)];
+    end
+end
+
+% scale down ppm and data scale so that they fit into one voxel worth of
+% plotting in MATLAB. 
+function [ppmVector, data] = scalePPMandData(ppmVector, data, MRSIStruct)
+    [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct, ppmVector);
+    ppmVector = ppmVector * scalefactorX;
+    data = data .* scalefactorY;
+end
+
+
+% Set the scale of PPM vector to start at zero
+function ppmVector = setPPMVectorStartToZero(MRSIStruct, ppmVector)
+    %start time vector at zero
+    if(getFlags(MRSIStruct, 'spectralFT') == 1)
+        %timeVector = flip(timeVector);
+        ppmVector = flip(ppmVector);
+    end
+    ppmVector = ppmVector - ppmVector(1);
+end
+
+
+
+% set up figure and axes limits and ticks
+function [fig, ax] = setUpFigureAndAxes(xRange, yRange, MRSIStruct)
+    xCoordinate = getCoordinates(MRSIStruct, 'x');
+    yCoordinate = getCoordinates(MRSIStruct, 'y');
+    voxelSizeX = getVoxSize(MRSIStruct, 'x');
+    voxelSizeY = getVoxSize(MRSIStruct, 'y');
+
+    fig = figure;
+    ax = axes;
+    hold(ax, 'on');
+    
+    xlim(ax, [xCoordinate(xRange(1)) - voxelSizeX, xCoordinate(xRange(2)) + voxelSizeX]);
+    xticks(ax, xCoordinate(xRange(1):xRange(2)));
+
+    ylim(ax, [yCoordinate(yRange(1)) - voxelSizeY, yCoordinate(yRange(2)) + voxelSizeY]);
+    yticks(ax, yCoordinate(yRange(1):yRange(2)));
+end
+

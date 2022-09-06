@@ -70,6 +70,8 @@ tau2=105; %TE2 for second spin echo [ms]
 spinSys='Lac'; %spin system to simulate
 refPhCyc1=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 refPhCyc2=[0,90]; %phase cycling steps for 2nd refocusing pulse [degrees]
+flipAngle=180; %Flip angle of slice selective refocusing pulses [degrees]
+centreFreq=2.3; %Centre frequency for slice selective refocusing pulses [ppm]
 % ************END OF INPUT PARAMETERS**********************************
 
 %set up spatial grid
@@ -109,8 +111,8 @@ parfor X=1:length(x)
                     'Y-position ' num2str(Y) ' of ' num2str(length(y)) ', '...
                     'First Refoc phase cycle ' num2str(RP1) ' of ' num2str(length(refPhCyc1)) ', '...
                     'Second Refoc phase cycle ' num2str(RP2) ' of ' num2str(length(refPhCyc2)) '!!!']);
-                out_posxy_rpc{X}{Y}{RP1}{RP2}=sim_press_shaped(Npts,sw,Bfield,lw,sys,tau1,tau2,...
-                    refRF,refTp,x(X),y(Y),Gx,Gy,refPhCyc1(RP1),refPhCyc2(RP2));
+                out_posxy_rpc{X}{Y}{RP1}{RP2}=sim_press_shaped_phCyc(Npts,sw,Bfield,lw,sys,tau1,tau2,...
+                    refRF,refTp,x(X),y(Y),Gx,Gy,refPhCyc1(RP1),refPhCyc2(RP2),flipAngle,centreFreq);
                 
                 if RP1==1 && RP2==1
                     out_posxy{X}{Y}=out_posxy_rpc{X}{Y}{RP1}{RP2};
