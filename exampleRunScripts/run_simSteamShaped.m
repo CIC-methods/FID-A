@@ -44,7 +44,7 @@
 % out               = Simulation results, summed over all space.
 
 % ************INPUT PARAMETERS**********************************
-rfWaveform='fslmrs_exc.pta'; %name of RF pulse waveform.
+rfWaveform='sampleExcPulse.pta'; %name of RF pulse waveform.
 Tp=3; %duration of refocusing pulses[ms]
 Npts=8192; %number of spectral points
 sw=6000; %spectral width [Hz]
