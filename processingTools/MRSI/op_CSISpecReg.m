@@ -20,7 +20,7 @@
 % phases    = measured phase drift
 
 
-function [out,freqs,phases,fid0,fid0_fc]=op_CSISpecReg(in,averagingMode,pointsPerLoop)
+function [out,freqs,phases,fid0,fid0_sr]=op_CSISpecReg(in,averagingMode,pointsPerLoop)
 % arguments
 %     in (1,1) struct
 % end
