@@ -159,8 +159,8 @@ end
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5+f0/1000,5+f0/1000,100000);
 if isstr(type)
     if type=='exc'
-        index=find(mv(3,:)<0.5);
-        bw=sc(index(end))-sc(index(1));
+        index=find(abs(mv(1,:)+1i*mv(2,:))>0.5);
+        bw=sc(index(end))-sc(index(1))
         %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
     elseif type=='ref'
         index=find(mv(3,:)<0);
@@ -183,8 +183,8 @@ end
 [mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
 if isstr(type)
     if type=='exc'
-        index=find(mv(3,:)<0.5);
-        bw=sc(index(end))-sc(index(1));
+        index=find(abs(mv(1,:)+1i*mv(2,:))>0.5);
+        bw=sc(index(end))-sc(index(1))
         %plot(sc(index),mv(3,index),'.-',sc,mv(3,:));
     elseif type=='ref'
         index=find(mv(3,:)<0);
