@@ -60,7 +60,7 @@ ylabel('M_y');
 
 subplot(4,1,3),plot(sc,sqrt(mv(2,:).^2 + mv(1,:).^2),'LineWidth',1.2);
 box off;
-ylabel('M_xy');
+ylabel('M_x_y');
 
 subplot(4,1,4),plot(sc,mv(3,:),'LineWidth',1.2);
 box off;

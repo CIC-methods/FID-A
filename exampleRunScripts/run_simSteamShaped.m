@@ -2,8 +2,7 @@
 % Jamie Near, Sunnybrook Research Institute 2022.
 % 
 % USAGE:
-% This script is run simply by editing the input parameters and then
-% clicking "Run".
+% [out,out_posxy]=run_simSteamShaped(spinSys);
 % 
 % DESCRIPTION:
 % This script simulates a STEAM experiment with fully shaped RF 
@@ -21,8 +20,11 @@
 % the "parfor" loop with a "for" loop.
 % 
 % INPUTS:
-% To run this script, edit the parameters below as desired and then click
-% "run":
+% To run this script, there is technically only one input argument:
+% spinSys           = spin system to simulate 
+%
+% However, the user should also edit the following parameters as 
+% desired before running the function:
 % rfWaveform        = name of refocusing pulse waveform.
 % Tp                = duration of refocusing pulses[ms]
 % Bfield            = Magnetic field strength in [T]
@@ -37,29 +39,28 @@
 % nX                = number of spatial grid points to simulate in x-direction
 % nY                = number of spatial grid points to simulate in y-direction
 % taus              = vector of pulse sequence timings  [ms]
-% spinSys           = spin system to simulate 
 %
 % OUTPUTS:
 % out_posxy         = Simulation results, spatially resolved.
 % out               = Simulation results, summed over all space.
 
+function [out,out_posxy]=run_simSteamShaped(spinSys)
 % ************INPUT PARAMETERS**********************************
-rfWaveform='sampleExcPulse.pta'; %name of RF pulse waveform.
-Tp=3; %duration of refocusing pulses[ms]
+rfWaveform='ex40.b4_384_14.pta'; %name of RF pulse waveform.
+Tp=1.920; %duration of refocusing pulses[ms]
+flipAngle=90; %RF pulse flip angle [degrees]
 Npts=8192; %number of spectral points
 sw=6000; %spectral width [Hz]
-Bfield=6.98; %magnetic field strength [Tesla]
-lw=2; %linewidth of the output spectrum [Hz]
+Bfield=2.89; %magnetic field strength [Tesla]
+lw=1; %linewidth of the output spectrum [Hz]
 thkX=2.5; %slice thickness of x RF pulse [cm]
 thkY=2.5; %slice thickness of y RF pulse [cm]
 fovX=5; %size of the full simulation Field of View in the x-direction [cm]
 fovY=5; %size of the full simulation Field of View in the y-direction [cm]
-nX=30; %Number of grid points to simulate in the x-direction
-nY=30; %Number of grid points to simulate in the y-direction
-tau1=135; %TE for STEAM sequence [ms]
+nX=48; %Number of grid points to simulate in the x-direction
+nY=48; %Number of grid points to simulate in the y-direction
+tau1=6; %TE for STEAM sequence [ms]
 tau2=32; %TM for STEAM sequence [ms]
-spinSys='Lac'; %spin system to simulate
-flipAngle=90; %RF pulse flip angle [degrees]
 centreFreq=2.3; %Centre frequency of refocusing pulses [ppm]
 % ************END OF INPUT PARAMETERS**********************************
 
@@ -119,14 +120,14 @@ out=op_ampScale(out,1/voxRatio);
 
 
 %Uncomment this part to view the results of the spatially resolved simulation:
- if length(x)>1 && length(y)>1
-     ppmmin=1.0;
-     ppmmax=1.6;
-     sim_make2DSimPlot(out_posxy,ppmmin,ppmmax);
- else
-     plot(out.ppm,out.specs);
- end
-op_plotspec(out)
+%  if length(x)>1 && length(y)>1
+%      ppmmin=1.0;
+%      ppmmax=1.6;
+%      sim_make2DSimPlot(out_posxy,ppmmin,ppmmax);
+%  else
+%      plot(out.ppm,out.specs);
+%  end
+% op_plotspec(out)
 
 
 
