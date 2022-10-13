@@ -1,5 +1,6 @@
 % rf_resample.m
 % Jamie Near, McGill University 2014.
+% tl-edit: edited by Thomas Lange, University of Freiburg
 %
 % USAGE:
 % RF_out=rf_resample(RF_in,N);
@@ -33,14 +34,24 @@ else
     isPhsMod=false;
 end
 
-
 RF_out=RF_in;
-newWaveform(:,1)=resample(RF_out.waveform(:,1),P,Q);
-newWaveform(:,2)=resample(RF_out.waveform(:,2),P,Q);
+
+% tl-edit++ 
+% convert waveform to complex array for resampling
+waveform_compl=RF_out.waveform(:,2).*exp(i*RF_out.waveform(:,1)*pi/180);
+
+waveform_compl_new=resample(waveform_compl,P,Q);
+
+newWaveform(:,1)=round(10000*angle(waveform_compl_new)*180/pi)/10000;
+newWaveform(:,2)=round(10000*abs(waveform_compl_new))/10000;
 newWaveform(:,3)=ones(length(newWaveform(:,1)),1);
+
 if ~isPhsMod
-    newWaveform(:,1)=180*(newWaveform(:,1)>100);
+    newWaveform(:,1)=round(newWaveform(:,1));
+    newWaveform(:,1)=newWaveform(:,1)+(newWaveform(:,1) == -180)*360;
 end
+% tl-edit--
+
 if RF_in.isGM 
     newWaveform(:,4)=resample(RF_out.waveform(:,4),P,Q);
 end
