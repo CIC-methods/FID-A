@@ -2,7 +2,7 @@
 % Jamie Near, Sunnybrook Research Institute 2021.
 % 
 % USAGE:
-% [out1,out2,out1_w,out2_w]=run_hd_specialproc_auto(filestring,aaDomain,tmaxin,iterin);
+% [out1,out2,out1_w,out2_w]=run_hd_specialproc_auto(filestring,VoxIDs,aaDomain,tmaxin,iterin);
 % 
 % DESCRIPTION:
 % Processing script for Siemens Hadamard-encoded SPECIAL (HD-SPECIAL) MRS 
@@ -14,6 +14,8 @@
 % filestring   = String variable for the name of the directory containing
 %                   the water suppressed HD-SPECIAL .dat file.  Water unsuppressed
 %                   .dat file should be contained in [filestring '_w/'];
+% VoxIDs       = (Optional) Two-element cell array with elements that are string variables 
+%                   giving names to the voxel IDs. Default is {'Vox1','Vox2'} 
 % aaDomain     = (Optional) Perform the spectral registration (drift correction) using
 %                   the full spectrum ('t'), or only a limited frequency
 %                   range ('f').  Default is 'f'.
@@ -30,17 +32,21 @@
 % out2_w       = Fully processed, water unsuppressed output spectrum from second voxel. 
 
 
-function [out1,out2,out1_w,out2_w]=run_hdspecialproc_auto(filestring,aaDomain,tmaxin,iterin)
+function [out1,out2,out1_w,out2_w]=run_hdspecialproc_auto(filestring,VoxIDs,aaDomain,tmaxin,iterin)
 
-if nargin<4
+if nargin<5
     iterin=20;
-    if nargin<3
+    if nargin<4
         tmaxin=0.2;
-        if nargin<2
+        if nargin<3
             aaDomain='f';
+            if nargin<2
+                VoxIDs={'Vox1','Vox2'};
+            end
         end
     end
 end
+
 
 %Ensure that filestring is an absolute path, otherwise you can get yourself
 %in a tangle later inserting figures at the report stage.
@@ -835,18 +841,17 @@ saveas(h,fullfile(reportFigsDir,'finalSpecFig'),'jpg');
 saveas(h,fullfile(reportFigsDir,'finalSpecFig'),'fig');
 
 
-% wrt=input('write? ','s');
 wrt='y';
 if wrt=='y' || wrt=='Y'
-    RF1=io_writelcm(out1,fullfile(filestring,'main1_lcm'),out1.te);
-    RF2=io_writelcm(out2,fullfile(filestring,'main2_lcm'),out2.te);
-    RF1=io_writelcm(out1_noproc,fullfile(filestring,'unprocessed1_lcm'),out1_noproc.te);
-    RF2=io_writelcm(out2_noproc,fullfile(filestring,'unprocessed2_lcm'),out2_noproc.te);
+    RF1=io_writelcm(out1,fullfile(filestring,[VoxIDs{1} '_lcm']),out1.te);
+    RF2=io_writelcm(out2,fullfile(filestring,[VoxIDs{2} '_lcm']),out2.te);
+    RF1=io_writelcm(out1_noproc,fullfile(filestring,[VoxIDs{1} '_unprocessed_lcm']),out1_noproc.te);
+    RF2=io_writelcm(out2_noproc,fullfile(filestring,[VoxIDs{2} '_unprocessed_lcm']),out2_noproc.te);
     if water
-        RF1=io_writelcm(out1_w,fullfile([filestring '_w'],'1w_lcm'),out1_w.te);
-        RF2=io_writelcm(out2_w,fullfile([filestring '_w'],'2w_lcm'),out2_w.te);
-        RF1=io_writelcm(out1_w_noproc,fullfile([filestring '_w'],'1w_unprocessed_lcm'),out1_w_noproc.te);
-        RF2=io_writelcm(out2_w_noproc,fullfile([filestring '_w'],'2w_unprocessed_lcm'),out2_w_noproc.te);
+        RF1=io_writelcm(out1_w,fullfile(filestring,[VoxIDs{1} '_w_lcm']),out1_w.te);
+        RF2=io_writelcm(out2_w,fullfile(filestring,[VoxIDs{2} '_w_lcm']),out2_w.te);
+        RF1=io_writelcm(out1_w_noproc,fullfile(filestring,[VoxIDs{1} '_w_unprocessed_lcm']),out1_w_noproc.te);
+        RF2=io_writelcm(out2_w_noproc,fullfile(cd ~n_filestring,[VoxIDs{2} '_w_unprocessed_lcm']),out2_w_noproc.te);
     end
 end
 
@@ -891,7 +896,6 @@ fprintf(fid,'\n\n<h2>Final Result:</h2>');
 fprintf(fid,'\n<img src= " %s " width="800" height="400">',fullfile(reportFigsDir,'finalSpecFig.jpg'));
 fclose(fid);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 
