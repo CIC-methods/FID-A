@@ -851,7 +851,7 @@ if wrt=='y' || wrt=='Y'
         RF1=io_writelcm(out1_w,fullfile(filestring,[VoxIDs{1} '_w_lcm']),out1_w.te);
         RF2=io_writelcm(out2_w,fullfile(filestring,[VoxIDs{2} '_w_lcm']),out2_w.te);
         RF1=io_writelcm(out1_w_noproc,fullfile(filestring,[VoxIDs{1} '_w_unprocessed_lcm']),out1_w_noproc.te);
-        RF2=io_writelcm(out2_w_noproc,fullfile(cd ~n_filestring,[VoxIDs{2} '_w_unprocessed_lcm']),out2_w_noproc.te);
+        RF2=io_writelcm(out2_w_noproc,fullfile(filestring,[VoxIDs{2} '_w_unprocessed_lcm']),out2_w_noproc.te);
     end
 end
 
