@@ -235,10 +235,14 @@ elseif isnumeric(type)
     bw=sc(index(end))-sc(index(1));  %Now find the bandwidth at that point ("Full width at half max").
 end
 
-%If the pulse was offset from 0 Hz, revert the previous frequency shift - PT,2021
-if off_res
-    rf(:,1)=rf(:,1)-phaseRamp';
-end
+%finally, try to estimate the centre point of the RF pulse 'rfCentre'.  
+%This is a number between 0 and 1 that indicates where the peak of the RF 
+%amplitude waveform occurs.  If rfCentre = 0.5, then the pulse is symmetric.
+%If rfCentre<0.5 then the peak occurs near the beginning of the pulse (i.e.
+%a max phase pulse).  If rfCentre >0.5, then the peak occurs near the end
+%of the pulse (i.e. min phase pulse).
+maxIndex=find(rf(:,2)==max(rf(:,2)));
+rfCentre=mean(maxIndex)/length(rf(:,2));
 
 %Now store the output structure;
 RF_struct.waveform=rf;
@@ -255,5 +259,6 @@ else
     RF_struct.tthk='N/A - frequency selective pulse';
 end
 RF_struct.tw1=tw1;
+RF_struct.rfCentre=rfCentre;
 
 

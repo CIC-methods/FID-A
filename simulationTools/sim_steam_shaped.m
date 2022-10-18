@@ -50,15 +50,32 @@ if nargin<15
         flipAngle=90;
     end
 end
-    
-if TE<tp
+   
+%In the steam sequence, it can be common to use an asymmetric RF pulse for the
+%90-degree pulse waveform.  In this case, it is conventional for the 2nd
+%and 3rd rf pulses to be time-reversed versions of eachother, with the 2nd
+%pulse (RF1) being a max-phase pulse, and the 3rd pulse (RF2) being a 
+%min-phase pulse (i.e. the long tails of both pulse occurring during the TM 
+%period so that the TE is minimized).  Here, use the asymmetry factor of 
+%the pulse to make sure that the 2nd and 3rd pulses are max-phase and 
+%min-phase, respectively:
+if RF.rfCentre>0.5
+    RF1=rf_timeReverse(RF);
+    RF2=RF;
+else
+    RF1=RF;
+    RF2=rf_timeReverse(RF);
+end
+
+%Check that the TE and TM values are not too short
+if TE<(RF1.rfCentre*tp*2)
     error('ERROR:  TE cannot be less than duration of RF pulse! ABORTING!!');
 end
-if TM<tp
+if TM<(RF2.rfCentre*tp*2)
     error('ERROR:  Echo-time 2 cannot be less than duration of RF pulse! ABORTING!!');
 end
 
-%Set water to centre
+%Set centre frequency
 for k=1:length(sys)
     sys(k).shifts=sys(k).shifts-centreFreq;
 end
@@ -68,8 +85,8 @@ end
 
 %Calculate new delays by subtracting the pulse duration from TE and TM;
 delays=zeros(2);
-delays(1)=TE-tp;
-delays(2)=TM-tp;
+delays(1)=TE-(RF1.rfCentre*tp*2);
+delays(2)=TM-(RF2.rfCentre*tp*2);
 if sum(delays<0)
     error(['ERROR! The following timings are too short: ' num2str(find(delays<0)) '.']);
 end
@@ -78,12 +95,12 @@ end
 d=sim_excite(d,H,'x');                                    %EXCITE
 d=sim_COF(H,d,1);                                       %Keep only +1-order coherences
 d=sim_evolve(d,H,delays(1)/2000);                         %Evolve by delays(1)/2
-d=sim_gradSpoil(d,H,[Gx,0,0],[dx,dy,0],tp/2);          %Prewind gradient for 2nd 90 degree pulse (Not sure why, but this only works when Gx is positive.  Intiutively, Gx amplitude should be the opposite of the slice select gradient (i.e. -Gx), but this does not seem to work).  
-d=sim_shapedRF(d,H,RF,tp,flipAngle,90,dx,Gx);             %1st shaped 90 degree selective pulse
+d=sim_gradSpoil(d,H,[Gx,0,0],[dx,dy,0],tp*RF1.rfCentre);     %Prewind gradient for 2nd 90 degree pulse (Not sure why, but this only works when Gx is positive.  Intiutively, Gx amplitude should be the opposite of the slice select gradient (i.e. -Gx), but this does not seem to work).  
+d=sim_shapedRF(d,H,RF1,tp,flipAngle,90,dx,Gx);             %1st shaped 90 degree selective pulse
 d=sim_COF(H,d,0);                                       %Keep only 0-order coherences
 d=sim_evolve(d,H,(delays(2))/1000);                       %Evolve by delays(2)
-d=sim_shapedRF(d,H,RF,tp,flipAngle,90,dy,Gy);           %2nd shaped 90 degree selective pulse
-d=sim_gradSpoil(d,H,[0,Gy,0],[dx,dy,0],tp/2);            %Rewind gradient for 3rd 90 degree pulse (Not sure why, but this only works when Gy is positive.  Intiutively, Gx amplitude should be the opposite of the slice select gradient (i.e. -Gy), but this does not seem to work).
+d=sim_shapedRF(d,H,RF2,tp,flipAngle,90,dy,Gy);           %2nd shaped 90 degree selective pulse
+d=sim_gradSpoil(d,H,[0,Gy,0],[dx,dy,0],tp*RF1.rfCentre);    %Rewind gradient for 3rd 90 degree pulse (Not sure why, but this only works when Gy is positive.  Intiutively, Gx amplitude should be the opposite of the slice select gradient (i.e. -Gy), but this does not seem to work).
 d=sim_COF(H,d,-1);                                      %Keep only -1 coherences
 d=sim_evolve(d,H,delays(1)/2000);                         %Evolve by delays(1)/2
 [out,dout]=sim_readout(d,H,n,sw,linewidth,90);          %Readout along y (90 degree phase);
