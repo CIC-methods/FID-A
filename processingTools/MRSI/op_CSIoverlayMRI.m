@@ -1,92 +1,64 @@
-% sim_CSIoverlayMRI.m
+% op_CSIoverlayMRI.m
+% Brenden Kadota, Sunnybrook 2022
 %
+% DESCRIPTION:
 % Overlay MRSI structure on spm_image graphic. Displays the MRSI specs onto
 % the axial plane of the brain.
 %
 % USAGE:
-% sim_CSIoverlayMRI(mriFileName, in, (optinal) coilNum);
+% op_CSIoverlayMRI('/path/to/nifit/mri.nii', MRSIStruct, 1);
 %
 %
 % INPUT:
-% mriFileName           = char array or string representing the file path
-%                         to mriFile in nifti format
-% in                    = MRSI structure to overlay on MRI
-% coilNum               = coilNum to plot if coils have not been combined
-%                       (default value = 1)
+% mriFileName           = string path to nifti file
+% in                    = MRSI structure to overlay. In FID-A format
+% coilIndex             = coilIndex to plot if coils have not been combined (default value = 1)
+% averageIndex          = average index to plot
+%
+% OUTPUT:
+%
 
 
-function op_CSIoverlayMRI(mriFileName, in, coilNum, average_num)
+function op_CSIoverlayMRI(MRSIStruct, mriFileName, coilIndex, averageIndex)
+    arguments
+        MRSIStruct (1, 1) struct
+        mriFileName (:, 1) string
+        coilIndex (1, 1) double = 1
+        averageIndex (1, 1) double = 1
+    end
 
-    checkArguments(in);
+    checkArguments(MRSIStruct);
     %call spm global variable
     global st
     global voxels
-    global show_vox
+    global showVoxelOutlineFlag
 
-    show_vox = 0;
-    if ~exist('coliNum', 'var')
-        coilNum = 1;
-    end
-    if ~exist('average_num', 'var')
-        average_num = 1;
-    end
+    showVoxelOutlineFlag = false;
 
-    %ensure filename is a character array not string
+    % ensure filename is a character array not string
     mriFileName = char(mriFileName);
-    %display image using spm
+    if(contains(mriFileName, '~'))        
+        mriFileName = fullfile(getuserdir, mriFileName(2:end));
+    end
+    % display image using spm
     spm_image('display', mriFileName)
 
-    %check if st.callback is a cell array of strings or a string
-    if(ischar(st.callback))
-        %create cell array and add overaly() callback onto it
-        callback = st.callback;
-        st.callback = cell(1,2);
-        st.callback{1} = callback;
-        st.callback{2} = 'overlay_specs()';
-    else
-        %append the overlay callback to the last spot in the cell array
-        st.callback{size(st.callback, 2) + 1} = 'overlay_specs()';
-    end
+    % adds MRSI overlay function to SPM callback function
+    st = addMRSIOverlayToSPMCallback(st, 'overlaySpectraOnMRI()');
 
-    %Labels for dropdown
-    labels={'Reposition', 'Select Spec'};
-    %putting the dropdown menu in the figure to reposition or select spec
-    selector = uicontrol('Parent',st.fig,'Units','Pixels','Position',[320 400 100 20],...
-        'Style','Popupmenu','String',labels);
-    %selector callback function
-    selector.Callback = @selection;
+    spmFigure = st.fig;
+    buildMouseClickDropdown(spmFigure);
+    buildPPMBoundTextBox(spmFigure);
+    buildPlotTypeDropdown(spmFigure);
+    buildShowVoxelButton(spmFigure);
 
-    ppm_max_control = uicontrol('Parent', st.fig, 'Units', 'Pixels', 'Position', [100, 405, 50, 20],...
-        'Style', 'edit', 'String', 'ppmmax', 'Tag', 'max');
-    ppm_max_control.Callback = @set_max;
-
-    ppm_min_control = uicontrol('Parent', st.fig, 'Units', 'Pixels', 'Position', [50, 405, 50, 20],...
-        'Style', 'edit', 'String', 'ppmmin', 'Tag', 'min');
-    ppm_min_control.Callback = @set_min;
-
-    %labels for the dropdown menu
-    plot_labels = {'real', 'imaginary', 'magnitude'};
-    %creates a dropdown menu in the figure to decide to plot real, imaginary,
-    %or magnitud
-    plot_type_selector = uicontrol('Parent',st.fig,'Units','Pixels','Position',[200 400 100 20],...
-        'Style','Popupmenu','String',plot_labels, 'Tag', 'plot_type');
-
-    %assigning callback method used to change the plotting type
-    plot_type_selector.Callback = @change_plot;
-
-    uicontrol('Parent',st.fig,'Units','Pixels','Position',[500 405 60 20],...
-        'Style','togglebutton','String', 'Show Voxels', 'Tag', 'show_voxels', ...
-        'Callback', @show_voxels);
-
-
-    voxels = createVoxels(in);
+    voxels = buildArrayOfVoxels(MRSIStruct);
     %plot the MRSI onto the spm mri graphic along the axial dimension.
-    
-    overlay_specs('real', min(in.ppm), max(in.ppm), in, coilNum, average_num);
+    overlaySpectraOnMRI('real', min(MRSIStruct.ppm), max(MRSIStruct.ppm), MRSIStruct, coilIndex, averageIndex);
 end
 
 function change_plot(src,~)
-    overlay_specs(src.String{src.Value});
+    overlaySpectraOnMRI(src.String{src.Value});
 end
 
 function set_min(src, ~)
@@ -98,7 +70,7 @@ function set_min(src, ~)
         if(ppm_min <= ppm_max)
             plot_obj = findobj('Tag', 'plot_type');
             cur_type = plot_obj.String{plot_obj.Value};
-            overlay_specs(cur_type, ppm_min, ppm_max);
+            overlaySpectraOnMRI(cur_type, ppm_min, ppm_max);
         end
     end
 end
@@ -112,27 +84,32 @@ function set_max(src, ~)
         if(ppm_min <= ppm_max)
             plot_obj = findobj('Tag', 'plot_type');
             cur_type = plot_obj.String{plot_obj.Value};
-            overlay_specs(cur_type, ppm_min, ppm_max);
+            overlaySpectraOnMRI(cur_type, ppm_min, ppm_max);
         end
     end
 end
 
-function selection(src, ~)
+function setMouseClickOption(src, ~)
     global st
+
     %get the axis object for the axial plane
     axis = st.vols{1}.ax{1}.ax;
-
+    
     if(src.Value == 2)
         %If the popup menu is set to select_spec
         %set the callback function of click on axis to the method
         %select_spec.m
         set(axis, 'ButtonDownFcn', @select_spec);
         %position new axis here with properties
-        axes('Visible','off', 'Parent',st.fig, ...
-            'YDir','normal', 'Units','Pixels', 'Box','on',...
-            'Position',[380 445 250 220],...
-            'Units','normalized',...
-            'Visible','on', 'Tag', 'csi_axis');
+        axes('Visible','off', ...
+             'Parent', st.fig, ...
+             'YDir','normal', ...
+             'Units','Pixels', ...
+             'Box','on', ...
+             'Position', [380 445 250 220], ...
+             'Units','normalized', ...
+             'Visible','on', ...
+             'Tag', 'csi_axis');
     else
         %If the popup menu is set to reposition
         %set click on axial plane to reposition
@@ -146,13 +123,13 @@ end
 
 %callback method used for repositioning
 function repos_start(~, ~)
-
+    currentFigure = gcbf;
     %checking if the click is a right click
-    if ~strcmpi(get(gcbf,'SelectionType'),'alt')
+    if ~strcmpi(get(currentFigure, 'SelectionType'),'alt')
         %set callback functions for movement of mouse and finished
         %clicking. spm_orthviews('reposition') is for movement of mouse
         % and repos_end for end of click.
-        set(gcbf,'windowbuttonmotionfcn',@()(spm_orthviews('reposition')), 'windowbuttonupfcn',@repos_end);
+        set(currentFigure, 'windowbuttonmotionfcn',@()(spm_orthviews('reposition')), 'windowbuttonupfcn',@repos_end);
         %call reposition in spm_orthviews
         spm_orthviews('reposition');
     end
@@ -164,10 +141,10 @@ function repos_end(~, ~)
     set(gcbf,'windowbuttonmotionfcn','', 'windowbuttonupfcn','');
 end
 
-function show_voxels(src, ~)
+function showVoxelCallback(src, ~)
     global show_vox
     show_vox = src.Value;
-    overlay_specs();
+    overlaySpectraOnMRI();
 end
 
 function checkArguments(in)
@@ -175,4 +152,61 @@ function checkArguments(in)
         error('please add spm12 to your path before continuing');
     end
     checkSpatialFT(in)
+end
+
+function buildMouseClickDropdown(spmFigure)
+    %Labels for dropdown
+    labels={'Reposition', 'Select Spec'};
+    %putting the dropdown menu in the figure to reposition or select spec
+    mouseDropdown = uicontrol('Parent', spmFigure, ...
+        'Units', 'Pixels', ...
+        'Position', [320 400 100 20], ...
+        'Style', 'Popupmenu', ...
+        'String', labels);
+    %selector callback function
+    mouseDropdown.Callback = @setMouseClickOption;
+end
+
+function [maxPPMTextBox, minPPMTextBox] = buildPPMBoundTextBox(spmFigure)
+    maxPPMTextBox = uicontrol('Parent', spmFigure, ...
+        'Units', 'Pixels', ...
+        'Position', [100, 405, 50, 20],...
+        'Style', 'edit', ...
+        'String', 'ppmmax', ...
+        'Tag', 'max', ...
+        'Callback', @set_max);
+    
+    minPPMTextBox = uicontrol('Parent', spmFigure, ...
+        'Units', 'Pixels', ...
+        'Position', [50, 405, 50, 20],...
+        'Style', 'edit', ...
+        'String', 'ppmmin', ...
+        'Tag', 'min', ...
+        'Callback', @set_min);
+end
+
+
+%
+function buildPlotTypeDropdown(spmFigure)
+    %labels for the dropdown menu
+    plotLabels = {'real', 'imaginary', 'magnitude'};
+    %creates a dropdown menu in the figure to decide to plot real, imaginary,
+    %or magnitud
+    plot_type_selector = uicontrol('Parent', spmFigure, ...
+        'Units', 'Pixels', ...
+        'Position', [200 400 100 20], ...
+        'Style', 'Popupmenu', ...
+        'String', plotLabels, ...
+        'Tag', 'plot_type', ...
+        'Callback', @change_plot);
+end
+
+function buildShowVoxelButton(spmFigure)
+    uicontrol('Parent', spmFigure, ...
+        'Units', 'Pixels', ...
+        'Position', [500 405 60 20],...
+        'Style', 'togglebutton', ...
+        'String', 'Show Voxels', ...
+        'Tag', 'show_voxels', ...
+        'Callback', @showVoxelCallback);
 end
