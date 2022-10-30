@@ -1,4 +1,4 @@
-%overlay.m
+% overlay.m
 % Used as a callback function in sim_CSIoverlayMRI to overaly CSI data onto
 % MRI. The overlay is done with spm_image first, so spm needs to be installed.
 % Coordinates are in RAS or neurological coordinates (ie, right = x, anterior = y, superior = z.
@@ -14,7 +14,7 @@
 % coilNum           = coilNum to plot if coils have not been combined.
 %                   (default value)  1
 
-function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
+function overlaySpectraOnMRI(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
     %call global variable from spm
     global st;
 
@@ -57,7 +57,7 @@ function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
     %plotted onto.
     boundingBox_mm = st.bb;
 
-    [sagitalVoxels, coronalVoxels, axialVoxels] = getInersectingVoxels(cursorPosition);
+    [sagitalVoxels, coronalVoxels, axialVoxels] = findIntersectingVoxels(voxels, cursorPosition);
 
     %get a logical array of points to plot for the ppm range
     timeRange = CSI_OBJ.ppm >= ppm_min & CSI_OBJ.ppm <= ppm_max;
@@ -85,7 +85,7 @@ function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
     for iVoxel = 1:numel(axialVoxels)
 
         currentVoxel = axialVoxels(iVoxel);
-        voxelIndex = currentVoxel.index;
+        voxelIndex = currentVoxel.fid_aIndex;
         spectrumToPlot(:, iVoxel) = spectralData(timeRange, voxelIndex(1), ...
         voxelIndex(2), voxelIndex(3), 1);
         spectrumToPlot(:, iVoxel) = flip(spectrumToPlot(:, iVoxel));
@@ -125,7 +125,7 @@ function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
     ppmAxisToPlot = ppmAxisToPlot .* scalefactorX - sagitalVoxelWidth/2 - boundingBox_mm(1,1);
 
     if (numel(axialVoxels) > 0)
-        voxelCenterCoordinates = arrayfun(@(voxel) voxel.getVoxelCenter, axialVoxels, 'UniformOutput', false);
+        voxelCenterCoordinates = arrayfun(@(voxel) voxel.position, axialVoxels, 'UniformOutput', false);
         voxelCenterCoordinates = cell2mat(voxelCenterCoordinates);
         sagitalCoordinates = voxelCenterCoordinates(1, :);
         coronalCoordinates = voxelCenterCoordinates(2, :);
@@ -139,7 +139,7 @@ function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
 
     if(show_vox)
         for iVoxel = 1:numel(axialVoxels)
-            box = axialVoxels(iVoxel).find_intersection('axial', cursorPosition(3));
+            box = axialVoxels(iVoxel).findIntersection('axial', cursorPosition(3));
             box = box(1:2, :);
             coordinates = box - boundingBox_mm(1,1:2)';
             patch(st.vols{1}.ax{1}.ax, coordinates(1, :), coordinates(2,:), ...
@@ -152,62 +152,12 @@ function overlay_specs(plot_type, ppmmin, ppmmax, in, coilNum, average_num)
     %stop holding
 
     %PLOTTING IN THE SAGITAL PLANE
-    plot_plane(st.vols{1}.ax{3}.ax, sagitalVoxels, 'sagital', cursorPosition);
+    plotVoxelsOnMRIPlane(st.vols{1}.ax{3}.ax, sagitalVoxels, 'sagital', cursorPosition);
 
     %PLOTTING ON THE CORONAL PLANE
-    plot_plane(st.vols{1}.ax{2}.ax, coronalVoxels, 'coronal', cursorPosition);
+    plotVoxelsOnMRIPlane(st.vols{1}.ax{2}.ax, coronalVoxels, 'coronal', cursorPosition);
 end
 
 % see if plane coordinate intersects with lower and upper coord bounds in 1
 % dimension
 
-
-function isIntersect = intersect(lowerCoords, upperCoords, plane)
-    isIntersect = upperCoords >= plane && lowerCoords <= plane;
-end
-
-function [sagitalVoxels, coronalVoxels, axialVoxels] = getInersectingVoxels(center)
-    % get the position in each plane
-    Sagitalposition = center(1);
-    CoronalPosition = center(2);
-    AxialPosition = center(3);
-    global voxels
-    %counters
-    numSagitalVoxel = 1;
-    numCoronalVoxel = 1;
-    numAxialVoxel = 1;
-
-    %initalize voxel arrays 
-    sagitalVoxels(numel(voxels)) = Voxel();
-    coronalVoxels(numel(voxels)) = Voxel();
-    axialVoxels(numel(voxels)) = Voxel();
-
-    % loop through all voxels and see if they intersect with the current planes
-    for iVoxel = 1:numel(voxels)
-        currentVoxel = voxels(iVoxel);
-        %check which voxels intersect with the current sagital plane.
-        if(currentVoxel.intersect(Sagitalposition, 'sagital'))
-            sagitalVoxels(numSagitalVoxel) = currentVoxel;
-            numSagitalVoxel = numSagitalVoxel + 1;  
-        end
-        %check which voxels intersectwith the sagital plane
-        if(currentVoxel.intersect(CoronalPosition, 'coronal'))
-            coronalVoxels(numCoronalVoxel) = currentVoxel;
-            numCoronalVoxel = numCoronalVoxel + 1;
-        end
-        %check which voxels intersect with the axial plane
-        if(currentVoxel.intersect(AxialPosition, 'axial'))
-            axialVoxels(numAxialVoxel) = currentVoxel;
-            numAxialVoxel = numAxialVoxel + 1;
-        end
-    end
-    if(numSagitalVoxel < numel(voxels))
-        sagitalVoxels(numSagitalVoxel:numel(voxels)) = [];
-    end
-    if(numCoronalVoxel < numel(voxels))
-        coronalVoxels(numCoronalVoxel:numel(voxels)) = [];
-    end
-    if(numAxialVoxel < numel(voxels))
-        axialVoxels(numAxialVoxel:numel(voxels)) = [];
-    end
-end
