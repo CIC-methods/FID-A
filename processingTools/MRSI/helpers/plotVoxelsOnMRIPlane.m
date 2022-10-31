@@ -1,6 +1,6 @@
 %Helper function to be used to plot voxels onto coronal plane
 
-function plot_plane(axis, intersectingVoxels, planeLabel, cursorPosition)
+function plotVoxelsOnMRIPlane(axis, intersectingVoxels, planeLabel, cursorPosition)
     
     % Get the spm plotting object
     global st
@@ -35,11 +35,11 @@ function plot_plane(axis, intersectingVoxels, planeLabel, cursorPosition)
     voxelIntersectionPositions = cell(1, numel(intersectingVoxels));
     for iVoxel = 1:numel(intersectingVoxels)
         if(strcmp(planeLabel, 'sagital'))
-            coordinates = intersectingVoxels(iVoxel).find_intersection(planeLabel, cursorSagitalPosition);
+            coordinates = intersectingVoxels(iVoxel).findIntersection(planeLabel, cursorSagitalPosition);
             % sagital plane is reversed so we need to swap the y coordinates
             coordinates(2, :) = -coordinates(2,:);
         else
-            coordinates = intersectingVoxels(iVoxel).find_intersection(planeLabel, cursorCoronalPosition);
+            coordinates = intersectingVoxels(iVoxel).findIntersection(planeLabel, cursorCoronalPosition);
         end
         coordinates = coordinates(plottingDimensions, :) - coordinateOffset(plottingDimensions);
         voxelIntersectionPositions{iVoxel} = coordinates;
