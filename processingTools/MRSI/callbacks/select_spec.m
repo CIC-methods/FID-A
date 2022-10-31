@@ -12,7 +12,7 @@
 % src       = modified uicontrol object
 %
 
-function select_spec(src,~) 
+function select_spec(src, ~) 
     %get global MRSI object
     global CSI_OBJ;
     global ppm_min;
