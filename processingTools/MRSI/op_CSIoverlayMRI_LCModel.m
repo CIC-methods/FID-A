@@ -17,83 +17,101 @@
 % row and column numbers. Therefore, this code assumes neurological
 % convention (right -> x+).
 
-function op_CSIoverlayMRI_LCModel(in, nifti, lcTable)
+function op_CSIoverlayMRI_LCModel(MRSIStruct, mriFileNameInNifti, lcModelCSV)
     arguments
-        in (1, 1) struct
-        nifti (1, :) {mustBeFile}
-        lcTable (1, :) {mustBeFile}
+        MRSIStruct (1, 1) struct
+        mriFileNameInNifti (1, :) char {mustBeFile}
+        lcModelCSV (1, :) char {mustBeFile}
     end
-    %call spm global variable
+    % call spm global variable
     global st
-    global voxels
 
+    checkArguments(mriFileNameInNifti, lcModelCSV);
+
+    buildMRIPlotUsingSPM(mriFileNameInNifti);
+    st = addMRSIOverlayToSPMCallback(st, 'overlayConcMapOverMRI');
+    st = buildConcentrationMapAxes(st);
+
+    voxels = buildArrayOfVoxels(MRSIStruct);
+    
+    spmFigure = st.fig;
+    buildMetaboliteDropDownSelector(spmFigure, readtable(lcModelCSV));
+    initalizeFigureUserData(spmFigure, voxels)
+    
+    overlayConcMapOverMRI;
+end
+
+function sendMetaboliteMapToPlot(src, ~, lcModelTable)
+    selectedMetaboliteIndex = src.Value;
+    spmFigure = src.Parent;
+    
+    [metabolitePlotArray, xIndexBounds, yIndexBounds] = makeLcModelHeatMap(lcModelTable, selectedMetaboliteIndex);
+    spmFigure.UserData.metabolitePlot = metabolitePlotArray;
+    spmFigure.UserData.xIndexBounds = xIndexBounds;
+    spmFigure.UserData.yIndexBounds = yIndexBounds; 
+    overlayConcMapOverMRI;
+end
+
+function checkArguments(mriFileNameInNifti, lcModelCSV)
     %Some error checks
     if ~exist('spm_image', 'file')
         error('please add spm12 to your path before continuing');
     end
-    if ~isa(nifti, 'char') && ~isa(nifti, 'string')
+    if ~isa(mriFileNameInNifti, 'char') && ~isa(mriFileNameInNifti, 'string')
         error('please enter a string or char array for the nifti variable')
     end
-    if ~isa(lcTable, 'char') && ~isa(lcTable, 'string')
+    if ~isa(lcModelCSV, 'char') && ~isa(lcModelCSV, 'string')
         error('please enter a string')
     end
-
-    met_data = readtable(lcTable);
-
-    %ensure filename is a character array not string
-    nifti = char(nifti);
-    %display image using spm
-    spm_image('display', nifti)
-
-    %check if st.callback is a cell array of strings or a string
-    if(ischar(st.callback))
-        %create cell array and add overaly() callback onto it
-        callback = st.callback;
-        st.callback = cell(1,2);
-        st.callback{1} = callback;
-        st.callback{2} = 'overlay_conc()';
-    else
-        %append the overlay callback to the last spot in the cell array
-        st.callback{size(st.callback, 2) + 1} = 'overlay_conc()';
-    end
-
-    conc = axes('Position', st.vols{1}.ax{1}.ax.Position, 'xtick', [], ...
-        'xticklabel', [], 'ytick', [], 'yticklabel',[], 'Color', 'none', ...
-        'XLim', st.vols{1}.ax{1}.ax.XLim, 'YLim', st.vols{1}.ax{1}.ax.YLim, 'PickableParts','none');
-    st.vols{1}.ax{4}.ax = conc;
-    colormap(conc, 'default');
-
-
-    %labels for the dropdown menu. Remove first 2 rows because they are row and column indecies
-    plot_labels = met_data.Properties.VariableNames(3:end);
-    plot_labels = ['None', plot_labels];
-    %putting the dropdown menu in the figure to reposition or select spec
-    selector = uicontrol('Parent',st.fig,'Units','Pixels','Position',[320 405 100 20],...
-        'Style','Popupmenu','String',plot_labels);
-
-    %selector callback function
-    selector.Callback = @display_met;
-    function display_met(src, ~)
-        met = src.Value;
-        y_range(1) = min(met_data.Row);
-        y_range(2) = max(met_data.Row);
-        x_range(1) = min(met_data.Col);
-        x_range(2) = max(met_data.Col);
-        met_arr = zeros(x_range(2)-x_range(1)+1,y_range(2)-y_range(1)+1);
-        if(met ~= 0)
-            for i = 1:length(met_data.(met+1))
-                x = met_data.Col(i)-x_range(1)+1;
-                y = met_data.Row(i)-y_range(1)+1;
-                met_arr(x,y) = met_data.(met+1)(i);
-            end
-        else
-            met_arr = [];
-        end
-        overlay_conc(in, met_arr, x_range, y_range);
-    end
-
-    voxels = createVoxels(in);
-    overlay_conc(in, []);
 end
 
+function st = buildConcentrationMapAxes(st)
+    transversePlaneAxes = st.vols{1}.ax{1}.ax;
+    concentrationMapAxes = axes('Position', transversePlaneAxes.Position, ...
+        'XLim', transversePlaneAxes.XLim, ...
+        'YLim', transversePlaneAxes.YLim, ...
+        'XTick', [], ...
+        'XTickLabel', [], ...
+        'ytick', [], ...
+        'yticklabel', [], ...
+        'Color', 'none', ...
+        'PickableParts','none', ...
+        'Colormap', 'default');
+    colormap(concentrationMapAxes, "default");
 
+    % add colormap
+    st.vols{1}.ax{4}.ax = concentrationMapAxes;
+end
+
+function buildMetaboliteDropDownSelector(spmFigure, lcModelTable)
+    metaboliteLabels = buildMetaboliteLabelsFromTable(lcModelTable);
+
+    % Dropdown ui for selecting metabolite heat map to plot
+    metaboliteDropDownSelector = uicontrol('Parent', spmFigure, ...
+        'Units', 'Pixels', ...
+        'Position', [320 405 100 20], ...
+        'Style', 'Popupmenu', ...
+        'String', metaboliteLabels);
+    setCallbackForMetaboliteSelector(metaboliteDropDownSelector, lcModelTable);
+end
+
+function setCallbackForMetaboliteSelector(metaboliteDropDownSelector, lcModelTable)
+    metaboliteDropDownSelector.Callback = {@sendMetaboliteMapToPlot, lcModelTable};
+end
+
+function buildMRIPlotUsingSPM(mriFileNameInNifti)
+    spm_image('display', mriFileNameInNifti)
+end
+
+function initalizeFigureUserData(spmFigure, voxels)
+    spmFigure.UserData.metabolitePlot = [];
+    spmFigure.UserData.xIndexBounds = [];
+    spmFigure.UserData.yIndexBounds = [];
+    spmFigure.UserData.voxels = voxels;
+end
+
+function metaboliteLabels = buildMetaboliteLabelsFromTable(lcModelTable)
+    %labels for the dropdown menu. Remove first 2 rows because they are row and column indecies
+    metaboliteLabels = lcModelTable.Properties.VariableNames(3:end);
+    metaboliteLabels = ['None', metaboliteLabels];
+end
