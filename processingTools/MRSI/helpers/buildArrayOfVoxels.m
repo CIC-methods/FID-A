@@ -2,36 +2,39 @@
 % creates an array of voxels based on MRSI data structure and maps back to the
 % index of the data in that structure.
 
-function vox = createVoxels(MRSIStruct)
+function vox = buildArrayOfVoxels(MRSIStruct)
     % get index sizes
-    dimSizes = getSizeFromDimensions(MRSIStruct, {'y', 'x', 'z'});
-    numberOfCoronalPoints = dimSizes(1);
-    numberOfSagitalPoints = dimSizes(2);
-    numberOfAxialPoints = dimSizes(3);
+    spatialSizes = getSizeFromDimensions(MRSIStruct, {'y', 'x', 'z'});
+    numberOfCoronalPoints = spatialSizes(1);
+    numberOfSagitalPoints = spatialSizes(2);
+    numberOfAxialPoints = spatialSizes(3);
 
-    % get affine matrix
     affineMatrix = getAffineMatrix(MRSIStruct);
+    scaleAndRotationMatrix = affineMatrix(1:3, 1:3);
+
+    coronalVoxelSize = getVoxSize(MRSIStruct, 'y');
+    sagitalVoxelSize = getVoxSize(MRSIStruct, 'x');
+    axialVoxelSize = getVoxSize(MRSIStruct, 'z');
+    voxelSize = [coronalVoxelSize, sagitalVoxelSize, axialVoxelSize];
+
+    rotationMatrix = scaleAndRotationMatrix * inv(eye(3) .* voxelSize);
 
     % initalize 3d array holding voxels
     vox(numberOfCoronalPoints, numberOfSagitalPoints, numberOfAxialPoints) = Voxel();
-
+    
     for zVoxelIndex = 0:numberOfAxialPoints - 1
         for yVoxelIndex = 0:numberOfCoronalPoints - 1
             for xVoxelIndex = 0:numberOfSagitalPoints - 1
                 % current voxel index
-                currentIndex = [xVoxelIndex; yVoxelIndex; zVoxelIndex; 1];
+                currentIndex = [xVoxelIndex; yVoxelIndex; zVoxelIndex];
+                voxelPosition = affineMatrix * [currentIndex; 1];
+                voxelPosition = voxelPosition(1:3);
                 % get the six sides of the voxel
-                coronal = getBoundsInWorldCoordinates('coronal', currentIndex, affineMatrix);
-                sagital = getBoundsInWorldCoordinates('sagital', currentIndex, affineMatrix);
-                axial = getBoundsInWorldCoordinates('axial', currentIndex, affineMatrix);
                 
                 % indexing by 1 in matlab. Adjust here
                 currentIndex = currentIndex + 1;
-                % Coronal indexing is reversed in FID-A!!! THis is to conform with
-                % matlab imaging indexing for the y dimension
-                %currentIndex(2) = numberOfCoronalPoints - yVoxelIndex;
                 vox(yVoxelIndex + 1, xVoxelIndex + 1, zVoxelIndex + 1) =...
-                    Voxel(sagital, coronal, axial, currentIndex(1:3));
+                    Voxel(voxelPosition, voxelSize, rotationMatrix, currentIndex);
             end
         end
     end
