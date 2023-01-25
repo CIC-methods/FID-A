@@ -87,6 +87,18 @@ function MRSIStruct = io_CSIload_twix(filename)
     end
     %Now get the size of the data array:
     sz = size(data);
+    
+    %Getting Nucleus - PT,2022
+    nucleus=twix_obj.hdr.Config.Nucleus;
+    switch nucleus
+    case '1H'
+        gamma=42.576;
+    case '31P'
+        gamma=17.235;
+    case '13C'
+        gamma=10.7084;
+    end
+
     %****************************************************************
     %FILLING IN DATA STRUCTURE
     MRSIStruct.data = data;
@@ -102,6 +114,8 @@ function MRSIStruct = io_CSIload_twix(filename)
     MRSIStruct.scanDate = findScanDate(twix_obj);
     MRSIStruct.dims = dims;
     MRSIStruct.Bo = twix_obj.hdr.Dicom.flMagneticFieldStrength;
+    MRSIStruct.nucleus=nucleus;
+    MRSIStruct.gamma=gamma;
     MRSIStruct.seq = sequence;
     MRSIStruct.te = twix_obj.hdr.MeasYaps.alTE{1}/1000;
     MRSIStruct.tr = twix_obj.hdr.MeasYaps.alTR{1}/1000;
