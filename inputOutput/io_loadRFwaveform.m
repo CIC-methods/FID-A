@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 %
 % USAGE:
-% [RF_struct]=io_loadRFwaveform(filename,type,f0);
+% [RF_struct]=io_loadRFwaveform(filename,type,off_res);
 % 
 % DESCRIPTION:
 % Initialize an RF pulse structure to contain an 
@@ -29,15 +29,16 @@
 %             degrees] of the pulse.  This can be useful if you want to use 
 %             a pulse that does not have an exact flip angle of 90 or 180 
 %             degrees (Thanks to Eric Plitman for help with this feature).  
-% f0        = centre frequency of the rf pulse [Hz].  Optional. Default=0.
+% off_res   = set to "1" if the centre of the RF pulse is not at 0 Hz. 
+%             Optional. Default=0.
 %
 % OUTPUTS:
 % RF_struct = RF pulse waveform in FID-A rf pulse structure format.
 
-function RF_struct=io_loadRFwaveform(filename,type,f0);
+function RF_struct=io_loadRFwaveform(filename,type,off_res);
 
 if nargin<3
-    f0=0;
+    off_res=0;
 end
 
 if isnumeric(type)
@@ -94,6 +95,37 @@ else
 end
 
 
+Tp=0.005;  %assume a 5 ms rf pulse;
+
+%Frequency shifting the pulse to zero if off_res is 1. To be shifted back
+%afterwards - PT,2021
+if off_res   
+    %Initializations
+    tmp_w1=0.03;
+    tmp_min=1;
+    
+    %Looping through until a min of <-0.98 (inv/ref) or <0.2 (exc) is reached
+    switch type
+        case 'exc'
+            min_floor = 0.2;
+        case {'inv','ref'}
+            min_floor = -0.98;
+    end
+    while tmp_min > min_floor
+        [mv,sc]=bes(rf,Tp*1000,'f',tmp_w1,-5,5,1000); %running bes with bare settings
+        [tmp_min,tmp_min_pos]=min(mv(3,:)); %finding the min and min position
+        freq_shift=sc(tmp_min_pos)*1000;%the freq shift (in Hz) of the pulse @ 5ms
+        tmp_w1=tmp_w1+0.02;
+    end
+    
+    %frequency shifting the pulse to 0 Hz
+    N=size(rf,1);
+    dt=Tp/N;
+    t=[0:dt:Tp-dt];
+    phaseRamp=t*-freq_shift*360;
+    rf(:,1)=rf(:,1)+phaseRamp'; 
+end
+
 %Find out if the pulse is phase modulated.  If it is not, then we can
 %determine the time-w1 product of the pulse quite simply.  If it is phase
 %modulated (adiabatic, etc) then the determination of the time-w1 product 
@@ -119,8 +151,7 @@ end
 %scale amplitude function so that maximum value is 1:
 rf(:,2)=rf(:,2)./max(rf(:,2));
 
-Tp=0.005;  %assume a 5 ms rf pulse;
-if ~isPhsMod
+if ~isPhsMod 
     %The pulse is not phase modulated, so we can calculate the w1max:
     %find the B1 max of the pulse in [kHz]:
     if isstr(type)
@@ -134,7 +165,9 @@ if ~isPhsMod
     elseif isnumeric(type) %assume that a flip angle (in degrees) was given
         flipCyc=type/360;
     end
+    
     intRF=sum(rf(:,2).*((-2*(rf(:,1)>179))+1))/length(rf(:,2));
+    
     if intRF~=0
         w1max=flipCyc/(intRF*Tp); %w1max is in [Hz]
     else
@@ -145,7 +178,7 @@ else
     %The pulse is phase modulated, so we will need to run some test to find
     %out the w1max;  To do this, we can plot Mz as a function of w1 and
     %find the value of w1 that results in the desired flip angle.
-    [mv,sc]=bes(rf,Tp*1000,'b',f0/1000,0,5,40000);
+    [mv,sc]=bes(rf,Tp*1000,'b',0,0,5,40000);
     plot(sc,mv(3,:));
     xlabel('w1 (kHz)');
     ylabel('mz');
@@ -156,7 +189,7 @@ end
 
 %now it's time to find out the time-bandwidth product:
 %First make a high resolution plot the pulse profile over a wide bandwidth:
-[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5+f0/1000,5+f0/1000,100000);
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-5,5,100000);
 if isstr(type)
     if type=='exc'
         index=find(abs(mv(1,:)+1i*mv(2,:))>0.5);
@@ -180,7 +213,7 @@ end
 
 
 %Now make a very high resolution plot the pulse profile over a narrower bandwidth:
-[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw+f0/1000,bw+f0/1000,100000);
+[mv,sc]=bes(rf,Tp*1000,'f',w1max/1000,-bw,bw,100000);
 if isstr(type)
     if type=='exc'
         index=find(abs(mv(1,:)+1i*mv(2,:))>0.5);
@@ -211,11 +244,10 @@ end
 maxIndex=find(rf(:,2)==max(rf(:,2)));
 rfCentre=mean(maxIndex)/length(rf(:,2));
 
-
 %Now store the output structure;
 RF_struct.waveform=rf;
 RF_struct.type=type;
-RF_struct.f0=f0;
+RF_struct.f0=0;
 if size(rf,2)>3 && any(rf(:,4))
     RF_struct.tbw='N/A - gradient modulated pulse';
     RF_struct.isGM=true;

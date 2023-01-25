@@ -240,13 +240,20 @@ function MRSIStruct = fastFourierTransformTime(MRSIStruct)
     
     MRSIStruct = setData(MRSIStruct, data);
     ppm = calculatePPM(MRSIStruct);
-    ppm = ppm + 4.65;
+    
+    if strcmp(MRSIStruct.nucleus,'1H')
+        ppm = ppm + 4.65;
+    end
+    
     MRSIStruct = setPPM(MRSIStruct, ppm);
     %flip ppm
     MRSIStruct = setFlags(MRSIStruct, 'spectralFT', true);
 end
 
 function ppm = calculatePPM(MRSIStruct)
+    %get gamma and nucleus
+    gamma = MRSIStruct.gamma;
+    
     %lower bounds of frequency
     spectralWidth = getSpectralWidth(MRSIStruct);
     timeSize = getSizeFromDimensions(MRSIStruct, {'t'});
@@ -255,13 +262,12 @@ function ppm = calculatePPM(MRSIStruct)
     lowerBound = -spectralWidth/2 + step/2;
     %upper bounds of frequency
     upperBound = spectralWidth/2 - step/2;
-    %frequency step
-    
+
     %calculating the frequency
     frequency=lowerBound:step:upperBound;
     
-    %calculating the ppm
-    ppm=-frequency/(MRSIStruct.Bo*42.577);
+    %calculating the ppm    
+    ppm=-frequency/(MRSIStruct.Bo*gamma);
 end
 
 

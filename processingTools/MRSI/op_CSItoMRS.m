@@ -33,7 +33,7 @@ function MRS = op_CSItoMRS(MRSIStruct, xCoordinate, yCoordinate, index)
     timeDimension = getDimension(MRSIStruct, 't');
     if(getFlags(MRSIStruct, 'spectralft') == true)
         MRS.specs = data(MRSIndex{:});
-        MRS.fids = fft(fftshift(MRS.specs, timeDimension), [],  timeDimension);
+        MRS.fids = ifft(fftshift(MRS.specs, timeDimension), [],  timeDimension);
     else
         MRS.fids = data(MRSIndex{:});
         MRS.specs = fftshift(ifft(MRS.fids, [], timeDimension), timeDimension);
@@ -54,7 +54,7 @@ function MRS = op_CSItoMRS(MRSIStruct, xCoordinate, yCoordinate, index)
         freqBounds = MRSIStruct.spectralWidth/2 - step/2;
         frequency = -freqBounds:step:freqBounds;
 
-        MRS.ppm = frequency/(MRSIStruct.Bo*42.577);
+        MRS.ppm = frequency/(MRSIStruct.Bo*MRSIStruct.gamma);
     end
     
 

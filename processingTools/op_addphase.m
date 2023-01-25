@@ -55,6 +55,7 @@ end
 
 if length(size(specs))<3 && ~suppressPlot
     plot(in.ppm,real(specs));
+    set(gca,'XDir','reverse');
 end
 
     

@@ -332,7 +332,8 @@ dwelltime = twix_obj.hdr.MeasYaps.sRXSPEC.alDwellTime{1}*1e-9;  %Franck Lamberto
 spectralwidth=1/dwelltime;
     
 %Get TxFrq
-txfrq=twix_obj.hdr.Meas.Frequency;
+txfrq=twix_obj.hdr.Config.Frequency;
+
 
 %Get Date
 %date = getfield(regexp(twix_obj.hdr.MeasYaps.tReferenceImage0, ...
@@ -401,10 +402,21 @@ end
 
 
 %Calculate t and ppm arrays using the calculated parameters:
+%Switch between different Nuclei - PT,2021
 f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
-
+nucleus=twix_obj.hdr.Config.Nucleus;
+switch nucleus
+    case '1H'
+        gamma=42.576;
+        ppm=-f/(Bo*gamma);
+        ppm=ppm+4.65;
+    case '31P'
+        gamma=17.235;
+        ppm=-f/(Bo*gamma);
+    case '13C'
+        gamma=10.7084;
+        ppm=-f/(Bo*gamma);
+end
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
 
@@ -428,6 +440,8 @@ out.seq=seq;
 out.te=TE/1000;
 out.tr=TR/1000;
 out.pointsToLeftshift=leftshift;
+out.nucleus=nucleus;
+out.gamma=gamma;
 
 
 %FILLING IN THE FLAGS
