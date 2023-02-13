@@ -55,22 +55,23 @@ sqzDims=twix_obj.image.sqzDims;
 sequence=twix_obj.hdr.Config.SequenceFileName;  
 
 %Try to find out what sequnece this is:
-isSpecial=~isempty(strfind(sequence,'rm_special')) ||...  %Is this Ralf Mekle's SPECIAL sequence?
-            ~isempty(strfind(sequence,'vq_special'));  %or the CIBM SPECIAL sequence?
-isjnSpecial=~isempty(strfind(sequence,'jn_svs_special')) ||...  %or Jamie Near's SPECIAL sequence?
-            ~isempty(strfind(sequence,'md_Adiab_Special')) ||... %or Masoumeh Dehghani's Adiabatic SPECIAL sequence?
-            ~isempty(strfind(sequence,'md_Special')) ||... %or another version of Masoumeh Dehghani's SPECIAL sequence?
-            ~isempty(strfind(sequence,'md_Inv_special')); %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
-ishdSPECIAL=~isempty(strfind(sequence,'md_dvox_special')); %Is this Masoumeh Dehghani's hadamard-encoded dual-SPECIAL sequence?
-isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PRESS sequence?
-isjnseq=~isempty(strfind(sequence,'jn_')) ||... %Is this another one of Jamie Near's sequences 
-        ~isempty(strfind(sequence,'md_'));      %or a sequence derived from Jamie Near's sequences (by Masoumeh Dehghani)?
-isWIP529=~isempty(strfind(sequence,'edit_529')); %Is this WIP 529 (MEGA-PRESS)?
-isWIP859=~isempty(strfind(sequence,'edit_859')); %Is this WIP 859 (MEGA-PRESS)?
-isMinn=~isempty(strfind(sequence,'eja_svs_')); %Is this one of Eddie Auerbach's (CMRR, U Minnesota) sequences?
-isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
-            ~isempty(strfind(sequence,'svs_st'))) && ... % or the Siemens STEAM sequence?
-            isempty(strfind(sequence,'eja_svs'));    %And make sure it's not 'eja_svs_steam'.
+isSpecial=contains(sequence,'rm_special') ||...  %Is this Ralf Mekle's SPECIAL sequence?
+            contains(sequence,'vq_special');  %or the CIBM SPECIAL sequence?
+isjnSpecial=contains(sequence,'jn_svs_special') ||...  %or Jamie Near's SPECIAL sequence?
+            contains(sequence,'md_Adiab_Special') ||... %or Masoumeh Dehghani's Adiabatic SPECIAL sequence?
+            contains(sequence,'md_Special') ||... %or another version of Masoumeh Dehghani's SPECIAL sequence?
+            contains(sequence,'md_Inv_special') || ... %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
+            contains(sequence,'pt_svs_special_31p'); %or Peter Truong's 31P SPECIAL sequence?
+ishdSPECIAL=contains(sequence,'md_dvox_special'); %Is this Masoumeh Dehghani's hadamard-encoded dual-SPECIAL sequence?
+isjnMP=contains(sequence,'jn_MEGA_GABA'); %Is this Jamie Near's MEGA-PRESS sequence?
+isjnseq=contains(sequence,'jn_') ||... %Is this another one of Jamie Near's sequences 
+        contains(sequence,'md_');      %or a sequence derived from Jamie Near's sequences (by Masoumeh Dehghani)?
+isWIP529=contains(sequence,'edit_529'); %Is this WIP 529 (MEGA-PRESS)?
+isWIP859=contains(sequence,'edit_859'); %Is this WIP 859 (MEGA-PRESS)?
+isMinn=contains(sequence,'eja_svs_'); %Is this one of Eddie Auerbach's (CMRR, U Minnesota) sequences?
+isSiemens=(contains(sequence,'svs_se') ||... %Is this the Siemens PRESS seqeunce?
+            contains(sequence,'svs_st')) && ... % or the Siemens STEAM sequence?
+            ~contains(sequence,'eja_svs');    %And make sure it's not 'eja_svs_steam'.
 
 %If this is the SPECIAL sequence, it probably contains both inversion-on
 %and inversion-off subspectra on a single dimension, unless it is the VB
@@ -89,7 +90,7 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
         data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
         data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
         sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
-    elseif twix_obj.NCol>1 && twixObj.image.NCha==1
+    elseif twix_obj.image.NCol>1 && twix_obj.image.NCha==1
         data(:,:,1)=squeezedData(:,[1:2:end-1]);
         data(:,:,2)=squeezedData(:,[2:2:end]);
         sqzSize=[sqzSize(1) sqzSize(2)/2 2];
@@ -332,7 +333,7 @@ dwelltime = twix_obj.hdr.MeasYaps.sRXSPEC.alDwellTime{1}*1e-9;  %Franck Lamberto
 spectralwidth=1/dwelltime;
     
 %Get TxFrq
-txfrq=twix_obj.hdr.Config.Frequency;
+txfrq=twix_obj.hdr.Meas.lFrequency;
 
 
 %Get Date
@@ -405,16 +406,12 @@ end
 %Switch between different Nuclei - PT,2021
 f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
 nucleus=twix_obj.hdr.Config.Nucleus;
+gamma=twix_obj.hdr.Meas.alLarmorConstant(1)/1e6;
 switch nucleus
     case '1H'
-        gamma=42.576;
         ppm=-f/(Bo*gamma);
         ppm=ppm+4.65;
-    case '31P'
-        gamma=17.235;
-        ppm=-f/(Bo*gamma);
-    case '13C'
-        gamma=10.7084;
+    otherwise
         ppm=-f/(Bo*gamma);
 end
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
@@ -442,7 +439,8 @@ out.tr=TR/1000;
 out.pointsToLeftshift=leftshift;
 out.nucleus=nucleus;
 out.gamma=gamma;
-
+out.hdr=twix_obj.hdr;
+out.filename=twix_obj.image.filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;
