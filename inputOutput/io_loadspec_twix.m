@@ -333,7 +333,7 @@ dwelltime = twix_obj.hdr.MeasYaps.sRXSPEC.alDwellTime{1}*1e-9;  %Franck Lamberto
 spectralwidth=1/dwelltime;
     
 %Get TxFrq
-txfrq=twix_obj.hdr.Meas.lFrequency;
+txfrq=twix_obj.hdr.Config.Frequency;
 
 
 %Get Date
