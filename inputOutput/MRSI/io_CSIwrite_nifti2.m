@@ -9,7 +9,8 @@ function nifti = io_CSIwrite_nifti2(MRSIStruct, filename)
         %open the file
         fileID  = fopen(filename, 'w');
 
-        %sizeof_hdr: Needs to be 540
+%         %sizeof_hdr: Needs to be 540
+%         header = fread(fileID, 540, '*int8')';
 
         nifti = writeHeader(MRSIStruct, fileID);
         nifti = readExtensions(nifti, fileID);
@@ -62,7 +63,7 @@ function MRSIStruct = writeHeader(MRSIStruct, fileID)
     % data size
     fwrite(fileID, 128, 'int16')
     % dimensions
-    dimensions = getSizeFromDimensions(MRSIStruct, {'X', 'y', 'z', 't', 'averages', 'coils', 'extras'});
+    dimensions = getSizeFromDimensions(MRSIStruct, {'x', 'y', 'z', 't', 'averages', 'coils', 'extras'});
     dimensions = [7, dimensions];
     fwrite(fileID, dimensions, 'int64');
     % intent code
