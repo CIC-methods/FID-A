@@ -28,12 +28,12 @@ function [MRSIStruct, lorenzianFilter] = op_CSIFilterTime(MRSIStruct, lineBroade
     t2 = 1 / (pi * lineBroadening);
 
     %Create an exponential decay (lorentzian filter):
-    time = getTime(MRSIStruct);
+    time = MRSIStruct.spectralTime;
     lorenzianFilter = exp(-time / t2);
 
     [MRSIStruct, prevPermute, prevSize] = reshapeDimensions(MRSIStruct, {'t'});
     extraSize = getSizeFromDimensions(MRSIStruct, {'extras'});
-    lorenzianFilterDataSize = repmat(lorenzianFilter, [1, extraSize]);
+    lorenzianFilterDataSize = repmat(lorenzianFilter', [1, extraSize]);
 
     %get data
     data = getData(MRSIStruct);
@@ -41,7 +41,7 @@ function [MRSIStruct, lorenzianFilter] = op_CSIFilterTime(MRSIStruct, lineBroade
     data = data .* lorenzianFilterDataSize;
 
     MRSIStruct = setData(MRSIStruct, data);
-    MRSIStruct = reshapeDimensions(MRSIStruct, prevPermute, prevSize);
+    MRSIStruct = reshapeBack(MRSIStruct, prevPermute, prevSize);
 
     MRSIStruct = setFlags(MRSIStruct, 'writtentostruct', true);
     MRSIStruct = setFlags(MRSIStruct, 'filtered', true);
