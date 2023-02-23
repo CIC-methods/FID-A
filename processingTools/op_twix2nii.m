@@ -96,80 +96,134 @@ function mrs_struct=op_twix2nii(mrs_struct)
 %        swap_endian: 0
 %          file_name: '/Users/competer/Documents/data_MR_scans/2022-04-20_JNEA1U_HERMESINVIVO/MEGA-GABA/peter_test_spec2nii.nii.gz'
 
-          
-nii_mrs.hdr.sizeof_hdr=540;
-nii_mrs.hdr.magic=magic(8);
-nii_mrs.hdr.datatype=32;
-nii_mrs.hdr.bitpix=64;
-%nii_mrs.hdr.dim=[? vox_x vox_y vox_z num_pts coils averages ?]
-nii_mrs.hdr.intent_p1=0;
-nii_mrs.hdr.intent_p2=0;
-nii_mrs.hdr.intent_p3=0;
-%nii_mrs.hdr.pixdim=[? sz_x sz_y sz_z dwell_time ? ? ?]
-nii_mrs.hdr.vox_offset=1680;
-nii_mrs.hdr.scl_slope=1; 
-nii_mrs.hdr.scl_inter=0;
-nii_mrs.hdr.cal_max=0;
-nii_mrs.hdr.cal_min=0;
-nii_mrs.hdr.slice_duration=0;
-nii_mrs.hdr.toffset=0;
-nii_mrs.hdr.slice_start=0;
-nii_mrs.hdr.slice_end=0;
-nii_mrs.hdr.descrip='';
-nii_mrs.hdr.aux_file='';
-nii_mrs.hdr.qform_code=0;
-nii_mrs.hdr.sform_code=2;
-nii_mrs.hdr.quatern_b=1;
-nii_mrs.hdr.quatern_c=0;
-nii_mrs.hdr.quatern_d=0;
-nii_mrs.hdr.qoffset_x=-mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dSag;
-nii_mrs.hdr.qoffset_y=-mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dCor;
-nii_mrs.hdr.qoffset_z=mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dTra;
-nii_mrs.hdr.srow_x=[mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness 0 0 nii_mrs.hdr.qoffset_x];
-nii_mrs.hdr.srow_y=[0 mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dPhaseFOV 0 nii_mrs.hdr.qoffset_y];
-nii_mrs.hdr.srow_z=[0 0 mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV nii_mrs.hdr.qoffset_z];
-nii_mrs.hdr.slice_code=0;
-nii_mrs.hdr.xyzt_units=0;
-nii_mrs.hdr.intent_code=0;
-nii_mrs.hdr.intent_name='mrs_v0_5';
-nii_mrs.hdr.dim_info=0;
-nii_mrs.hdr.unused_str='';
-nii_mrs.hdr.extension=[1 0 0 0];
-nii_mrs.hdr.version=2;
-nii_mrs.hdr.swap_endian=0;
-nii_mrs.hdr.filename=file_name;
+%Default pixdim x,y,z sizes are 10m == no localization, or poor coil
+%sensitivity
 
+nii_mrs=struct();
 
-nii_mrs.hdr_ext.SpectrometerFrequency=mrs_struct.hdr.Meas.lFrequency/1e6;
-nii_mrs.hdr_ext.ResonantNucleus=mrs_struct.hdr.Meas.Nucleus;
-nii_mrs.hdr_ext.dim5='DIM_COIL';
-nii_mrs.hdr_ext.dim6='DIM_DYN';
-nii_mrs.hdr_ext.EchoTime=mrs_struct.hdr.Meas.TE/1e6;
-nii_mrs.hdr_ext.RepetitionTime=mrs_struct.hdr.Meas.TR/1e6;
-nii_mrs.hdr_ext.ExcitationFlipAngle=mrs_struct.hdr.Meas.FlipAngle;
-nii_mrs.hdr_ext.TxOffset=mrs_struct.hdr.Meas.dDeltaFrequency;
-nii_mrs.hdr_ext.Manufacturer=mrs_struct.hdr.Meas.Manufacturer;
-nii_mrs.hdr_ext.ManufacturersModelName=mrs_struct.hdr.Meas.ManufacturersModelName;
-nii_mrs.hdr_ext.DeviceSerialNumber=mrs_struct.hdr.Meas.DeviceSerialNumber;
-nii_mrs.hdr_ext.SoftwareVersions=mrs_struct.hdr.Meas.SoftwareVersions;
-nii_mrs.hdr_ext.InstitutionName=mrs_struct.hdr.Meas.InstitutionName;
-nii_mrs.hdr_ext.InstitutionAddress=mrs_struct.hdr.Meas.InstitutionAddress;
-nii_mrs.hdr_ext.RxCoil=mrs_struct.hdr.MeasYaps.sCoilSelectMeas.aRxCoilSelectData{1}.asList{1}.sCoilElementID.tCoilID
-nii_mrs.hdr_ext.SequenceName=mrs_struct.hdr.Meas.SequenceString;
-nii_mrs.hdr_ext.ProtocolName=mrs_struct.hdr.Meas.ProtocolName;
-nii_mrs.hdr_ext.PatientPosition=mrs_struct.hdr.Meas.PatientPosition;
-nii_mrs.hdr_ext.PatientName='';%mrs_struct.hdr.Meas.PatientName;
-nii_mrs.hdr_ext.PatientWeight='';%mrs_struct.hdr.Meas.PatientWeight;
-nii_mrs.hdr_ext.PatientDoB='';%mrs_struct.hdr.Meas.PatientBirthday;
-nii_mrs.hdr_ext.PatientSex='';%mrs_struct.hdr.Meas.PatientSex;
-nii_mrs.hdr_ext.ConversionMethod='FID-A spec2nii v0';
-nii_mrs.hdr_ext.ConvertionTime=datetime(now,'ConvertFrom','datenum');
-nii_mrs.hdr_ext.OriginalFile=mrs_struct.filename;
-nii_mrs.hdr_ext.kSpace=[0,0,0];
-nii_mrs.hdr_ext.PulseSequenceFile.Value=mrs_struct.hdr.Meas.tSequenceFileName;
-nii_mrs.hdr_ext.PulseSequenceFile.Description='Sequence binary path.';
-nii_mrs.hdr_ext.IceProgramFile.Value=mrs_struct.hdr.Meas.tICEProgramName;
-nii_mrs.hdr_ext.IceProgramFile.Description='Reconstruction binary path.';
+header.sizeof_hdr=540;
+%header.magic=magic(8);
+header.magic=sprintf('n+%g%s', 2, char([0 13 10 26 10]));
+header.datatype=32;
+header.bitpix=64;
+
+if isfield(mrs_struct.dims,'kx') %MRSI
+    if ~mrs_struct.dims.kx
+        kx=1;
+    else
+        kx=mrs_struct.sz(mrs_struct.dims.kx);
+    end
+    if ~mrs_struct.dims.ky
+        ky=1;
+    else
+        ky=mrs_struct.sz(mrs_struct.dims.ky);
+    end
+    if ~mrs_struct.dims.kz
+        kz=1;
+    else
+        kz=mrs_struct.sz(mrs_struct.dims.kz);
+    end
+else %SVS/FID
+    kx=1;
+    ky=1;
+    kz=1;
+end
+t=mrs_struct.sz(mrs_struct.dims.t);
+if ~mrs_struct.dims.averages
+    averages=1;
+else
+    averages=mrs_struct.sz(mrs_struct.dims.averages);
+end
+if ~mrs_struct.dims.coils
+    coils=1;
+else
+    coils=mrs_struct.sz(mrs_struct.dims.coils);
+end
+if ~mrs_struct.dims.subSpecs
+    subSpecs=1;
+else
+    subSpecs=mrs_struct.sz(mrs_struct.dims.subSpecs);
+end
+
+header.dim=[6 kx ky kz t coils averages subSpecs];
+header.intent_p1=0;
+header.intent_p2=0;
+header.intent_p3=0;
+header.pixdim=[1 mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness ...
+    mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dPhaseFOV ...
+    mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV ...
+    mrs_struct.dwelltime 1 1 1];
+header.vox_offset=1680;
+header.scl_slope=1; 
+header.scl_inter=0;
+header.cal_max=0;
+header.cal_min=0;
+header.slice_duration=0;
+header.toffset=0;
+header.slice_start=0;
+header.slice_end=0;
+header.descrip='';
+header.aux_file='';
+header.qform_code=0;
+header.sform_code=2;
+header.quatern_b=1;
+header.quatern_c=0;
+header.quatern_d=0;
+header.qoffset_x=-mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dSag;
+header.qoffset_y=-mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dCor;
+header.qoffset_z=mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dTra;
+header.srow_x=[mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness 0 0 header.qoffset_x];
+header.srow_y=[0 -mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dPhaseFOV 0 header.qoffset_y];
+header.srow_z=[0 0 -mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV header.qoffset_z];
+header.slice_code=0;
+header.xyzt_units=0;
+header.intent_code=0;
+header.intent_name='mrs_v0_5';
+header.dim_info=0;
+header.unused_str='';
+header.extension=[1 0 0 0];
+% header.version=2;
+% header.swap_endian=0;
+% header.filename=[mrs_struct.filename(1:end-2) 'nii.gz'];
+
+header_ext.SpectrometerFrequency=mrs_struct.txfrq/1e6;
+header_ext.ResonantNucleus=mrs_struct.nucleus;
+if mrs_struct.dims.coils
+    header_ext.dim5='DIM_COIL';
+end
+if mrs_struct.dims.averages
+    header_ext.dim6='DIM_AVERAGES';
+end
+if mrs_struct.dims.subSpecs
+    header_ext.dim7='DIM_EDIT';
+end
+header_ext.EchoTime=mrs_struct.hdr.Meas.TE/1e6;
+header_ext.RepetitionTime=mrs_struct.hdr.Meas.TR/1e6;
+header_ext.ExcitationFlipAngle=mrs_struct.hdr.Meas.FlipAngle;
+header_ext.TxOffset=mrs_struct.hdr.Meas.dDeltaFrequency;
+header_ext.Manufacturer=mrs_struct.hdr.Meas.Manufacturer;
+header_ext.ManufacturersModelName=mrs_struct.hdr.Meas.ManufacturersModelName;
+header_ext.DeviceSerialNumber=mrs_struct.hdr.Meas.DeviceSerialNumber;
+header_ext.SoftwareVersions=mrs_struct.hdr.Meas.SoftwareVersions;
+header_ext.InstitutionName=mrs_struct.hdr.Meas.InstitutionName;
+header_ext.InstitutionAddress=mrs_struct.hdr.Meas.InstitutionAddress;
+header_ext.RxCoil=mrs_struct.hdr.MeasYaps.sCoilSelectMeas.aRxCoilSelectData{1}.asList{1}.sCoilElementID.tCoilID;
+header_ext.SequenceName=mrs_struct.hdr.Meas.SequenceString;
+header_ext.ProtocolName=mrs_struct.hdr.Meas.ProtocolName;
+header_ext.PatientPosition=mrs_struct.hdr.Meas.PatientPosition;
+header_ext.PatientName='';%mrs_struct.hdr.Meas.PatientName;
+header_ext.PatientWeight='';%mrs_struct.hdr.Meas.PatientWeight;
+header_ext.PatientDoB='';%mrs_struct.hdr.Meas.PatientBirthday;
+header_ext.PatientSex='';%mrs_struct.hdr.Meas.PatientSex;
+header_ext.ConversionMethod='FID-A twix2nii v0';
+header_ext.ConvertionTime=datetime(now,'ConvertFrom','datenum');
+[~,fname,fext]=fileparts(mrs_struct.filename);
+header_ext.OriginalFile=[fname fext];
+header_ext.kSpace=[0,0,0];
+header_ext.PulseSequenceFile.Value=mrs_struct.hdr.Meas.tSequenceFileName;
+header_ext.PulseSequenceFile.Description='Sequence binary path.';
+header_ext.IceProgramFile.Value=mrs_struct.hdr.Meas.tICEProgramName;
+header_ext.IceProgramFile.Description='Reconstruction binary path.';
 
 %      SpectrometerFrequency: 123.2500
 %            ResonantNucleus: {'1H'}
@@ -200,35 +254,37 @@ nii_mrs.hdr_ext.IceProgramFile.Description='Reconstruction binary path.';
 %          PulseSequenceFile: [1×1 struct]
 %             IceProgramFile: [1×1 struct]
 
+nii_mrs.hdr=header;
+nii_mrs.hdr_ext=header_ext;
 mrs_struct.nii_mrs=nii_mrs;
 
 
            
-mrs_struct.vox_offset = typecast(header(169 :176 ), 'int64');
-mrs_struct.scl_slope = typecast(header(177 :184 ), 'double');
-mrs_struct.scl_inter = typecast(header(185 :192 ), 'double');
-mrs_struct.cal_max = typecast(header(193 :200 ), 'double');
-mrs_struct.cal_min = typecast(header(201 :208 ), 'double');
-mrs_struct.slice_duration = typecast(header(209: 216), 'double');
-mrs_struct.tofset = typecast(header(217 :224 ), 'double');
-mrs_struct.slice_start = typecast(header(225 :232 ), 'int64');
-mrs_struct.slice_end = typecast(header(233 :240 ), 'int64');
-mrs_struct.descrip = cast(header(241 :320 ), 'char');
-mrs_struct.aux_file = cast(header(321 :344 ), 'char');
-mrs_struct.qform_cod = typecast(header(345 :348 ), 'int32');
-mrs_struct.sform_cod = typecast(header(349 :352 ), 'int32');
-mrs_struct.quatern_b = typecast(header(353 :360 ), 'double');
-mrs_struct.quatern_c = typecast(header(361 :368 ), 'double');
-mrs_struct.quatern_d = typecast(header(369 :376 ), 'double');
-mrs_struct.qoffset_x = typecast(header(377 :384 ), 'double');
-mrs_struct.qoffset_y = typecast(header(385 :392 ), 'double');
-mrs_struct.qoffset_z = typecast(header(393 :400 ), 'double');
-mrs_struct.srow_x = typecast(header(401 :432 ), 'double');
-mrs_struct.srow_y = typecast(header(433 :464 ), 'double');
-mrs_struct.srow_z = typecast(header(465 :496 ), 'double');
-mrs_struct.slice_code = typecast(header(497 :500 ), 'int32');
-mrs_struct.xyzt_units = typecast(header(501 :504 ), 'int32');
-mrs_struct.intent_cod3 = typecast(header(505 :508 ), 'int32');
-mrs_struct.intent_name = cast(header(509: 524), 'char');
-mrs_struct.dim_info = cast(header(525 : 525), 'char');
+% mrs_struct.vox_offset = typecast(header(169 :176 ), 'int64');
+% mrs_struct.scl_slope = typecast(header(177 :184 ), 'double');
+% mrs_struct.scl_inter = typecast(header(185 :192 ), 'double');
+% mrs_struct.cal_max = typecast(header(193 :200 ), 'double');
+% mrs_struct.cal_min = typecast(header(201 :208 ), 'double');
+% mrs_struct.slice_duration = typecast(header(209: 216), 'double');
+% mrs_struct.tofset = typecast(header(217 :224 ), 'double');
+% mrs_struct.slice_start = typecast(header(225 :232 ), 'int64');
+% mrs_struct.slice_end = typecast(header(233 :240 ), 'int64');
+% mrs_struct.descrip = cast(header(241 :320 ), 'char');
+% mrs_struct.aux_file = cast(header(321 :344 ), 'char');
+% mrs_struct.qform_cod = typecast(header(345 :348 ), 'int32');
+% mrs_struct.sform_cod = typecast(header(349 :352 ), 'int32');
+% mrs_struct.quatern_b = typecast(header(353 :360 ), 'double');
+% mrs_struct.quatern_c = typecast(header(361 :368 ), 'double');
+% mrs_struct.quatern_d = typecast(header(369 :376 ), 'double');
+% mrs_struct.qoffset_x = typecast(header(377 :384 ), 'double');
+% mrs_struct.qoffset_y = typecast(header(385 :392 ), 'double');
+% mrs_struct.qoffset_z = typecast(header(393 :400 ), 'double');
+% mrs_struct.srow_x = typecast(header(401 :432 ), 'double');
+% mrs_struct.srow_y = typecast(header(433 :464 ), 'double');
+% mrs_struct.srow_z = typecast(header(465 :496 ), 'double');
+% mrs_struct.slice_code = typecast(header(497 :500 ), 'int32');
+% mrs_struct.xyzt_units = typecast(header(501 :504 ), 'int32');
+% mrs_struct.intent_cod3 = typecast(header(505 :508 ), 'int32');
+% mrs_struct.intent_name = cast(header(509: 524), 'char');
+% mrs_struct.dim_info = cast(header(525 : 525), 'char');
 end
