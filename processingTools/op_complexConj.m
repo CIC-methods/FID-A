@@ -24,7 +24,7 @@ fids=conj(fids);
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):in.spectralwidth/(sz(1)):(in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
+% f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):in.spectralwidth/(sz(1)):(in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
 %ppm=-f/(in.Bo*42.577);
 % ppm=-f/(3*42.577);
 % ppm = -f/(in.Bo*in.gamma);
