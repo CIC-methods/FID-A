@@ -187,15 +187,15 @@ header.extension=[1 0 0 0];
 % header.filename=[mrs_struct.filename(1:end-2) 'nii.gz'];
 
 header_ext.SpectrometerFrequency=mrs_struct.txfrq/1e6;
-header_ext.ResonantNucleus=mrs_struct.nucleus;
+header_ext.ResonantNucleus={mrs_struct.nucleus};
 if mrs_struct.dims.coils
-    header_ext.dim5='DIM_COIL';
+    header_ext.dim_5='DIM_COIL';
 end
 if mrs_struct.dims.averages
-    header_ext.dim6='DIM_AVERAGES';
+    header_ext.dim_6='DIM_DYN';
 end
 if mrs_struct.dims.subSpecs
-    header_ext.dim7='DIM_EDIT';
+    header_ext.dim_7='DIM_EDIT';
 end
 header_ext.EchoTime=mrs_struct.hdr.Meas.TE/1e6;
 header_ext.RepetitionTime=mrs_struct.hdr.Meas.TR/1e6;
