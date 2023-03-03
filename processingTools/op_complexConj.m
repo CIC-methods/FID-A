@@ -13,11 +13,9 @@
 % OUTPUTS:
 % out   = Output following conjugation.  
 
-function out=op_complexConj(in)
+function out=op_complexConj(in);
 
 fids=in.fids;
-sz=size(fids);
-
 fids=conj(fids);
 
 %re-calculate Specs using fft
@@ -28,3 +26,6 @@ out=in;
 out.fids=fids;
 out.specs=specs;
 
+%FILLING IN THE FLAGS
+out.flags=in.flags;
+out.flags.writtentostruct=1;
