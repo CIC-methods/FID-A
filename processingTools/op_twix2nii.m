@@ -123,10 +123,12 @@ if isfield(mrs_struct.dims,'kx') %MRSI
     else
         kz=mrs_struct.sz(mrs_struct.dims.kz);
     end
+    dwelltime=mrs_struct.spectralDwellTime;
 else %SVS/FID
     kx=1;
     ky=1;
     kz=1;
+    dwelltime=mrs_struct.dwelltime;
 end
 t=mrs_struct.sz(mrs_struct.dims.t);
 if ~mrs_struct.dims.averages
@@ -149,10 +151,10 @@ header.dim=[6 kx ky kz t coils averages subSpecs];
 header.intent_p1=0;
 header.intent_p2=0;
 header.intent_p3=0;
-header.pixdim=[1 mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness ...
+header.pixdim=[1 mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV ...
     mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dPhaseFOV ...
-    mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV ...
-    mrs_struct.dwelltime 1 1 1];
+    mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness ...
+    dwelltime 1 1 1];
 header.vox_offset=1680;
 header.scl_slope=1; 
 header.scl_inter=0;
@@ -172,9 +174,9 @@ header.quatern_d=0;
 header.qoffset_x=-mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dSag;
 header.qoffset_y=-mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dCor;
 header.qoffset_z=mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.sPosition.dTra;
-header.srow_x=[mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness 0 0 header.qoffset_x];
+header.srow_x=[mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV 0 0 header.qoffset_x];
 header.srow_y=[0 -mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dPhaseFOV 0 header.qoffset_y];
-header.srow_z=[0 0 -mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dReadoutFOV header.qoffset_z];
+header.srow_z=[0 0 -mrs_struct.hdr.MeasYaps.sSpecPara.sVoI.dThickness header.qoffset_z];
 header.slice_code=0;
 header.xyzt_units=0;
 header.intent_code=0;
@@ -225,66 +227,8 @@ header_ext.PulseSequenceFile.Description='Sequence binary path.';
 header_ext.IceProgramFile.Value=mrs_struct.hdr.Meas.tICEProgramName;
 header_ext.IceProgramFile.Description='Reconstruction binary path.';
 
-%      SpectrometerFrequency: 123.2500
-%            ResonantNucleus: {'1H'}
-%                      dim_5: 'DIM_COIL'
-%                      dim_6: 'DIM_DYN'
-%                   EchoTime: 0.0680
-%             RepetitionTime: 3
-%        ExcitationFlipAngle: 90
-%                   TxOffset: -1.7000
-%               Manufacturer: 'SIEMENS'
-%     ManufacturersModelName: 'Prisma'
-%         DeviceSerialNumber: '66049.0'
-%           SoftwareVersions: 'syngo MR E11'
-%            InstitutionName: 'Sunnybrook Research Institute'
-%         InstitutionAddress: 'Bayview Avenue 2075,Toronto,Ontario,CA,M4N 3M5'
-%                     RxCoil: '"HeadNeck_20"'
-%               SequenceName: 'svs_se'
-%               ProtocolName: 'megapress_GABA'
-%            PatientPosition: 'HFS'
-%                PatientName: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-%              PatientWeight: 79.3787
-%                 PatientDoB: 'xxxxxxxx'
-%                 PatientSex: 'F'
-%           ConversionMethod: 'spec2nii v0.4.9'
-%             ConversionTime: '2023-01-10T14:21:06.251'
-%               OriginalFile: {'meas_MID01209_FID16258_megapress_GABA.dat'}
-%                     kSpace: [3×1 logical]
-%          PulseSequenceFile: [1×1 struct]
-%             IceProgramFile: [1×1 struct]
-
 nii_mrs.hdr=header;
 nii_mrs.hdr_ext=header_ext;
 mrs_struct.nii_mrs=nii_mrs;
 
-
-           
-% mrs_struct.vox_offset = typecast(header(169 :176 ), 'int64');
-% mrs_struct.scl_slope = typecast(header(177 :184 ), 'double');
-% mrs_struct.scl_inter = typecast(header(185 :192 ), 'double');
-% mrs_struct.cal_max = typecast(header(193 :200 ), 'double');
-% mrs_struct.cal_min = typecast(header(201 :208 ), 'double');
-% mrs_struct.slice_duration = typecast(header(209: 216), 'double');
-% mrs_struct.tofset = typecast(header(217 :224 ), 'double');
-% mrs_struct.slice_start = typecast(header(225 :232 ), 'int64');
-% mrs_struct.slice_end = typecast(header(233 :240 ), 'int64');
-% mrs_struct.descrip = cast(header(241 :320 ), 'char');
-% mrs_struct.aux_file = cast(header(321 :344 ), 'char');
-% mrs_struct.qform_cod = typecast(header(345 :348 ), 'int32');
-% mrs_struct.sform_cod = typecast(header(349 :352 ), 'int32');
-% mrs_struct.quatern_b = typecast(header(353 :360 ), 'double');
-% mrs_struct.quatern_c = typecast(header(361 :368 ), 'double');
-% mrs_struct.quatern_d = typecast(header(369 :376 ), 'double');
-% mrs_struct.qoffset_x = typecast(header(377 :384 ), 'double');
-% mrs_struct.qoffset_y = typecast(header(385 :392 ), 'double');
-% mrs_struct.qoffset_z = typecast(header(393 :400 ), 'double');
-% mrs_struct.srow_x = typecast(header(401 :432 ), 'double');
-% mrs_struct.srow_y = typecast(header(433 :464 ), 'double');
-% mrs_struct.srow_z = typecast(header(465 :496 ), 'double');
-% mrs_struct.slice_code = typecast(header(497 :500 ), 'int32');
-% mrs_struct.xyzt_units = typecast(header(501 :504 ), 'int32');
-% mrs_struct.intent_cod3 = typecast(header(505 :508 ), 'int32');
-% mrs_struct.intent_name = cast(header(509: 524), 'char');
-% mrs_struct.dim_info = cast(header(525 : 525), 'char');
 end
