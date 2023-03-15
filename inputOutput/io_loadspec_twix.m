@@ -62,6 +62,7 @@ isjnSpecial=contains(sequence,'jn_svs_special') ||...  %or Jamie Near's SPECIAL 
             contains(sequence,'md_Special') ||... %or another version of Masoumeh Dehghani's SPECIAL sequence?
             contains(sequence,'md_Inv_special') || ... %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
             contains(sequence,'pt_svs_special_31p'); %or Peter Truong's 31P SPECIAL sequence?
+isptHERMES=contains(sequence,'pt_HERMES');   %Is this Peter Truong's HERMES sequence? 
 ishdSPECIAL=contains(sequence,'md_dvox_special'); %Is this Masoumeh Dehghani's hadamard-encoded dual-SPECIAL sequence?
 isjnMP=contains(sequence,'jn_MEGA_GABA'); %Is this Jamie Near's MEGA-PRESS sequence?
 isjnseq=contains(sequence,'jn_') ||... %Is this another one of Jamie Near's sequences 
@@ -100,7 +101,8 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
     else
         sqzDims{end+1}='Ida';
     end
-elseif ishdSPECIAL %For Masoumeh Dehghani's hadamard-encoded dual-voxel SPECIAL sequence:
+elseif ishdSPECIAL || ... %For Masoumeh Dehghani's hadamard-encoded dual-voxel SPECIAL sequence:
+         isptHERMES     %and the VD/VE versions of Peter Truong's HERMES sequence
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
         data(:,:,:,1)=squeezedData(:,:,[1:4:end-3]);
