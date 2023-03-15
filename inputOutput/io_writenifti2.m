@@ -94,7 +94,11 @@ try
     fwrite(fileID,ecode,'int32');
     fwrite(fileID,edata,'uint8');
     
-    img_tmp=reshape(in.fids,1,[]);
+    if in.dims.kx||in.dims.ky||in.dims.kz
+        img_tmp=reshape(in.data,1,[]);
+    else
+        img_tmp=reshape(in.fids,1,[]);
+    end
     img=zeros([size(img_tmp,2)*2 1]);
     img(1:2:end)=real(img_tmp);
     img(2:2:end)=imag(img_tmp);
