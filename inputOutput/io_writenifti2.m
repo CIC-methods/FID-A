@@ -94,7 +94,7 @@ try
     fwrite(fileID,ecode,'int32');
     fwrite(fileID,edata,'uint8');
     
-    if in.dims.kx||in.dims.ky||in.dims.kz
+    if isfield(in.dims,'kx')
         img_tmp=reshape(in.data,1,[]);
     else
         img_tmp=reshape(in.fids,1,[]);
