@@ -106,7 +106,7 @@ header.sizeof_hdr=540;
 header.magic=sprintf('n+%g%s', 2, char([0 13 10 26 10]));
 header.datatype=32;
 header.bitpix=64;
-
+tmp_dim=0;
 if isfield(mrs_struct.dims,'kx') %MRSI
     if ~mrs_struct.dims.kx
         kx=1;
@@ -130,24 +130,36 @@ else %SVS/FID
     kz=1;
     dwelltime=mrs_struct.dwelltime;
 end
+tmp_dim(1)=tmp_dim(1)+3;
+tmp_dim(2:4)=[kx,ky,kz];
+dim_cnt=4;
 t=mrs_struct.sz(mrs_struct.dims.t);
-if ~mrs_struct.dims.averages
-    averages=1;
-else
-    averages=mrs_struct.sz(mrs_struct.dims.averages);
-end
-if ~mrs_struct.dims.coils
-    coils=1;
-else
+
+if mrs_struct.dims.coils
     coils=mrs_struct.sz(mrs_struct.dims.coils);
-end
-if ~mrs_struct.dims.subSpecs
-    subSpecs=1;
-else
-    subSpecs=mrs_struct.sz(mrs_struct.dims.subSpecs);
+    dim_cnt=dim_cnt+1;
+    tmp_dim(dim_cnt)=coils;
+    tmp_dim(1)=tmp_dim(1)+1;
 end
 
-header.dim=[6 kx ky kz t coils averages subSpecs];
+if mrs_struct.dims.averages
+    averages=mrs_struct.sz(mrs_struct.dims.averages);
+    dim_cnt=dim_cnt+1;
+    tmp_dim(dim_cnt)=averages;
+    tmp_dim(1)=tmp_dim(1)+1;
+end
+
+if mrs_struct.dims.subSpecs
+    subSpecs=mrs_struct.sz(mrs_struct.dims.subSpecs);
+    dim_cnt=dim_cnt+1;
+    tmp_dim(dim_cnt)=subSpecs;
+    tmp_dim(1)=tmp_dim(1)+1;
+end
+
+%dim(1) needs to be +1 from the actual number of dims. Order is: 
+%[dim1 kx ky kz t coils averages subspecs extras] - will need to
+%incorporate extras dimensions too when I encounter it - **PT**2023
+header.dim=tmp_dim;
 header.intent_p1=0;
 header.intent_p2=0;
 header.intent_p3=0;
