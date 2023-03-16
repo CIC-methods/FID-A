@@ -221,7 +221,12 @@ header_ext.DeviceSerialNumber=mrs_struct.hdr.Meas.DeviceSerialNumber;
 header_ext.SoftwareVersions=mrs_struct.hdr.Meas.SoftwareVersions;
 header_ext.InstitutionName=mrs_struct.hdr.Meas.InstitutionName;
 header_ext.InstitutionAddress=mrs_struct.hdr.Meas.InstitutionAddress;
-header_ext.RxCoil=mrs_struct.hdr.MeasYaps.sCoilSelectMeas.aRxCoilSelectData{1}.asList{1}.sCoilElementID.tCoilID;
+
+if isfield(mrs_struct.hdr.MeasYaps,'sCoilSelectMeas')
+    header_ext.RxCoil=mrs_struct.hdr.MeasYaps.sCoilSelectMeas.aRxCoilSelectData{1}.asList{1}.sCoilElementID.tCoilID;
+else %different field for older data
+    header_ext.RxCoil=char(mrs_struct.hdr.MeasYaps.asCoilSelectMeas{1}.asList{1}.sCoilElementID.tCoilID);
+end
 header_ext.SequenceName=mrs_struct.hdr.Meas.SequenceString;
 header_ext.ProtocolName=mrs_struct.hdr.Meas.ProtocolName;
 header_ext.PatientPosition=mrs_struct.hdr.Meas.PatientPosition;
