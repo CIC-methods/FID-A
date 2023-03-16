@@ -211,8 +211,8 @@ end
 if mrs_struct.dims.subSpecs
     header_ext.dim_7='DIM_EDIT';
 end
-header_ext.EchoTime=mrs_struct.hdr.Meas.TE/1e6;
-header_ext.RepetitionTime=mrs_struct.hdr.Meas.TR/1e6;
+header_ext.EchoTime=mrs_struct.te/1e6;
+header_ext.RepetitionTime=mrs_struct.tr/1e6;
 header_ext.ExcitationFlipAngle=mrs_struct.hdr.Meas.FlipAngle;
 header_ext.TxOffset=mrs_struct.hdr.Meas.dDeltaFrequency;
 header_ext.Manufacturer=mrs_struct.hdr.Meas.Manufacturer;
