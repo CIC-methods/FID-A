@@ -106,7 +106,7 @@ header.sizeof_hdr=540;
 header.magic=sprintf('n+%g%s', 2, char([0 13 10 26 10]));
 header.datatype=32;
 header.bitpix=64;
-tmp_dim=0;
+tmp_dim=4; %Starting tmp_dim(1), minimum dimension is 4 [kx ky kz t] - **PT**2023
 if isfield(mrs_struct.dims,'kx') %MRSI
     if ~mrs_struct.dims.kx
         kx=1;
@@ -130,10 +130,10 @@ else %SVS/FID
     kz=1;
     dwelltime=mrs_struct.dwelltime;
 end
-tmp_dim(1)=tmp_dim(1)+3;
 tmp_dim(2:4)=[kx,ky,kz];
-dim_cnt=4;
 t=mrs_struct.sz(mrs_struct.dims.t);
+tmp_dim(5)=t;
+dim_cnt=5;
 
 if mrs_struct.dims.coils
     coils=mrs_struct.sz(mrs_struct.dims.coils);
@@ -225,7 +225,7 @@ header_ext.InstitutionAddress=mrs_struct.hdr.Meas.InstitutionAddress;
 if isfield(mrs_struct.hdr.MeasYaps,'sCoilSelectMeas')
     header_ext.RxCoil=mrs_struct.hdr.MeasYaps.sCoilSelectMeas.aRxCoilSelectData{1}.asList{1}.sCoilElementID.tCoilID;
 else %different field for older data
-    header_ext.RxCoil=char(mrs_struct.hdr.MeasYaps.asCoilSelectMeas{1}.asList{1}.sCoilElementID.tCoilID);
+    header_ext.RxCoil=mrs_struct.hdr.MeasYaps.asCoilSelectMeas{1}.asList{1}.sCoilElementID.tCoilID;
 end
 header_ext.SequenceName=mrs_struct.hdr.Meas.SequenceString;
 header_ext.ProtocolName=mrs_struct.hdr.Meas.ProtocolName;
