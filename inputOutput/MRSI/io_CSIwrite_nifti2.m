@@ -9,7 +9,8 @@ function nifti = io_CSIwrite_nifti2(MRSIStruct, filename)
         %open the file
         fileID  = fopen(filename, 'w');
 
-        %sizeof_hdr: Needs to be 540
+%         %sizeof_hdr: Needs to be 540
+%         header = fread(fileID, 540, '*int8')';
 
         nifti = writeHeader(MRSIStruct, fileID);
         nifti = readExtensions(nifti, fileID);
@@ -58,15 +59,15 @@ function MRSIStruct = writeHeader(MRSIStruct, fileID)
     % magic string
     fwrite(fileID, 'n+2', 'char')
     % data type
-    fwrite(fileID, 1792, 5, 'int16')
+    fwrite(fileID, 1792, 'int16') %fwrite(fileID, 1792, 5, 'int16')
     % data size
-    fwrite(fileId, 128, 'int16')
+    fwrite(fileID, 128, 'int16')
     % dimensions
-    dimensions = getSizeFromDimensions(MRSIStruct, {'X', 'y', 'z', 't', 'averages', 'coils', 'extras'});
+    dimensions = getSizeFromDimensions(MRSIStruct, {'x', 'y', 'z', 't', 'averages', 'coils', 'extras'});
     dimensions = [7, dimensions];
-    fwrite(fileId, dimensions, 'int64');
+    fwrite(fileID, dimensions, 'int64');
     % intent code
-    fwrite(fileId, [0, 0, 0], 'double')
+    fwrite(fileID, [0, 0, 0], 'double')
     % pixel dimensions
     pixelDimensions = [1, getVoxSize(MRSIStruct, 'x'), getVoxSize(MRSIStruct, 'y'), ...
                         getVoxSize(MRSIStruct, 'z'), getSpectralWidth(MRSIStruct), 1, 1, 1];

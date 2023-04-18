@@ -89,15 +89,8 @@ function MRSIStruct = io_CSIload_twix(filename)
     sz = size(data);
     
     %Getting Nucleus - PT,2022
-    nucleus=twix_obj.hdr.Config.Nucleus;
-    switch nucleus
-    case '1H'
-        gamma=42.576;
-    case '31P'
-        gamma=17.235;
-    case '13C'
-        gamma=10.7084;
-    end
+    nucleus=twix_obj.hdr.Meas.Nucleus;
+    gamma=twix_obj.hdr.Meas.alLarmorConstant(1)/1e6;
 
     %****************************************************************
     %FILLING IN DATA STRUCTURE
@@ -131,6 +124,10 @@ function MRSIStruct = io_CSIload_twix(filename)
     MRSIStruct = calculateVoxelCoodinates(MRSIStruct);
     MRSIStruct = calculateAffineMatrix(MRSIStruct, twix_obj);
     MRSIStruct = setDefaultFlagValues(MRSIStruct, isCartesian);
+    
+    %Storing header and filename for future use - **PT**2023
+    MRSIStruct.hdr=twix_obj.hdr;
+    MRSIStruct.filename=twix_obj.image.filename;
 end
 
 

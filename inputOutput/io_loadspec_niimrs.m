@@ -304,7 +304,55 @@ if allDims(1)*allDims(2)*allDims(3) == 1 % x=y=z=1
     
     %Now take fft of time domain to get fid:
     specs=fftshift(ifft(fids,[],dims.t),dims.t);
-
+else %MRSI
+    
+    %if any of the x,y,z dimensions are size of 1, set corresponding dim to
+    %0
+    if allDims(1)==1
+       dims.x=0; 
+    end
+    if allDims(2)==1
+       dims.y=0; 
+    end
+    if allDims(3)==1
+       dims.z=0; 
+    end
+    fids = squeeze(fids);
+    
+    % Adjust dimension indices for the fact that we have collapsed the
+    % three spatial dimensions (which we don't need for SVS data)
+    dim_cnt=1;
+    sqzDims = {};
+    dimsFieldNames = fieldnames(dims);
+    for rr = 1:length(dimsFieldNames)
+        if dims.(dimsFieldNames{rr}) ~= 0
+            dims.(dimsFieldNames{rr}) = dim_cnt;
+            sqzDims{end+1} = dimsFieldNames{rr};
+            dim_cnt=dim_cnt+1;
+        end
+    end
+    
+    %Permuting the matrix to our standardized order:
+    %   1) time domain data.
+    %   2) coils.
+    %   3) averages.
+    %   4) subSpecs.
+    %   5) csi_x.
+    %   6) csi_y.
+    %   7) extras.
+    dimsArray = [dims.t dims.coils, dims.averages dims.subSpecs dims.x dims.y dims.z dims.extras];
+    fields = {"t", "coils", "averages", "subSpecs", "x", "y", "z", "extras"};
+    nonZeroIndex = dimsArray ~= 0;
+    fids = permute(fids, dimsArray(nonZeroIndex));
+    
+    %Updating fields
+    nonZeroFields = fields(nonZeroIndex);
+    for i = 1:length(nonZeroFields)
+        dims.(nonZeroFields{i}) = i;
+    end
+    
+    sz=size(fids);
+    adcTime = 0:dt:(sz(dims.t)-1)*dt;
 end
 
 
@@ -346,6 +394,9 @@ t   = [0 : dt : (nPts-1)*dt];
 
 
 % MANDATORY FIELDS
+
+%CSI data treated differently
+if allDims(1)*allDims(2)*allDims(3) == 1
 % Data & dimensions
 out.fids = fids;
 out.specs = specs;
@@ -358,8 +409,8 @@ out.subspecs = subspecs;
 out.rawSubspecs = rawSubspecs;
 
 % Echo/repetition time
-out.te = hdr_ext.EchoTime;
-out.tr = hdr_ext.RepetitionTime;
+out.te = hdr_ext.EchoTime*1000;
+out.tr = hdr_ext.RepetitionTime*1000;
 
 % time and frequency axis
 out.t   = t;
@@ -370,16 +421,6 @@ out.spectralwidth = sw;
 out.dwelltime = dt;
 out.txfrq  = f0 * 10^6;
 out.date = '';
-
-% NIfTI-MRS-SPECIFIC FIELDS
-% Save the NIfTI header
-out.nii_mrs.hdr = hdr;
-% Save the header extension
-out.nii_mrs.hdr_ext = hdr_ext;
-if isfield(hdr_ext, 'SequenceName')
-    out.seq = hdr_ext.SequenceName;
-end
-
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;
@@ -407,6 +448,67 @@ if out.dims.subSpecs==0
 else
     out.flags.isFourSteps=(out.sz(out.dims.subSpecs)==4);
 end
+
+else
+    %FILLING IN DATA STRUCTURE
+    out.data = fids;
+    out.sz = sz;    
+    out.adcTime = adcTime;
+    
+    %Focus on just cartesian for now
+%     if(isCartesian)
+        out.spectralWidth = sw; 
+        out.spectralTime = adcTime;
+        out.spectralDwellTime = dt;
+%     end
+    out.adcDwellTime = dt;
+    out.txfrq = f0 * 10^6;
+    out.scanDate = '';
+    out.dims = dims;
+    
+    out.Bo = Bo;
+    out.nucleus=out.nucleus{1};
+    out.gamma=gamma;
+    out.seq = hdr_ext.SequenceName;
+    
+    % Echo/repetition time
+    out.te = hdr_ext.EchoTime*1000;
+    out.tr = hdr_ext.RepetitionTime*1000;
+
+    out.pointsToLeftshift = twix_obj.image.freeParam(1);
+    
+    out.fov.x = fovX;
+    out.fov.y = fovY;
+    out.fov.z = fovZ;
+    
+    
+    out = calcualteVoxelSize(out, numX, numY, numZ);
+    out.averages = averages;
+    out.rawAverages = rawAverages;
+    out.subspecs = subspecs;
+    out.rawSubspecs = rawSubspecs;
+    out.pointsToLeftshift = leftshift;
+    out = findImageOrigin(out, twix_obj);
+    out = calculateVoxelCoodinates(out);
+    out = calculateAffineMatrix(out, twix_obj);
+    out = setDefaultFlagValues(out, isCartesian);
+    
+    %Storing header and filename for future use - **PT**2023
+    out.hdr=twix_obj.hdr;
+    out.filename=twix_obj.image.filename;
+end
+
+% NIfTI-MRS-SPECIFIC FIELDS
+% Save the NIfTI header
+out.nii_mrs.hdr = hdr;
+% Save the header extension
+out.nii_mrs.hdr_ext = hdr_ext;
+if isfield(hdr_ext, 'SequenceName')
+    out.seq = hdr_ext.SequenceName;
+end
+
+
+
 
 end
 
