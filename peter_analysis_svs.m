@@ -1,10 +1,10 @@
 function [svs_av,svs_cs,svs_lb,svs_cc,svs_raw]=peter_analysis_svs(in)
 
-lw=20;
+lw=0;
 
 if nargin<1
     [x,y]=uigetfile('*.dat');
-    svs_raw=io_CSIload_twix([y x]);
+    svs_raw=io_loadspec_twix([y x]);
 else
     svs_raw=in;
 end
