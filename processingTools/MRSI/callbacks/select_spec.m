@@ -12,7 +12,7 @@
 % src       = modified uicontrol object
 %
 
-function select_spec(src,~) 
+function select_spec(src, ~) 
     %get global MRSI object
     global CSI_OBJ;
     global ppm_min;
@@ -29,7 +29,7 @@ function select_spec(src,~)
         mouseSelectCoordinates = mouseSelectCoordinates(1:2:3) + st.bb(1,1:2);
         %get all the MRSI line plots
         
-        voxelCenterCoordinates = [voxels.center];
+        voxelCenterCoordinates = [voxels.position];
         distance = mouseSelectCoordinates' - voxelCenterCoordinates(1:2,:);
         [~, indexOfClosestVoxel] = min(sum(distance.^2, 1));
         %display the linear index of the closest MRSI spec
@@ -49,7 +49,10 @@ function select_spec(src,~)
         xlim(ax, [ppm_min ppm_max]);
         specs = permute(getData(CSI_OBJ), nonzeros([CSI_OBJ.dims.t, CSI_OBJ.dims.x, CSI_OBJ.dims.y,...
                             CSI_OBJ.dims.z, CSI_OBJ.dims.coils, CSI_OBJ.dims.averages]));
-        specs = specs(range_bool, voxels(indexOfClosestVoxel).index(1), voxels(indexOfClosestVoxel).index(2), voxels(indexOfClosestVoxel).index(3));
+        
+        specs = specs(range_bool, voxels(indexOfClosestVoxel).fid_aIndex(1), ...
+                                  voxels(indexOfClosestVoxel).fid_aIndex(2), ...
+                                  voxels(indexOfClosestVoxel).fid_aIndex(3));
         switch(type)
             case 'real'
                 specs = real(specs);

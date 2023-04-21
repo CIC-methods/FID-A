@@ -30,7 +30,7 @@ end
 info=SiemensCsaParse(filename);
 
 %Read in Dicom file using Chris Rogers' "SiemensCsaReadFid.m" function:
-[fids,info]=SiemensCsaReadFid(info,0);
+[fids,info]=SiemensCsaReadFid(info,0,'conj');
 
 sz=size(fids);
 
@@ -154,7 +154,7 @@ end
 
 %Calculate t and ppm arrays using the calculated parameters:
 f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=f/(Bo*42.577);
+ppm=-f/(Bo*42.577);
 ppm=ppm+4.65;
 
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
