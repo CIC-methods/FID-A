@@ -3,7 +3,7 @@
 % Dana Goerzen and Jamie Near, McGill University 2021.
 % Fast version by Muhammad G Saleh (Johns Hopkins University School of Medicine, 2019)
 % USAGE:
-% out=run_simPressShaped_fast(spinSys);
+% out=run_simSemiLaserShaped_fast(spinSys);
 % 
 % DESCRIPTION:
 % This script simulates a PRESS experiment with fully shaped refocusing 
