@@ -60,7 +60,8 @@ isSpecial=~isempty(strfind(sequence,'rm_special')) ||...  %Is this Ralf Mekle's 
 isjnSpecial=~isempty(strfind(sequence,'jn_svs_special')) ||...  %or Jamie Near's SPECIAL sequence?
             ~isempty(strfind(sequence,'md_Adiab_Special')) ||... %or Masoumeh Dehghani's Adiabatic SPECIAL sequence?
             ~isempty(strfind(sequence,'md_Special')) ||... %or another version of Masoumeh Dehghani's SPECIAL sequence?
-            ~isempty(strfind(sequence,'md_Inv_special')); %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
+            ~isempty(strfind(sequence,'md_Inv_special')) ||... %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
+            ~isempty(strfind(sequence,'pt_svs_special_31p')); %or Peter Trong's 31P SPECIAL seqeunce?
 ishdSPECIAL=~isempty(strfind(sequence,'md_dvox_special')); %Is this Masoumeh Dehghani's hadamard-encoded dual-SPECIAL sequence?
 isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PRESS sequence?
 isjnseq=~isempty(strfind(sequence,'jn_')) ||... %Is this another one of Jamie Near's sequences 
@@ -89,7 +90,7 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
         data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
         data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
         sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
-    elseif twix_obj.NCol>1 && twixObj.image.NCha==1
+    elseif twix_obj.image.NCol>1 && twix_obj.image.NCha==1
         data(:,:,1)=squeezedData(:,[1:2:end-1]);
         data(:,:,2)=squeezedData(:,[2:2:end]);
         sqzSize=[sqzSize(1) sqzSize(2)/2 2];
