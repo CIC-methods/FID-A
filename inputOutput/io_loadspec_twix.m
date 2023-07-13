@@ -84,7 +84,14 @@ isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS
 %sequence also falls into this category. 
 if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequence 
         (strcmp(version,'vd') && isjnSpecial) ||... %and the VD/VE versions of Jamie Near's SPECIAL sequence
-        (strcmp(version,'vd') && isjnMP);  %and the VD/VE versions of Jamie Near's MEGA-PRESS sequence                                                   
+        (strcmp(version,'vd') && isjnMP && twix_obj.image.NSet==1 );  %and the VD/VE versions of Jamie Near's MEGA-PRESS sequence
+                                                                        %NOTE:  I added the twix_obj.image.NSet==1 condition to the 
+                                                                        %above 'if' statement becuase I found that there is a legacy 
+                                                                        %version of jn_MEGA_GABA in which the version is 'vd', but the 
+                                                                        %edit-ON and edit-OFF subspecs are already stored in separate 
+                                                                        %elements of the "Set" dimension.  These legacy datasets were 
+                                                                        %not being handled correctly before, but are handled fine now 
+                                                                        %with this new condition.                                                                     
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
         data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
