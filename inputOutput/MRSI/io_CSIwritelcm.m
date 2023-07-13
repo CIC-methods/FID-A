@@ -36,7 +36,7 @@ end
 % t0=0;
   Bo=in.Bo;
 %   hzppm=getGamma('overTwoPi', true)*Bo/1e6;
-  hzppm=in.gamma*Bo/1e6;
+  hzppm=in.txfrq/1e6;
   dwelltime=in.spectralDwellTime;
 % Nuc=0;
 % PatName='No Name';
