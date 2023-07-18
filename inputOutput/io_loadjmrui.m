@@ -24,7 +24,12 @@ sz=[str2num(info.PointsInDataset) 1];
 dwelltime=str2num(info.SamplingInterval)*1e-3;
 spectralwidth=1/dwelltime;
 date=str2num(info.DateOfExperiment);
-Bo=txfrq/42577000;  %JMRUI HEADER INCORRECTLY SAYS 3.0
+
+%right now hard code nucleus, MNS functionaly TBD - PT, 2023
+nucleus='1H';
+gamma=getgamma(nucleus);
+
+Bo=txfrq/(gamma*1e6);  %JMRUI HEADER INCORRECTLY SAYS 3.0
 
 t=[0:dwelltime:sz(1)*dwelltime-dwelltime];
 
@@ -37,13 +42,10 @@ dims.extras=0;
 
 fids=RF(:,1);
 
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
 
 % f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-
-%right now hard code nucleus, MNS functionaly TBD - PT, 2023
-nucleus='1H';
-gamma=getgamma(nucleus);
 
 %Calculate ppm
 ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
@@ -63,6 +65,12 @@ out.seq='';
 out.te=[];
 out.tr=[];
 out.pointsToLeftshift=0;
+
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+out.hdr=info;
+out.filename=filename;
 
 %Write flags
 out.flags.writtentostruct=1;

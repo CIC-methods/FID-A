@@ -127,7 +127,8 @@ fclose(fid);
 % Time_domain_data = fft(fft(fftshift(fftshift(padarray(fftshift(fftshift(ifft(ifft(Time_domain_data,[],2),[],3),2),3),[0 16 16],'both'),2),3),[],2),[],3);
 
 % get the spectrum from the fid
-specs = fftshift(ifft(fids,[],1),1);
+% specs = fftshift(ifft(fids,[],1),1);
+specs=FIDAfft(fids,1,'t');
 
 % make calculations for the output mrs structure
 sz = rda.VectorSize;
@@ -147,10 +148,15 @@ TE = rda.TE;
 TR = rda.TR;
 pointsToLeftShift = 'N/A';
 
+%hard code to 1H for now, MNS functionality TDB - PT, 2023
+nucleus = '1H';
+gamma=getgamma(nucleus);
+
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.6082;
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% ppm=-f/(Bo*42.577);
+% ppm=ppm+4.6082;
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
@@ -175,6 +181,11 @@ out.te=TE;
 out.tr=TR;
 out.pointsToLeftshift=pointsToLeftShift;
 
+% PT, 2023
+out.nucleus = nucleus;
+out.gamma = gamma;
+out.hdr = rda;
+out.filename = rda_filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;

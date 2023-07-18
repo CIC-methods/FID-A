@@ -313,35 +313,14 @@ end
 % Nucleus (new field)
 out.nucleus = hdr_ext.ResonantNucleus;
 % Calculate B0 from spectrometer frequency depending on nucleus
-% Gamma from Wikipedia article "Gyromagnetic ratio" (3 signif. digits)
-for rr = 1:length(out.nucleus)
-    switch out.nucleus{rr}
-        case '1H'
-            gamma = 42.577;
-        case '2H'
-            gamma = 6.536;
-        case '3HE'
-            gamma = -32.434;
-        case '7LI'
-            gamma = 16.546;
-        case '13C'
-            gamma = 10.708;
-        case '19F'
-            gamma = 40.052;
-        case '23NA'
-            gamma = 11.262;
-        case '31P'
-            gamma = 17.235;
-        case '129XE'
-            gamma = -11.777;
-    end
-    Bo(rr) = f0(rr) ./ gamma;
-end
+% gamma from Wikipedia article "Gyromagnetic ratio" (3 signif. digits)
+gamma=getgamma(out.nucleus);
 
 % Calculate t and ppm arrays using the calculated parameters:
-f   =[(-sw/2) + (sw/(2*nPts)) : sw/(nPts) : (sw/2) - (sw/(2*nPts))];
-ppm = -f / (Bo(1)*42.577);
-ppm = ppm + 4.65;
+% f   =[(-sw/2) + (sw/(2*nPts)) : sw/(nPts) : (sw/2) - (sw/(2*nPts))];
+% ppm = -f / (Bo(1)*42.577);
+% ppm = ppm + 4.65;
+ppm=calcppm(sw,nPts,Bo(1),gamma);
 t   = [0 : dt : (nPts-1)*dt];
 
 

@@ -50,7 +50,7 @@ fids_w=permute(fids_w,[1,3,2]);
 sz=size(fids);
 sz_w=size(fids_w);
 
-%right now hard code nucleus, MNS functionaly TBA - PT, 2023
+%right now hard code nucleus, MNS functionaly TBD - PT, 2023
 nucleus='1H';
 gamma=getgamma(nucleus);
 

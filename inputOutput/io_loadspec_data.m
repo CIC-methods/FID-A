@@ -70,8 +70,12 @@ fids_w=squeeze(WaterData)';
 sz=size(fids);
 sz_w=size(fids_w);
 
+%right now hard code nucleus to 1H, MNS functionaly TBD - PT, 2023
+nucleus='1H';
+gamma=getgamma(nucleus);
+
 %Find the magnetic field strength:
-Bo=Larmor/42.577;
+Bo=Larmor/gamma;
 
 %Find the number of averages:
 Naverages=size(fids,2)*size(fids,3);
@@ -97,9 +101,10 @@ dims_w.averages=2;
 dims_w.subSpecs=0;
 
 
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
-specs_w=fftshift(ifft(fids_w,[],dims_w.t),dims_w.t);
-
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+% specs_w=fftshift(ifft(fids_w,[],dims_w.t),dims_w.t);
+specs=FIDAfft(fids,dims.t,'t');
+specs_w=FIDAfft(fids_w,dims_w.t,'t');
 
 %Now get relevant scan parameters:*****************************
 
@@ -182,9 +187,10 @@ end
 
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=f/(Bo*42.577);
-ppm=ppm+4.65;
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% ppm=f/(Bo*42.577);
+% ppm=ppm+4.65;
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
@@ -211,6 +217,11 @@ out.te=te;
 out.tr=tr;
 out.pointsToLeftshift=0;
 
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+out.hdr='';
+out.filename=filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;
@@ -254,6 +265,11 @@ out_w.te=te;
 out_w.tr=tr;
 out_w.pointsToLeftshift=0;
 
+%PT - 2023
+out_w.nucleus=nucleus;
+out_w.gamma=gamma;
+out_w.hdr='';
+out_w.filename=filename;
 
 %FILLING IN THE FLAGS
 out_w.flags.writtentostruct=1;

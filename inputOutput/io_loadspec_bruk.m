@@ -66,7 +66,8 @@ try
     fids_trunc=fids_raw(ADC_OFFSET:end,:);
     %         fids_trunc=fids_trunc';
     fids=padarray(fids_trunc, [ADC_OFFSET-1,0],'post');
-    specs=fftshift(ifft(fids,[],1),1);
+%     specs=fftshift(ifft(fids,[],1),1);
+    specs=FIDAfft(fids,1,'t');
     sz=size(specs);
     out.flags.averaged=0;
     %specify the dims
@@ -97,8 +98,8 @@ catch
     %if the length of Fids is odd, then you have to do a circshift of one to
     %make sure that you don't introduce a small frequency shift into the fids
     %vector.
-    specs=fftshift(ifft(fids,[],1),1);
-    
+%     specs=fftshift(ifft(fids,[],1),1);
+    specs=FIDAfft(fids,1,'t');
     
     
     %calculate the size;
@@ -125,7 +126,8 @@ if exist([inDir '/fid.ref'])
     fids_ref_trunc=fids_ref(ADC_OFFSET:end,:);
     %         fids_trunc=fids_trunc';
     reffids=padarray(fids_ref_trunc, [ADC_OFFSET-1,0],'post');
-    refspecs=fftshift(ifft(reffids,[],1),1);
+%     refspecs=fftshift(ifft(reffids,[],1),1);
+    refspecs=FIDAfft(reffids,1,'t');
     sz=size(refspecs);
     out.flags.averaged=0;
     %specify the dims
@@ -148,11 +150,24 @@ line=fgets(method_fid);
 index=findstr(line,'$PVM_DigSw=');
 while isempty(index)
     line=fgets(method_fid);
+    
+    %finding nucleus tag
+    index_nuc=findstr(line,'$PVM_Nucleus1Enum=');
+    if index_nuc
+        line_nuc=line;
+    end
+    
     index=findstr(line,'$PVM_DigSw=');
 end
 equals_index=findstr(line,'=');
 spectralwidth=line(equals_index+1:end);
 spectralwidth=str2double(spectralwidth);
+
+% getting the nucleus and gamma
+equals_index=strfind(line_nuc,'=');
+nucleus=line_nuc(equals_index+1:end-1);
+gamma=getgamma(nucleus);
+
 fclose(method_fid);
 
 %Now get the transmitter frequency
@@ -170,12 +185,10 @@ txfrq=txfrq*1e6;
 fclose(acqp_fid);
 
 %B0
-Bo=txfrq/42577000;
+Bo=txfrq/(gamma*1e6);
 
-%Spectral width in PPM
-spectralwidthppm=spectralwidth/(txfrq/1e6);
-
-
+% %Spectral width in PPM
+% spectralwidthppm=spectralwidth/(txfrq/1e6);
 
 %Now get the TE
 method_fid=fopen([inDir '/method']);
@@ -234,16 +247,14 @@ fclose(method_fid);
 subspecs=1;
 rawSubspecs=1;
 
-
 %calculate the ppm scale
-ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
-
+% ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 %calculate the dwelltime:
 dwelltime=1/spectralwidth;
 
 %calculate the time scale
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
-
 
 
 %FILLING IN DATA STRUCTURE FOR THE FID.RAW DATA
@@ -267,6 +278,12 @@ out.te=te;
 out.tr=tr;
 out.pointsToLeftshift=0;
 
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+%Unsure how to set header and filename, update later - PT,2023
+out.hdr='';
+out.filename=inDir;
 
 %FILLING IN THE FLAGS FOR THE FID.RAW DATA
 out.flags.writtentostruct=1;
@@ -310,6 +327,13 @@ if isRef
     ref.te=te;
     ref.tr=tr;
     ref.pointsToLeftshift=0;
+    
+    %PT - 2023
+    ref.nucleus=nucleus;
+    ref.gamma=gamma;
+    %Unsure how to set header and filename, update later - PT,2023
+    ref.hdr='';
+    ref.filename=inDir;
     
     
     %FILLING IN THE FLAGS FOR THE FID.REF DATA

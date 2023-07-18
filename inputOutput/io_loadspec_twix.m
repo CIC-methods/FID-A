@@ -330,7 +330,8 @@ end
 sz=size(fids);
 
 %Now take fft of time domain to get fid:
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
     
 
 %Now get relevant scan parameters:*****************************
@@ -438,9 +439,12 @@ out.seq=seq;
 out.te=TE/1000;
 out.tr=TR/1000;
 out.pointsToLeftshift=leftshift;
+
+%PT - 2023
 out.nucleus=nucleus;
 out.gamma=gamma;
-
+out.hdr=twix_obj.hdr;
+out.filename=filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;

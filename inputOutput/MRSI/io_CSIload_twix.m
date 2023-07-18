@@ -90,14 +90,7 @@ function MRSIStruct = io_CSIload_twix(filename)
     
     %Getting Nucleus - PT,2022
     nucleus=twix_obj.hdr.Config.Nucleus;
-    switch nucleus
-    case '1H'
-        gamma=42.576;
-    case '31P'
-        gamma=17.235;
-    case '13C'
-        gamma=10.7084;
-    end
+    gamma=getgamma(nucleus);
 
     %****************************************************************
     %FILLING IN DATA STRUCTURE
