@@ -106,7 +106,8 @@ ph=repmat(ph,replicate);
 %now apply the phases by multiplying the data by exp(-i*ph);
 fids=in.fids.*exp(-i*ph);
 fids_presum=fids;
-specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs_presum=FIDAfft(fids,in.dims.t,'t');
 
 
 %FILLING IN DATA STRUCTURE

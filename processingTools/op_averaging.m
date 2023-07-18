@@ -35,7 +35,8 @@ else
     fids=fids/in.sz(in.dims.averages); %divide by number of averages;
     
     %re-calculate Specs using fft
-    specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+%     specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+    specs=FIDAfft(fids,in.dims.t,'t');
     
     %change the dims variables.
     if in.dims.t>in.dims.averages

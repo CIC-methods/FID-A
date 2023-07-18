@@ -43,8 +43,9 @@ end
 % scanner='TrioTim';
 % addinfo='jnear';
 
-specs = ifft(fftshift(getData(in), in.dims.t), [], in.dims.t);
-vec_signal = conj(specs(:));
+% specs = ifft(fftshift(getData(in), in.dims.t), [], in.dims.t);
+fids = FIDAfft(getData(in),in.dims.t,'f');
+vec_signal = conj(fids(:));
 
 RF = [imag(vec_signal) real(vec_signal)];
 
