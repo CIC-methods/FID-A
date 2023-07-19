@@ -18,22 +18,14 @@
 function out=op_freqrange(in,ppmmin,ppmmax);
 
 %Calculate Specs using fft
-fullspecs=fftshift(ifft(in.fids,[],in.dims.t),in.dims.t);
+% fullspecs=fftshift(ifft(in.fids,[],in.dims.t),in.dims.t);
+fullspecs=FIDAfft(in.fids,in.dims.t,'t');
 
 %now take only the specified range of the spectrum
 specs=fullspecs(in.ppm>ppmmin & in.ppm<ppmmax,:,:);
 
 %convert back to time domain
-%if the length of Fids is odd, then you have to do a circshift of one to
-%make sure that you don't introduce a small frequency shift into the fids
-%vector.
-if mod(size(specs,in.dims.t),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
-else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
-end
+fids=FIDAfft(specs,in.dims.t,'f');
 
 %calculate the size;
 sz=size(fids);
@@ -44,6 +36,8 @@ ppm=in.ppm(in.ppm>ppmmin & in.ppm<ppmmax);
 %calculate the new spectral width and dwelltime:
 dppm=abs(ppm(2)-ppm(1));
 ppmrange=abs((ppm(end)-ppm(1)))+dppm;
+
+if ~exist(
 spectralwidth=ppmrange*in.Bo*42.577;
 dwelltime=1/spectralwidth;
 
