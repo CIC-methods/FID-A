@@ -14,7 +14,7 @@ function out=FIDAfft(in,dim,in_domain)
         case 't'
             out = fftshift(fft(in,[],dim),dim);
         case 'f'
-            out = ifft(fftshift(in, dim),[],dim);
+            out = ifft(ifftshift(in, dim),[],dim);
         otherwise
             disp('Invalid input for "domain". Please either input "t" or "f" for domain of your input data, respectively');
             return
