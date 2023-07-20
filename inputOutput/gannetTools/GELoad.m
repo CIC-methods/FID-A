@@ -379,9 +379,9 @@ else
 end
 
 FullData = FullData .* repmat([1; 1i], [1 npoints totalframes nreceivers]);
-FullData = squeeze(sum(FullData,1));
+FullData = conj(squeeze(sum(FullData,1)));
 WaterData = WaterData .* repmat([1; 1i], [1 npoints waterframes nreceivers]);
-WaterData = squeeze(sum(WaterData,1));
+WaterData = conj(squeeze(sum(WaterData,1)));
 
 
 
