@@ -37,8 +37,12 @@ ppm=in.ppm(in.ppm>ppmmin & in.ppm<ppmmax);
 dppm=abs(ppm(2)-ppm(1));
 ppmrange=abs((ppm(end)-ppm(1)))+dppm;
 
-if ~exist(
-spectralwidth=ppmrange*in.Bo*42.577;
+if isfield(in,'gamma')
+    gamma=in.gamma;
+else %default to 1H if field doesn't exist
+    gamma=42.577;
+end 
+spectralwidth=ppmrange*in.Bo*gamma;
 dwelltime=1/spectralwidth;
 
 %calculate the time scale
