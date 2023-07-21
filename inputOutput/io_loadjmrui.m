@@ -39,9 +39,14 @@ fids=RF(:,1);
 
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
 
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+
+%right now hard code gamma and nucleus, MNS functionaly TBD - PT, 2023
+gamma=42.577;
+nucleus='1H';
+
+%Calculate ppm
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 out.fids=fids;
 out.specs=specs;
