@@ -50,8 +50,12 @@ fids_w=permute(fids_w,[1,3,2]);
 sz=size(fids);
 sz_w=size(fids_w);
 
+%right now hard code nucleus, MNS functionaly TBA - PT, 2023
+nucleus='1H';
+gamma=getgamma(nucleus);
+
 %Find the magnetic field strength:
-Bo=GEhdr.Larmor/42.577;
+Bo=GEhdr.Larmor/gamma;
 
 %Now create a record of the dimensions of the data array.  
 dims.t=1;
@@ -70,9 +74,10 @@ dims_w.averages=3;
 dims_w.subSpecs=0;
 dims_w.extras=0;
 
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
-specs_w=fftshift(ifft(fids_w,[],dims_w.t),dims_w.t);
-
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
+% specs_w=fftshift(ifft(fids_w,[],dims_w.t),dims_w.t);
+specs_w=FIDAfft(fids_w,dims_w.t,'t');
 
 %Now get relevant scan parameters:*****************************
 
@@ -155,9 +160,12 @@ end
 
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)));
-ppm=f/(Bo*42.577);
-ppm=ppm+4.65;
+% f=(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)));
+% ppm=-f/(Bo*gamma);
+% if strcmp(nucleus,'1H')
+%     ppm=ppm+4.65;
+% end
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 t=0:dwelltime:(sz(1)-1)*dwelltime;
 
@@ -183,6 +191,12 @@ out.seq='';
 out.te=GEhdr.TE;
 out.tr=GEhdr.TR;
 out.pointsToLeftshift=0;
+
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+out.hdr=GEhdr;
+out.filename=filename;
 
 
 %FILLING IN THE FLAGS
@@ -227,6 +241,11 @@ out_w.te=GEhdr.TE;
 out_w.tr=GEhdr.TR;
 out_w.pointsToLeftshift=0;
 
+%PT - 2023
+out_w.nucleus=nucleus;
+out_w.gamma=gamma;
+out_w.hdr=GEhdr;
+out_w.filename=filename;
 
 %FILLING IN THE FLAGS
 out_w.flags.writtentostruct=1;

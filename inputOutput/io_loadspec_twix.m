@@ -411,20 +411,10 @@ end
 
 %Calculate t and ppm arrays using the calculated parameters:
 %Switch between different Nuclei - PT,2021
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
 nucleus=twix_obj.hdr.Config.Nucleus;
-switch nucleus
-    case '1H'
-        gamma=42.576;
-        ppm=-f/(Bo*gamma);
-        ppm=ppm+4.65;
-    case '31P'
-        gamma=17.235;
-        ppm=-f/(Bo*gamma);
-    case '13C'
-        gamma=10.7084;
-        ppm=-f/(Bo*gamma);
-end
+gamma=getgamma(nucleus);
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
 

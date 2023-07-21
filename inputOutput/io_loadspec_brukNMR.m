@@ -39,7 +39,8 @@ fids=real_fid-1i*imag_fid;
 
 %rawAverages=size(real_fid,1)./rawDataPoints;
 rawAverages=1;
-specs=fftshift(ifft(fids,[],1),1);
+% specs=fftshift(ifft(fids,[],1),1);
+specs=FIDAfft(fids,1,'t');
     
 %calculate the size;
 sz=size(specs);
@@ -84,11 +85,15 @@ txfrq=str2double(txfrq);
 txfrq=txfrq*1e6;
 fclose(acqu_fid);
 
-%Bo
-Bo=txfrq/42577000;
+%right now hard code nucleus, MNS functionaly TBD - PT, 2023
+nucleus='1H';
+gamma=getgamma(nucleus);
 
-%Spectral width in PPM
-spectralwidthppm=spectralwidth/(txfrq/1e6);
+%Bo
+Bo=txfrq/(gamma*1e6);
+
+% %Spectral width in PPM
+% spectralwidthppm=spectralwidth/(txfrq/1e6);
 
 
 %Now get the TE and TR
@@ -105,7 +110,8 @@ rawSubspecs=1;
 
 
 %calculate the ppm scale
-ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
+% ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 %calculate the dwelltime:
 dwelltime=1/spectralwidth;
