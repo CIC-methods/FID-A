@@ -25,9 +25,9 @@ elseif in.dims.coils==1
     error('ERROR:  dims.coils==1.  This should never happen!  Aborting!');
 elseif in.dims.coils==2
     fids=in.fids(:,index,:,:,:);
-elseif in.dims.coils==3;
+elseif in.dims.coils==3
     fids=in.fids(:,:,index,:,:);
-elseif in.dims.coils==4;
+elseif in.dims.coils==4
     fids=in.fids(:,:,:,index,:);
 elseif in.dims.coils==5
     fids=in.fids(:,:,:,:,index);
@@ -36,7 +36,8 @@ end
 fids=squeeze(fids);
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %change the dims variables
 dims.t=in.dims.t;
@@ -53,7 +54,7 @@ if length(index)==1
         dims.subSpecs=in.dims.subSpecs;
     end
     if in.dims.extras > in.dims.coils
-        dims.extras=in.dims.extras-1
+        dims.extras=in.dims.extras-1;
     else
         dims.extras=in.dims.extras;
     end

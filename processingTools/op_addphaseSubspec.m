@@ -41,7 +41,8 @@ fids=in.fids;
 fids(:,2)=fids(:,2).*exp(1i*ph*pi/180);
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %plot(in1.ppm,combinedSpecs);
 
