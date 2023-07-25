@@ -55,8 +55,12 @@ if nargin<4
     parsGuess(4)=0; %phase [degrees];
 end
 
-
-
+%get gamma from structure, otherwise default to 1H - PT, 2023
+if isfield(in,'gamma')
+    gamma=in.gamma;
+else
+    gamma=42.577;
+end
 
 yGuess=op_voigt_linbas_complex_nest(parsGuess,ppm);
 parsFit=nlinfit(ppm,real(spec'),@op_voigt_linbas_real_nest,parsGuess);
@@ -77,13 +81,14 @@ disp(['Area under the fitted curve is: ' num2str(area)]);
 fit = in;
 fit.specs=op_voigt_linbas_complex_nest(parsFit,in.ppm);
 fit.specs=fit.specs.';
-if mod(size(fit.specs,1),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fit.fids=fft(fftshift(fit.specs,1),[],1);
-else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fit.fids=fft(circshift(fftshift(fit.specs,1),1),[],1);
-end
+% if mod(size(fit.specs,1),2)==0
+%     %disp('Length of vector is even.  Doing normal conversion');
+%     fit.fids=fft(fftshift(fit.specs,1),[],1);
+% else
+%     %disp('Length of vector is odd.  Doing circshift by 1');
+%     fit.fids=fft(circshift(fftshift(fit.specs,1),1),[],1);
+% end
+fit.fids=FIDAfft(fit.specs,1,'f');
 residual=op_subtractScans(in,fit);
 
     function [y]=op_voigt_linbas_real_nest(pars,ppm)
@@ -94,25 +99,26 @@ residual=op_subtractScans(in,fit);
         
         %figure out time domain params
         deltappm=abs(ppm(1)-ppm(2));  %Frequnecy resolution in [ppm]
-        deltaf=deltappm*42.577*in.Bo;  %Frequnecy resolution in [Hz]
+        deltaf=deltappm*gamma*in.Bo;  %Frequnecy resolution in [Hz]
         tacq=1/deltaf; %FID duration in [sec]
         t=linspace(0,tacq,length(ppm));  %Time scale in [sec]
         t2=1/(pi*lw);  %T2 relaxation constant [sec]
         
         %figure out f0 relative to the new frequency window:
         centreppm=(ppm(1)+ppm(end))/2;  
-        f0=(ppm0-centreppm) * 42.577 * in.Bo;
+        f0=(ppm0-centreppm) * gamma * in.Bo;
         
         %m=pars(4);    %baseline slope
         %y0=pars(5);    %baseline offset
         theta=pars(4); %Phase shift of peak
-        gam=lw/42.577/in.Bo;      %gamma parameter [ppm]
+        gam=lw/gamma/in.Bo;      %gamma parameter [ppm]
         %Define a complex lorentzian for each set of pars;
         y=zeros(length(A),length(ppm));
         
         %lor = sqrt(2/pi) *(gam(n)+i*(ppm-ppm0(n))) ./ (gam(n)^2 + (ppm-ppm0(n)).^2);
         fid = exp(-t/t2) .* exp(1i * f0 * 2 * pi * t);
-        lor = fftshift(ifft(fid));
+%         lor = fftshift(ifft(fid));
+        lor=FIDAfft(fid,1,'t');
         %now scale it, add baseline, phase it by theta, and take the real part
         y=real(addphase(lor/max(abs(lor))*A,theta));
         
@@ -126,24 +132,25 @@ residual=op_subtractScans(in,fit);
         
         %figure out time domain params
         deltappm=abs(ppm(1)-ppm(2));  %Frequnecy resolution in [ppm]
-        deltaf=deltappm*42.577*in.Bo;  %Frequnecy resolution in [Hz]
+        deltaf=deltappm*gamma*in.Bo;  %Frequnecy resolution in [Hz]
         tacq=1/deltaf; %FID duration in [sec]
         t=linspace(0,tacq,length(ppm));  %Time scale in [sec]
         t2=1/(pi*lw); %T2 relaxation constant [sec];
         
         %figure out f0 relative to the new frequency window:
         centreppm=(ppm(1)+ppm(end))/2;  %centre of ppm window [ppm]
-        f0=(ppm0-centreppm) * 42.577 * in.Bo;  %frequency offset of peak [Hz]
+        f0=(ppm0-centreppm) * gamma * in.Bo;  %frequency offset of peak [Hz]
         
         %m=pars(4);    %baseline slope
         %y0=pars(5);    %baseline offset
         theta=pars(4); %Phase shift of peak
-        gam=lw/42.577/in.Bo;      %gamma parameter [ppm]
+        gam=lw/gamma/in.Bo;      %gamma parameter [ppm]
         %Define a complex lorentzian for each set of pars;
         y=zeros(length(A),length(ppm));
         
         fid = exp(-t/t2) .* exp(1i * f0 * 2 * pi * t);
-        lor = fftshift(ifft(fid));
+%         lor = fftshift(ifft(fid));
+        lor=FIDAfft(fid,1,'t');
         y=addphase(lor/max(abs(lor))*A,theta);
         
             
