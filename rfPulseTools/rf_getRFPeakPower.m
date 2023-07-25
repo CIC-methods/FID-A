@@ -37,7 +37,7 @@
 function [rfPeakPower,rfPeakB1]=rf_getRFPeakPower(RF,tp,TxAmpPwrRating,sysB1max,flipAngle);
 
 %Gyromagnetic ratio
-gamma=42577000;  %[Hz/T].... assuming Proton
+gamma=getgamma('1H')*1e6;  %[Hz/T].... assuming Proton
 
 %Find out the required peak B1 for the input RF pulse:
 rfPeakB1=RF.tw1/gamma/(tp/1000)/1e-6;
