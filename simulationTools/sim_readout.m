@@ -96,13 +96,19 @@ end
 
 out.t=[0:deltat:deltat*(points-1)];
 
-freq=[(-sw/2)+(sw/(2*points)):sw/(points):(sw/2)-(sw/(2*points))];
-ppm=-freq/(Bfield*42.577);
-ppm=ppm+4.65;
+nucleus='1H';
+gamma=getgamma(nucleus);
+ppm=calcppm(sw,points,Bfield,gamma);
+% freq=[(-sw/2)+(sw/(2*points)):sw/(points):(sw/2)-(sw/(2*points))];
+% ppm=freq/(Bfield*42.577);
+% ppm=ppm+4.65;
 out.ppm=ppm;
+out.nucleus=nucleus;
+out.gamma=gamma;
 
 out.fids=out.fids';
-out.specs=fftshift(ifft(out.fids));
+% out.specs=fftshift(ifft(out.fids));
+out.specs=FIDAfft(out.fids,1,'t');
 
 
 
