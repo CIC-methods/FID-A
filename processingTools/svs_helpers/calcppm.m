@@ -12,10 +12,10 @@ function ppm=calcppm(sw,np,Bo,gamma)
 % 
 
 f=((-sw/2)+(sw/(2*np)):sw/np:(sw/2)-(sw/(2*np)));
-ppm=f/(Bo*gamma);
+ppm=f/(Bo*gyromag);
 
 % if 1H, shift by 4.65
-if gamma==42.577
+if gamma==getgamma('1H')
     ppm=ppm+4.65;
 end
 end
