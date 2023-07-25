@@ -97,14 +97,14 @@ end
 out.t=[0:deltat:deltat*(points-1)];
 
 nucleus='1H';
-gamma=getgamma(nucleus);
-ppm=calcppm(sw,points,Bfield,gamma);
+gyromag=getgyromag(nucleus);
+ppm=calcppm(sw,points,Bfield,gyromag);
 % freq=[(-sw/2)+(sw/(2*points)):sw/(points):(sw/2)-(sw/(2*points))];
 % ppm=freq/(Bfield*42.577);
 % ppm=ppm+4.65;
 out.ppm=ppm;
 out.nucleus=nucleus;
-out.gamma=gamma;
+out.gyromag=gyromag;
 
 out.fids=out.fids';
 % out.specs=fftshift(ifft(out.fids));
@@ -119,7 +119,7 @@ out.dwelltime=deltat;
 out.n=n;
 out.linewidth=linewidth;
 out.Bo=Bfield;
-out.txfrq=out.Bo*42577000;  %assumes proton.
+out.txfrq=out.Bo*gyromag*1e6;  %assumes proton.
 out.sz=size(out.specs);
 out.date=date;
 out.dims.t=1;
