@@ -22,20 +22,31 @@
 function out=op_lorentzianPeak(n,sw,Bo,lw,ppm0,amp);
 
 dt=1/sw;
-df=sw/n;
+% df=sw/n;
 decay=1/(lw*pi);
-f0=(ppm0-4.65)*(Bo*42.577)* 2 * pi;
+
+%for now hard code as 1H - PT, 2023
+nucleus='1H';
+gamma=getgamma(nucleus);
+
+if strcmp(nucleus,'1H')
+    f0=(ppm0-4.65)*(Bo*gamma)* 2 * pi;
+else
+    f0=ppm0*(Bo*gamma)* 2 * pi;
+end
 
 t=[0:dt:(n-1)*dt];
-f=[(-sw/2+(df/2)):df:(sw/2-(df/2))];
-
-ppm=f/(Bo*42.577);
-ppm=4.65-ppm;
+% f=[(-sw/2+(df/2)):df:(sw/2-(df/2))];
+% 
+% ppm=f/(Bo*42.577);
+% ppm=4.65-ppm;
+ppm=calcppm(sw,n,Bo,gamma); 
 
 fids=amp * exp(-t/decay) .* exp(-1i*f0*t);
 fids=fids';
 
-specs=fftshift(ifft(fids));
+% specs=fftshift(ifft(fids));
+specs=FIDAfft(fids,1,'t');
 
 out.t=t;
 out.fids=fids;
@@ -58,6 +69,12 @@ out.averages=1;
 out.rawAverages=1;
 out.subspecs=1;
 out.rawSubspecs=1;
+
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+out.hdr='';
+out.filename='';
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;
