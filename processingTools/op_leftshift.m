@@ -33,13 +33,14 @@ sz(1)=sz(1)-ls;
 fids=reshape(fids(ls+1:end,:),sz);
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
-
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):in.spectralwidth/(sz(1)):(in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
-ppm=-f/(in.Bo*42.577);
-ppm=ppm+4.65;
+% f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):in.spectralwidth/(sz(1)):(in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
+% ppm=-f/(in.Bo*42.577);
+% ppm=ppm+4.65;
+ppm=calcppm(in.spectralwidth,sz(1),in.Bo,in.gamma);
 
 %t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
 t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
