@@ -34,7 +34,8 @@ if isempty(fieldnames(in1))
     end
            
     %re-calculate Specs using fft
-    specs=fftshift(ifft(fids,[],in2.dims.t),in2.dims.t);
+%     specs=fftshift(ifft(fids,[],in2.dims.t),in2.dims.t);
+    specs=FIDAfft(fids,in2.dims.t,'t');
     
     %FILLING IN DATA STRUCTURES
     out=in2;
@@ -63,7 +64,8 @@ else
     end
     
     %re-calculate Specs using fft
-    specs=fftshift(ifft(fids,[],in1.dims.t),in1.dims.t);
+%     specs=fftshift(ifft(fids,[],in1.dims.t),in1.dims.t);
+    specs=FIDAfft(fids,in1.dims.t,'t');
     
     %FILLING IN DATA STRUCTURES
     out=in1;
