@@ -25,7 +25,8 @@ fids=median(real(in.fids),in.dims.averages)+(1i*median(imag(in.fids),in.dims.ave
 fids=squeeze(fids);
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %change the dims variables.  
 if in.dims.t>in.dims.averages

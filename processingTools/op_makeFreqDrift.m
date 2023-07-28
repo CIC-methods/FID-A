@@ -48,7 +48,8 @@ F=repmat(fDrift_shft,in.sz(1),1,1);
 fids=in.fids.*exp(1i*T.*F*2*pi);
 
 %Now re-calculate specs using ifft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %FILLING IN DATA STRUCTURES
 out=in;

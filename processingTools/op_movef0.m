@@ -32,7 +32,8 @@ t=repmat(in.t',[1 in.sz(2:end)]);
 fids=in.fids.*exp(-1i*t*f*2*pi);
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %change the ppm scale as well
 ppm=in.ppm+(f/(in.txfrq/1000000));

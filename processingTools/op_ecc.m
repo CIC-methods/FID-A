@@ -53,14 +53,16 @@ plot(inw.t,ecphase);
 %water unsuppressed data:
 out=in;
 out.fids=out.fids.*exp(1i*-ecphase_rep);
-out.specs=fftshift(ifft(out.fids,[],1),1);
+% out.specs=fftshift(ifft(out.fids,[],1),1);
+out.specs=FIDAfft(out.fids,1,'t');
 size(ecphase);
 ecphase(1);
 out=op_addphase(out,180*ecphase_rep(1)/pi);
 
 outw=inw;
 outw.fids=outw.fids.*exp(1i*-ecphase);
-outw.specs=fftshift(ifft(outw.fids,[],1),1);
+% outw.specs=fftshift(ifft(outw.fids,[],1),1);
+outw.specs=FIDAfft(outw.fids,1,'f');
 outw=op_addphase(outw,180*ecphase(1)/pi);
 figure;
 plot(outw.t,phase(outw.fids));

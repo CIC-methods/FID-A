@@ -85,7 +85,8 @@ goodAverages=find(~mask);
 fids=in.fids(:,goodAverages,:,:);
 
 %%re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %re-calculate the sz variable
 sz=size(fids);

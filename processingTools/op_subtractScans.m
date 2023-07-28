@@ -19,7 +19,8 @@ function out=op_subtractScans(in1,in2);
 fids=in1.fids-in2.fids;
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in1.dims.t),in1.dims.t);
+% specs=fftshift(ifft(fids,[],in1.dims.t),in1.dims.t);
+specs=FIDAfft(fids,in1.dims.t,'t');
 
 %FILLING IN DATA STRUCTURES
 out=in1;
