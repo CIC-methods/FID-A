@@ -21,7 +21,8 @@ function out=op_timerange(in,tmin,tmax);
 fids=in.fids(in.t>=tmin & in.t<tmax,:,:);
 
 %Calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %calculate the size;
 sz=size(fids);
@@ -30,12 +31,18 @@ sz=size(fids);
 t=in.t(in.t>tmin & in.t<tmax);
 
 %Now re-calculate t and ppm arrays using the calculated parameters:
-f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):...
-    in.spectralwidth/(sz(1)):...
-    (in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
-
-ppm=-f/(in.Bo*42.577);
-ppm=ppm+4.65;
+% f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):...
+%     in.spectralwidth/(sz(1)):...
+%     (in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
+% 
+% ppm=-f/(in.Bo*42.577);
+% ppm=ppm+4.65;
+if isfield(in,'gamma')
+    gamma=in.gamma;
+else
+    gamma=getgamma('1H'); %default to 1H - PT, 2023
+end
+ppm=calcppm(in.spectralwidth,sz(1),in.Bo,gamma);
 
 %calculate the time scale
 t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
