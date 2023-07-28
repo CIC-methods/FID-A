@@ -26,7 +26,8 @@ end
 fids=resample(double(in.fids),1,dsFactor,0);
 
 %Calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %recalculate the sz vector
 sz=size(fids);
@@ -37,12 +38,20 @@ spectralwidth=in.spectralwidth/dsFactor;
 
 
 %Now re-calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):...
-    spectralwidth/(sz(1)):...
-    (spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):...
+%     spectralwidth/(sz(1)):...
+%     (spectralwidth/2)-(spectralwidth/(2*sz(1)))];
 
-ppm=-f/(in.Bo*42.577);
-ppm=ppm+4.65;
+% ppm=-f/(in.Bo*42.577);
+% ppm=ppm+4.65;
+
+if isfield(in,'gamma')
+    gamma=in.gamma;
+else
+    gamma=42.577;
+end
+
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
 
