@@ -17,6 +17,7 @@ function out=op_complexConj(in);
 
 fids=in.fids;
 fids=conj(fids);
+sz=size(fids);
 
 %re-calculate Specs using fft
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
