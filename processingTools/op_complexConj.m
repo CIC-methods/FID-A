@@ -20,10 +20,6 @@ fids=conj(fids);
 
 %re-calculate Specs using fft
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
-
-%t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
-t=[in.dwelltime:in.dwelltime:sz(1)*in.dwelltime];
-
     
 %FILLING IN DATA STRUCTURE
 out=in;
