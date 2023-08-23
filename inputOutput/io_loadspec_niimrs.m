@@ -311,10 +311,11 @@ end
 
 % Fill in additional FID-A format variables
 % Nucleus (new field)
-out.nucleus = hdr_ext.ResonantNucleus;
+out.nucleus = hdr_ext.ResonantNucleus{:};
 % Calculate B0 from spectrometer frequency depending on nucleus
 % gamma from Wikipedia article "Gyromagnetic ratio" (3 signif. digits)
 gamma=getgamma(out.nucleus);
+Bo=f0/gamma;
 
 % Calculate t and ppm arrays using the calculated parameters:
 % f   =[(-sw/2) + (sw/(2*nPts)) : sw/(nPts) : (sw/2) - (sw/(2*nPts))];
