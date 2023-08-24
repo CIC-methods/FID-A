@@ -240,7 +240,8 @@ sz=size(fids);
 if isa(fids,'int32')
     fids=double(fids);
 end
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
 
 %Now get relevant scan parameters:*****************************
 
@@ -288,11 +289,15 @@ end
 
 %****************************************************************
 
+%For now hard code to 1H; MNS functionality TBD - PT, 2023
+nucleus = '1H';
+gamma=getgamma(nucleus);
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=f/(txfrq/1e6);
-ppm=ppm+4.65;
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% ppm=f/(txfrq/1e6);
+% ppm=ppm+4.65;
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
@@ -317,6 +322,12 @@ out.seq=sequence;
 out.te=te;
 out.tr=tr;
 out.pointsToLeftshift=0;
+
+% PT, 2023
+out.nucleus = nucleus;
+out.gamma = gamma;
+out.hdr = hdr;
+out.filename = filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;

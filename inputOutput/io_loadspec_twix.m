@@ -330,7 +330,8 @@ end
 sz=size(fids);
 
 %Now take fft of time domain to get fid:
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
     
 
 %Now get relevant scan parameters:*****************************
@@ -411,20 +412,10 @@ end
 
 %Calculate t and ppm arrays using the calculated parameters:
 %Switch between different Nuclei - PT,2021
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
 nucleus=twix_obj.hdr.Config.Nucleus;
-switch nucleus
-    case '1H'
-        gamma=42.576;
-        ppm=-f/(Bo*gamma);
-        ppm=ppm+4.65;
-    case '31P'
-        gamma=17.235;
-        ppm=-f/(Bo*gamma);
-    case '13C'
-        gamma=10.7084;
-        ppm=-f/(Bo*gamma);
-end
+gamma=getgamma(nucleus);
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
 
@@ -448,9 +439,12 @@ out.seq=seq;
 out.te=TE/1000;
 out.tr=TR/1000;
 out.pointsToLeftshift=leftshift;
+
+%PT - 2023
 out.nucleus=nucleus;
 out.gamma=gamma;
-
+out.hdr=twix_obj.hdr;
+out.filename=filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;

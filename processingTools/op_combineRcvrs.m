@@ -26,6 +26,26 @@
 
 function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
 
+if in.flags.addedrcvrs 
+    disp('Coils already combined, aborting');
+    out=in;
+    if nargin>1
+        outw=inw;
+    end
+    return
+elseif ~in.dims.coils
+    disp('Only 1 coil detected, exiting without running coil combine');
+    out=in;
+    out.flags.coilCombined=1;
+    out.flags.addedrcvrs=1;
+    if nargin>1
+        outw=inw;
+        outw.flags.coilCombined=1;
+        outw.flags.addedrcvrs=1;
+    end
+    return
+end
+
 %first find the weights using the water unsuppressed data:
 weights=op_getcoilcombos(inw,2,'h');
 

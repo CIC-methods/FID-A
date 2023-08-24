@@ -158,13 +158,13 @@ function MRSIStruct = applyFastFourierTransformSpatial(MRSIStruct)
     if(mod(getSizeFromDimensions(MRSIStruct, {'kx'}), 2) == 1)
         data = circshift(data, 1, xDimension);
     end
-    data = fftshift(fft(fftshift(data, xDimension), [], xDimension), xDimension);
+    data = FIDAfft(fftshift(data, xDimension),xDimension,'t');
 
     yDimension = getDimension(MRSIStruct, 'ky');
     if(mod(getSizeFromDimensions(MRSIStruct,{'ky'}), 2) == 1)
         data = circshift(data, 1, yDimension);
     end
-    data = fftshift(fft(fftshift(data, yDimension), [], yDimension), yDimension);
+    data = FIDAfft(fftshift(data, yDimension),yDimension,'t');
     MRSIStruct = setData(MRSIStruct, data);
 
     MRSIStruct = setDimension(MRSIStruct, 'x', getDimension(MRSIStruct, 'kx'));
@@ -236,14 +236,22 @@ function MRSIStruct = fastFourierTransformTime(MRSIStruct)
     data = getData(MRSIStruct);
     timeDimension = getDimension(MRSIStruct, 't');
     %fourier transform in the spectral domain
-    data = fftshift(fft(data, [], timeDimension), timeDimension);
+    data = FIDAfft(data,timeDimension,'t');
+    
+    if isfield(MRSIStruct,'gamma')
+        gamma=MRSIStruct.gamma;
+    else
+        gamma=getgamma('1H'); %default to proton if field not exist - PT, 2023
+    end
     
     MRSIStruct = setData(MRSIStruct, data);
-    ppm = calculatePPM(MRSIStruct);
+    ppm = calcppm(getSpectralWidth(MRSIStruct), ...
+        getSizeFromDimensions(MRSIStruct,{'t'}), ...
+        MRSIStruct.Bo,gamma);
     
-    if strcmp(MRSIStruct.nucleus,'1H')
-        ppm = ppm + 4.65;
-    end
+%     if strcmp(MRSIStruct.nucleus,'1H')
+%         ppm = ppm + 4.65;
+%     end
     
     MRSIStruct = setPPM(MRSIStruct, ppm);
     %flip ppm

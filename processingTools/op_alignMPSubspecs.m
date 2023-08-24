@@ -104,7 +104,8 @@ phs=parsFit(2)+phShift;
 %plot(in.ppm,fftshift(ifft(fids(:,1,m))),in.ppm,fftshift(ifft(fids(:,n,m))));
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 
 %FILLING IN DATA STRUCTURE

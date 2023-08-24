@@ -36,20 +36,6 @@ if ~in.flags.addedrcvrs
     error('ERROR:  reciever channels must be combined first');
 end
 
-
-% datsets=1;
-% zop=0;
-% t0=0;
-  Bo=in.Bo;
-  hzppm=42.577*Bo;
-  dwelltime=in.dwelltime;
-% Nuc=0;
-% PatName='No Name';
-% scanner='TrioTim';
-% addinfo='jnear';
-seq='PRESS';
-
-
 RF=zeros(in.sz(in.dims.t),2);
 RF(:,1)=real(in.fids(:,1));
 RF(:,2)=-imag(in.fids(:,1));
@@ -75,10 +61,10 @@ fprintf(fid,' $SEQPAR');
 %fprintf(fid,'sig(real)\tsig(imag)\tfft(real)\tfft(imag)\n');
 %fprintf(fid,'Signal 1 out of %i in file\n',datsets);
 fprintf(fid,'\n echot= %2.2f',te);
-fprintf(fid,'\n seq= ''PRESS''');
+fprintf(fid,'\n seq= ''%s''',seq);
 fprintf(fid,'\n hzpppm= %5.6f',in.txfrq/1e6);
 fprintf(fid,'\n NumberOfPoints= %i',in.sz(1));
-fprintf(fid,'\n dwellTime= %5.6f' ,dwelltime);
+fprintf(fid,'\n dwellTime= %5.6f' ,in.dwelltime);
 fprintf(fid,'\n $END');
 fprintf(fid,'\n $NMID');
 fprintf(fid,'\n id=''ANONYMOUS '', fmtdat=''(2E15.6)''');

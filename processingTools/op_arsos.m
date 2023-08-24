@@ -46,7 +46,9 @@ if strcmp(domain,'t');
     end
     
     %re-calculate Specs using fft
-    specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+%     specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+    specs=FIDAfft(fids,in.dims.t,'t');
+    
 elseif strcmp(domain,'f');
     specs=sort(real(in.specs),in.dims.averages)+(1i*sort(imag(in.specs),in.dims.averages));
     
@@ -68,13 +70,14 @@ elseif strcmp(domain,'f');
     %if the length of Fids is odd, then you have to do a circshift of one to
     %make sure that you don't introduce a small frequency shift into the fids
     %vector.
-    if mod(size(specs,in.dims.t),2)==0
-        %disp('Length of vector is even.  Doing normal conversion');
-        fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
-    else
-        %disp('Length of vector is odd.  Doing circshift by 1');
-        fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
-    end
+%     if mod(size(specs,in.dims.t),2)==0
+%         %disp('Length of vector is even.  Doing normal conversion');
+%         fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
+%     else
+%         %disp('Length of vector is odd.  Doing circshift by 1');
+%         fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
+%     end
+    fids=FIDAfft(specs,in.dims.t,'f');
 end
 
 %FILLING IN DATA STRUCTURE

@@ -78,5 +78,5 @@ fclose(fid);
 
 
  rf(:,1)=RF(:,1)+i*RF(:,2);
- rf(:,2)=fftshift(ifft(rf(:,1)));
- 
+%  rf(:,2)=fftshift(ifft(rf(:,1)));
+rf(:,2)=FIDAfft(rf(:,1),1,'t');

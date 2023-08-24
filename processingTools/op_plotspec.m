@@ -32,9 +32,27 @@ if nargin<6
         if nargin<4
             xlab='Frequency (ppm)';
             if nargin<3
-                ppmmax=5.2;
+                if isfield(in,'nucleus')
+                    switch in.nucleus
+                        case '31P'
+                            ppmmax=20;
+                        otherwise
+                            ppmmax=5.2;
+                    end      
+                else
+                    ppmmax=5.2;
+                end
                 if nargin<2
-                    ppmmin=0.2;
+                    if isfield(in,'nucleus')
+                        switch in.nucleus
+                            case '31P'
+                                ppmmin=-25;
+                            otherwise
+                                ppmmin=0.2;
+                        end
+                    else
+                        ppmmin=0.2;
+                    end
                     if nargin<1
                         error('ERROR: no input spectrum specified.  Aborting!!');
                     end

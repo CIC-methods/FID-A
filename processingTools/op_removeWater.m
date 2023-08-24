@@ -110,7 +110,8 @@ end
 % use alpitude, phase, damping factor and frequency to model data
 fid_components = (amp.*exp(1i*ph))'*exp((-alpha + (1i*w))*t);
 fid_model = sum(fid_components,1);
-spec_model=fftshift(ifft(fid_model',[],1),1);
+% spec_model=fftshift(ifft(fid_model',[],1),1);
+spec_model=FIDAfft(fid_model',1,'t');
 
 
 % calculate residual error of fit
@@ -126,8 +127,8 @@ fid_water = (amp(water).*exp(1i*ph(water)))'*exp((-alpha(water) + (1i*w(water)))
 
 % remove water signal from the data
 fid_ws = fid-fid_water;
-spec_ws=fftshift(ifft(fid_ws',[],1),1);
-
+% spec_ws=fftshift(ifft(fid_ws',[],1),1);
+spec_ws=FIDAfft(fid_ws',1,'t');
 
 % plot the results
 if plot_bool ==1

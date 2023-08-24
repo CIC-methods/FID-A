@@ -137,7 +137,8 @@ else
     %now apply the phases by multiplying the data by exp(-i*ph);
     fids=in.fids.*exp(-i*ph);
     fids_presum=fids;
-    specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+%     specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+    specs_presum=FIDAfft(fids,in.dims.t,'t');
     
     %Apply the amplitude factors by multiplying the data by amp;
     if mode=='w' || mode=='h'
@@ -150,7 +151,8 @@ else
     fids=squeeze(fids);
     
     %re-calculate Specs using fft
-    specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+%     specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+    specs=FIDAfft(fids,in.dims.t,'t');
     
     %change the dims variables
     if in.dims.t>in.dims.coils

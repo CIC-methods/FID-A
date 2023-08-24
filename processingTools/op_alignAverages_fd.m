@@ -108,8 +108,8 @@ end
 
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
-
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %FILLING IN DATA STRUCTURE
 out=in;
