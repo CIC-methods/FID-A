@@ -402,8 +402,10 @@ end
 diffSpec=op_combinesubspecs(out,'diff');
 sumSpec=op_combinesubspecs(out,'summ');
 subSpec1=op_takesubspec(out,1);
-subSpec1=op_addphase(subSpec1,180);
+subSpec1=op_addphase(subSpec1,180);  %THIS IS THE DEFAULT LINE
 subSpec2=op_takesubspec(out,2);
+%NEW LINE for EJA MEGA-PRESS sequence (swapped for line 405 above):
+%subspec2=op_addphase(subSpec2,180); diffSpec=op_addphase(diffSpec,180); sumSpec=op_addphase(sumSpec,180);
 
 %Frequency shift all spectra so that Creatine appears at 3.027 ppm:
 [subSpec1,frqShift]=op_ppmref(subSpec1,2.9,3.1,3.027);
