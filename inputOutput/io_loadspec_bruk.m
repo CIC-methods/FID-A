@@ -290,7 +290,11 @@ if isRef
     %specify the dims
     refdims.t=1;
     refdims.coils=0;
-    refdims.averages=2;
+    if rawAverages_ref>1
+        refdims.averages=2;
+    else
+        refdims.averages=0;
+    end    
     refdims.subSpecs=0;
     refdims.extras=0;
 else
@@ -461,7 +465,7 @@ if isRef
     ref.dwelltime=dwelltime;
     ref.txfrq=txfrq;
     ref.date=date;
-    ref.dims=dims;
+    ref.dims=refdims;
     ref.Bo=Bo;
     ref.averages=averages_ref;
     ref.rawAverages=rawAverages_ref;
