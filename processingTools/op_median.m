@@ -17,7 +17,10 @@
 function out=op_median(in);
 
 if in.flags.averaged || in.dims.averages==0 || in.averages<2
-    error('ERROR:  Averaging has already been performed!  Aborting!');
+    %DO NOTHING
+    disp('WARNING:  No averages found!  Returning input without modification!');
+    out=in;
+    return;
 end
 
 %add the spectrum along the averages dimension;
