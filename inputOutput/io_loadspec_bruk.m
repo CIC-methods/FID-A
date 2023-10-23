@@ -146,10 +146,11 @@ fclose(method_fid);
 if strcmp(rawData,'y') || strcmp(rawData,'Y')
     if contains(version,'PV 6') || contains(version,'PV 7') || contains(version,'PV-360')
         data = fopen([inDir '/rawdata.job0']); % WO - changed for PV6.0
+        fid_data = fread(data,'int32');
     elseif contains(version,'PV 5')
         data = fopen([inDir '/fid.raw']);
+        fid_data = fread(data,'int');
     end
-    fid_data=fread(data,'int');
     real_fid = fid_data(2:2:length(fid_data));
     imag_fid = fid_data(1:2:length(fid_data));
     fids_raw=real_fid-1i*imag_fid;
@@ -161,11 +162,11 @@ if strcmp(rawData,'y') || strcmp(rawData,'Y')
     %Reshape to put the averages along a 2nd dimension
     fids_raw=reshape(fids_raw,[],rawAverages);
 
-    %In PV360, if there are multiple receivers *I think* that these get
-    %stored separately by default.  Therefore, at this stage, if this is a
-    %PV360 dataset with multiple receivers, we need to reshape the dataset
-    %again:
-    if contains(version,'PV-360') && multiRcvrs
+    %If there are multiple receivers *I think* that these always get stored
+    %separately by default in the fid.raw file.  Therefore, at this stage, 
+    %if this is a PV360 dataset with multiple receivers, we need to reshape 
+    %the dataset again:
+    if ~contains(version,'PV 5') && multiRcvrs
         fids_raw=reshape(fids_raw,rawDataPoints,Nrcvrs,rawAverages);
         %Permute so that time is along 1st dimension, averages is along 2nd 
         %dimension, and coils is along 3rd dimension:
@@ -212,7 +213,7 @@ dims.t=1;%the time dimension is always the 1st dimension
 
 %Coils dimension:
 %As far as I am aware, the RF coils are only stored separately in PV360.
-if contains(version,'PV-360') && multiRcvrs
+if ~contains(version,'PV 5') && multiRcvrs
     %Coils dimension should normally be after the averages dimension,
     %unless there are no averages, in which case the coild dimension will
     %be after the time dimension.  
@@ -249,10 +250,10 @@ end
 if isRef
     if contains(version,'PV 5')
         data = fopen([inDir '/fid.ref']);
-        ref_data=fread(data,'int');
+        ref_data=fread(data,'int16');
     elseif contains(version,'PV 6') || contains(version,'PV 7') || contains(version,'PV-360.2')
         data = fopen([inDir '/fid.refscan']);
-        ref_data=fread(data,'int');
+        ref_data=fread(data,'int32');
     elseif contains(version,'PV-360.3')
         data = fopen([inDir '/pdata/1/fid_refscan.64']);
         ref_data=fread(data,'float64');
@@ -438,7 +439,7 @@ out.flags.zeropadded=0;
 out.flags.freqcorrected=0;
 out.flags.phasecorrected=0;
 
-if contains(version,'PV-360') && multiRcvrs && dims.coils
+if multiRcvrs && dims.coils
     out.flags.addedrcvrs=0;
 else
     out.flags.addedrcvrs=1;

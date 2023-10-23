@@ -1,9 +1,9 @@
-%io_loadspec_bruk.m
+%io_loadspec_bruk_old.m
 %Chathura Kumaragamage, McGill University 2016.
 %Jamie Near, McGill University 2016.
 %
 % USAGE:
-% [out,ref]=io_loadspec_bruk(filename);
+% [out,ref]=io_loadspec_bruk_old(filename);
 % 
 % DESCRIPTION:
 % Reads in Bruker MRS data (fid.raw, fid.ref).
@@ -23,7 +23,7 @@
 
 
 
-function [out,ref]=io_loadspec_bruk(inDir)
+function [out,ref]=io_loadspec_bruk_old(inDir)
 
 %%%%%%%%chathu mod starts
 
