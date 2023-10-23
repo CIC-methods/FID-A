@@ -31,7 +31,7 @@
 % sig           = Vector of coil weights.
 
          
-function [out,fids_presum,specs_presum,ph,sig]=op_addrcvrs(in,point,mode,coilcombos);
+function [out,fids_presum,specs_presum,phs,sigs]=op_addrcvrs(in,point,mode,coilcombos);
 
 if in.flags.addedrcvrs || ~in.dims.coils
     disp('WARNING:  Only one receiver channel found!  Returning input without modification!');
@@ -77,7 +77,7 @@ else
     for n=1:in.sz(in.dims.coils)
         if nargin<4
             %ph(:,n)=phase(avfids(point,n,1,1))*ph(:,n);
-            phs(n)=phase(avfids(point,n,1,1));
+            phs(n)=phase(avfids(point,n,1,1))*180/pi;
             switch mode
                 case 'w'
                     %sig(:,n)=abs(avfids(point,n,1,1))*sig(:,n);
@@ -135,7 +135,7 @@ else
     
     
     %now apply the phases by multiplying the data by exp(-i*ph);
-    fids=in.fids.*exp(-i*ph);
+    fids=in.fids.*exp(-i*ph*pi/180);
     fids_presum=fids;
     specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
     
