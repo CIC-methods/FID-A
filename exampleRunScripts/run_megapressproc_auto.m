@@ -89,14 +89,14 @@ if water
     if ~ccGiven
         coilcombos=op_getcoilcombos(raww,1);
     end
-    [outw_cc,fidw_pre,specw_pre,phw,sigw]=op_addrcvrs(raww,1,'w',coilcombos);
+    [outw_cc,fidw_pre,specw_pre]=op_addrcvrs(raww,1,'w',coilcombos);
 else
     if ~ccGiven
         coilcombos=op_getcoilcombos(op_averaging(op_combinesubspecs(raw,'summ')),1);
     end
     
 end
-[out_cc,fid_pre,spec_pre,ph,sig]=op_addrcvrs(raw,1,'w',coilcombos);
+[out_cc,fid_pre,spec_pre]=op_addrcvrs(raw,1,'w',coilcombos);
 [out_av_cc,fid_av_pre,spec_av_pre]=op_addrcvrs(op_averaging(raw),1,'w',coilcombos);
 raw_av=op_averaging(raw);
 

@@ -63,11 +63,11 @@ end
 %phases from the water unsuppressed data.
 if water
     coilcombos=op_getcoilcombos(raww,1);
-    [outw_cc,fidw_pre,specw_pre,phw,sigw]=op_addrcvrs(raww,1,'w',coilcombos);
+    [outw_cc,fidw_pre,specw_pre]=op_addrcvrs(raww,1,'w',coilcombos);
 else
     coilcombos=op_getcoilcombos(op_averaging(raw),1);  
 end
-[out_cc,fid_pre,spec_pre,ph,sig]=op_addrcvrs(raw,1,'w',coilcombos);
+[out_cc,fid_pre,spec_pre]=op_addrcvrs(raw,1,'w',coilcombos);
 [out_av_cc,fid_av_pre,spec_av_pre]=op_addrcvrs(op_averaging(raw),1,'w',coilcombos);
 raw_av=op_averaging(raw);
 
