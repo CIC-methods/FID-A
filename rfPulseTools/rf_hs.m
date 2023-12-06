@@ -2,7 +2,7 @@
 %Jamie Near, McGill University 2020.  Based on old code from 2007.
 %
 % USAGE:
-% [RF,FM,mv,sc]=rf_goia(N,n,tbw,Tp,trunc,thk)
+% [RF,FM,mv,sc]=rf_hs(N,n,tbw,Tp,trunc,thk)
 % 
 % DESCRIPTION:
 % this funciton creates a GOIA gradient modulated adiabatic pulse, using 
