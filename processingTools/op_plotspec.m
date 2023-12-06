@@ -164,7 +164,7 @@ elseif iscell(in)
         ylabel(ylab,'FontSize',20);
         Fig1Ax1 = get(fignum, 'Children');
         Fig1Ax1Line1 = get(Fig1Ax1, 'Children');
-        set(Fig1Ax1Line1, 'LineWidth', 2);
+        set(Fig1Ax1Line1, 'LineWidth', 2.0);
     end
 else
     error('ERROR:  Input data format not recognized.  ABORTING!!');
