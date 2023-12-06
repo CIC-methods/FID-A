@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% out=op_fourStepCombine(in,addInd);
+% out=op_fourStepCombine(in,mode);
 % 
 % DESCRIPTION:
 % Combine dimensions in datasets with 4 subspectra to produce
@@ -24,15 +24,12 @@
 
 function out=op_fourStepCombine(in,mode);
 
-
-
 if ~in.flags.isFourSteps
     error('ERROR:  requires a dataset with 4 subspecs as input!  Aborting!');
 end
 if in.sz(end)~=4
     error('ERROR: final matrix dim must have length 4!!  Aborting!');
 end
-
 
 if nargin<2
     mode=0;
