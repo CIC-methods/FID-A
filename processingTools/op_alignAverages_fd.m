@@ -39,13 +39,12 @@ if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');
 end
 
-if (strcmp(med,'r') || strcmp(med,'R'))
-    if nargin<6
+if nargin<6
+    ref=struct();
+    if nargin<5
+        med='y';
+    elseif (strcmp(med,'r') || strcmp(med,'R'))
         error('ERROR:  If using the ''r'' option for input variable ''med'', then a 6th input argument must be provided');
-    end
-else
-    if nargin<6
-        ref=struct();
     end
 end
 
