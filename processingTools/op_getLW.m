@@ -2,7 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor);
+% [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor,suppressPlots);
 % 
 % DESCRIPTION:
 % Estimates the linewidth of a reference peak in the spectrum.  By default, 
@@ -13,26 +13,31 @@
 % best fit.  The output FWHM is given by the average of these two measures.
 % 
 % INPUTS:
-% in         = input spectrum in structure format.
-% Refppmmin  = Min of frequency range (ppm) in which to search for reference peak.
+% in            = input spectrum in structure format.
+% Refppmmin     = Min of frequency range (ppm) in which to search for reference peak.
 %                  (Optional.  Default = 4.4 ppm);
-% Refppmmax  = Max of frequency range to (ppm) in which search for reference peak
+% Refppmmax     = Max of frequency range to (ppm) in which search for reference peak
 %                  (Optional.  Default = 5/3 ppm per Tesla B0);
-% zpfactor   = zero-padding factor (used for method 1.)
+% zpfactor      = zero-padding factor (used for method 1.)
 %                  (Optional.  Default = 8);
+% suppressPlots = Boolean to suppress plotting results. 
+%                  (Optional.  Default = false)
 %
 % OUTPUTS:
 % FWHM       = Estimated linewidth of the input spectrum (in Hz).
 
 
-function [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor);
+function [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor,suppressPlots);
 
-if nargin<4
-    zpfactor=8;
-    if nargin<3
-        Refppmmax=5.0;
-        if nargin<2
-            Refppmmin=4.4;
+if nargin<5
+    suppressPlots=false;
+    if nargin<4
+        zpfactor=8;
+        if nargin<3
+            Refppmmax=5.0;
+            if nargin<2
+                Refppmmin=4.4;
+            end
         end
     end
 end
@@ -49,7 +54,9 @@ ppmwindow=in.ppm(in.ppm>Refppmmin & in.ppm<Refppmmax);
 maxRef_index=find(abs(real(Refwindow))==max(abs(real((Refwindow)))));
 maxRef=real(Refwindow(maxRef_index));
 
-plot(ppmwindow,abs(real(Refwindow)),'.');
+if ~suppressPlots
+    plot(ppmwindow,abs(real(Refwindow)),'.');
+end
 
 gtHalfMax=find(abs(real(Refwindow)) >= 0.5*abs(maxRef));
 
@@ -72,16 +79,20 @@ while sat=='n'
     parsFit=nlinfit(ppmwindow,real(Refwindow'),@op_lorentz,parsGuess);
     yFit=op_lorentz(parsFit,ppmwindow);
     
-    figure;
-    plot(ppmwindow,real(Refwindow),'.',ppmwindow,real(yGuess),':',ppmwindow,yFit);
-    legend('data','guess','fit');
+    if ~suppressPlots
+        figure;
+        plot(ppmwindow,real(Refwindow),'.',ppmwindow,real(yGuess),':',ppmwindow,yFit);
+        legend('data','guess','fit');
     
-    sat=input('are you satisfied with fit? y/n [y] ','s');
-    if isempty(sat)
+        sat=input('are you satisfied with fit? y/n [y] ','s');
+        if isempty(sat)
+            sat='y';
+        end
+        if sat=='n';
+            waterFreq=input('input new water frequency guess: ');
+        end
+    else
         sat='y';
-    end
-    if sat=='n';
-        waterFreq=input('input new water frequency guess: ');
     end
 
 end
@@ -92,4 +103,7 @@ FWHM2=FWHM2*(42.577*in.Bo);  %Assumes Proton.
 
 FWHM=mean([FWHM1 FWHM2]);  
 
-disp(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
+if ~suppressPlots
+    disp(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
+end
+
