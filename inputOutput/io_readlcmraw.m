@@ -156,7 +156,7 @@ if type=='sim'
     A=-1;
 end
 ppm=A*-f/(Bo*42.577);
-ppm=ppm+4.7;
+ppm=ppm+4.65;
 out.ppm=ppm;
 
 t=[0:dwelltime:(vectorsize-1)*dwelltime];
