@@ -2,8 +2,7 @@
 % Jamie Near, McGill University 2014.
 % 
 % USAGE:
-% This script is run simply by editing the input parameters and then
-% clicking "Run".
+% out=run_simSpinEchoShaped(spinSys);
 % 
 % DESCRIPTION:
 % This script simulates a localized spin-echo experiment with a fully shaped  
@@ -39,19 +38,21 @@
 % OUTPUTS:
 % out_pos           = Simulation results, spatially resolved.
 % out               = Simulation results, summed over all space.
-
+function out=run_simSpinEchoShaped(spinSys);
 
 % ************INPUT PARAMETERS**********************************
 RFWaveform='sampleRefocPulse.pta'; %name of refocusing pulse waveform.
-Tp=5; %duration of refocusing pulses[ms]
+Tp=5.2; %duration of refocusing pulses[ms]
 Npts=2048; %number of spectral points
 sw=2000; %spectral width [Hz]
 lw=2; %linewidth of the output spectrum [Hz]
-Bfield=3; %Magnetic field strength in [T]
-thk=3; %slice thickness of x refocusing pulse [cm]
-pos=linspace(-3,3,12); %X positions to simulate [cm]
-TE=68; %Echo time of the pulse sequence [ms]
-spinSys='Cr'; %spin system to simulate
+Bfield=2.89; %Magnetic field strength in [T]
+thk=1.66; %slice thickness of x refocusing pulse [cm]
+nX=32; %Number of grid points to simulate in the x-direction
+fovX=4; %size of the full simulation Field of View in the x-direction [cm]
+pos=linspace(-fovX/2,fovX/2,nX); %X positions to simulate [cm]
+TE=97; %Echo time of the pulse sequence [ms]
+%spinSys='bHG'; %spin system to simulate
 phCyc=[0,90]; %phase cycling steps for 1st refocusing pulse [degrees]
 % ************END OF INPUT PARAMETERS**********************************
 
@@ -97,6 +98,16 @@ parfor X=1:length(pos);
 end %end of spatial loop (parfor) in x direction.
         
 
+%For consistent scaling across different shaped simulations, we need to :
+%1.  Scale down by the total number of simulations run (since these were
+%    all added together.
+numSims=(nX);
+out=op_ampScale(out,1/numSims);
+
+%2.  Scale by the total size of the simulated region, relative to the size
+%    of the voxel.
+voxRatio=(thk)/(fovX);
+out=op_ampScale(out,1/voxRatio);
 
 
 
