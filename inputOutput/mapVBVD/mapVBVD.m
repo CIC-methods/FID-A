@@ -619,7 +619,7 @@ function [mdh_blob, filePos, isEOF] = loop_mdh_read( fid, version, Nscans, scan,
     % ======================================
         bit_0 = uint8(2^0);
         bit_5 = uint8(2^5);
-        mdhStart = 1-byteMDH;
+        % mdhStart = 1-byteMDH;
         
         u8_000 = zeros( 3, 1, 'uint8'); % for comparison with data_u8(1:3)
 
@@ -655,8 +655,13 @@ function [mdh_blob, filePos, isEOF] = loop_mdh_read( fid, version, Nscans, scan,
          
         try
             % read everything and cut out the mdh
-            data_u8 = fread( fid, ulDMALength, 'uint8=>uint8' );
-            data_u8 = data_u8( mdhStart+end :  end );
+            % data_u8 = fread( fid, ulDMALength, 'uint8=>uint8' );
+            % data_u8 = data_u8( mdhStart+end :  end );
+
+            % much faster to skip when ulDMALength is large, by Xiangrui Li
+            fseek ( fid, ulDMALength-byteMDH, 'cof' );
+            data_u8 = fread( fid, byteMDH, 'uint8=>uint8' );
+            
         catch exc
             warning( [mfilename() ':UnxpctdEOF'],  ...
                       [ '\nAn unexpected read error occurred at this byte offset: %d (%g GiB)\n'...
