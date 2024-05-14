@@ -21,7 +21,7 @@ function out = op_CSISelectVoxels(in, x, y)
         
     end
         [out, prev_permute, prev_size] = reshapeDimensions(in, [in.dims.x, in.dims.y]);
-        out.fids = getData(out)(x, y, :);
+        out.fids = out.data(x, y, :);
         if(isfield(out, 'specs'))
             out.specs = out.specs(x, y, :);
         end
