@@ -90,7 +90,8 @@ frq=parsFit(1);
 
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %plot(in1.ppm,combinedSpecs);
 

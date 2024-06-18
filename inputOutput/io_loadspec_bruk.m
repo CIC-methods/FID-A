@@ -172,7 +172,6 @@ if strcmp(rawData,'y') || strcmp(rawData,'Y')
         %dimension, and coils is along 3rd dimension:
         fids_raw=permute(fids_raw,[1,3,2]); 
     end
-
 elseif strcmp(rawdata,'n') || strcmp(rawData,'N')
     %REQUEST PROCESSED DATA ONLY:  Use the FID file instead of fid.raw.
     data = fopen([inDir '/fid']);
@@ -204,7 +203,8 @@ fids_trunc=fids_raw(leftshift+1:end,:,:);
 fids=padarray(fids_trunc, [leftshift,0],'post');
 
 %Do the fourier transform
-specs=fftshift(ifft(fids,[],1),1);
+%specs=fftshift(ifft(fids,[],1),1);
+specs=FIDAfft(fids,1,'t');
 sz=size(specs); %size of the array
 
 %specify the dims:
@@ -285,7 +285,8 @@ if isRef
     fids_ref=reshape(fids_ref,[],rawAverages_ref);
     fids_ref_trunc=fids_ref(leftshift+1:end,:);
     reffids=padarray(fids_ref_trunc, [leftshift,0],'post');
-    refspecs=fftshift(ifft(reffids,[],1),1);
+    %refspecs=fftshift(ifft(reffids,[],1),1);
+    refspecs=FIDAfft(reffids,1,'t');
     sz_ref=size(refspecs);
     ref.flags.averaged=0;
     %specify the dims
@@ -324,7 +325,19 @@ elseif contains(version,'PV-360')
     end
     line=fgets(method_fid);
     spectralwidth=str2double(line);
+
+    %finding nucleus tag
+    index_nuc=findstr(line,'$PVM_Nucleus1Enum=');
+    if index_nuc
+        line_nuc=line;
+    end
 end
+
+% getting the nucleus and gamma
+equals_index=strfind(line_nuc,'=');
+nucleus=line_nuc(equals_index+1:end-1);
+gamma=getgamma(nucleus);
+
 fclose(method_fid);
 
 
@@ -343,10 +356,10 @@ txfrq=txfrq*1e6;
 fclose(acqp_fid);
 
 %B0
-Bo=txfrq/42577000;
+Bo=txfrq/(gamma*1e6);
 
-%Spectral width in PPM
-spectralwidthppm=spectralwidth/(txfrq/1e6);
+% %Spectral width in PPM
+% spectralwidthppm=spectralwidth/(txfrq/1e6);
 
 %Now get the TE
 method_fid=fopen([inDir '/method']);
@@ -395,16 +408,14 @@ fclose(method_fid);
 subspecs=1;
 rawSubspecs=1;
 
-
 %calculate the ppm scale
-ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
-
+% ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 %calculate the dwelltime:
 dwelltime=1/spectralwidth;
 
 %calculate the time scale
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
-
 
 
 %FILLING IN DATA STRUCTURE FOR THE FID.RAW DATA
@@ -429,6 +440,12 @@ out.tr=tr;
 out.pointsToLeftshift=68-leftshift;
 out.version=version;
 
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+%Unsure how to set header and filename, update later - PT,2023
+out.hdr='';
+out.filename=inDir;
 
 %FILLING IN THE FLAGS FOR THE FID.RAW DATA
 out.flags.writtentostruct=1;
@@ -477,6 +494,13 @@ if isRef
     ref.tr=tr;
     ref.pointsToLeftshift=68-leftshift;
     ref.version=version;
+    
+    %PT - 2023
+    ref.nucleus=nucleus;
+    ref.gamma=gamma;
+    %Unsure how to set header and filename, update later - PT,2023
+    ref.hdr='';
+    ref.filename=inDir;
     
     
     %FILLING IN THE FLAGS FOR THE FID.REF DATA

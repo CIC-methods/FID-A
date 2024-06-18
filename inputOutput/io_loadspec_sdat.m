@@ -68,9 +68,13 @@ end
 
 sz = size(fids);
 
+%For now hard code to 1H; MNS functionality TBD - PT, 2023
+nucleus = '1H';
+gamma=getgamma(nucleus);
+
 % Fill in the header information
 txfrq = header.synthesizer_frequency; % transmitter frequency [Hz]
-Bo = txfrq/42577000; % B0 [T]
+Bo = txfrq/(gamma*1e6); % B0 [T]
 averages = size(fids,2)*size(fids,3); % number of rows in the file
 rawAverages = averages;
 spectralwidth = header.sample_frequency; % bandwidth [Hz]
@@ -83,11 +87,13 @@ rawSubspecs = subspecs;
 date = header.scan_date; % scan date [yyyy.mm.dd hh:mm:ss]
 
 % Produce specs
-specs = fftshift(ifft(fids,[],dims.t),dims.t);
+% specs = fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
 % Calculate t and ppm arrays using the calculated parameters:
-f = [(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm = -f/(Bo*42.577);
-ppm = ppm+4.65;
+% f = [(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% ppm = -f/(Bo*42.577);
+% ppm = ppm+4.65;
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 t = [0:dwelltime:(sz(1)-1)*dwelltime];
 
 %FILLING IN DATA STRUCTURE
@@ -110,6 +116,12 @@ out.seq=sequence;
 out.te=te;
 out.tr=tr;
 out.pointsToLeftshift=0;
+
+% PT, 2023
+out.nucleus = nucleus;
+out.gamma = gamma;
+out.hdr = header;
+out.filename = filename;
 
 
 %FILLING IN THE FLAGS

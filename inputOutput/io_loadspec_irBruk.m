@@ -33,14 +33,14 @@ specs=real-1i*imag;
 %if the length of Fids is odd, then you have to do a circshift of one to
 %make sure that you don't introduce a small frequency shift into the fids
 %vector.
-if mod(length(specs),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fids=fft(fftshift(specs,1),[],1);
-else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fids=fft(circshift(fftshift(specs,1),1),[],1);
-end
-
+% if mod(length(specs),2)==0
+%     %disp('Length of vector is even.  Doing normal conversion');
+%     fids=fft(fftshift(specs,1),[],1);
+% else
+%     %disp('Length of vector is odd.  Doing circshift by 1');
+%     fids=fft(circshift(fftshift(specs,1),1),[],1);
+% end
+fids=FIDAfft(specs,1,'f');
 
 %calculate the size;
 sz=size(fids);
@@ -74,8 +74,12 @@ txfrq=str2double(txfrq);
 txfrq=txfrq*1e6;
 fclose(acqp_fid);
 
+%for now hardcode for 1H - MNS functionality TBD - PT, 2023
+nucleus='1H';
+gamma=getgamma(nucleus);
+
 %B0
-Bo=txfrq/42577000;
+Bo=txfrq/(gamma*1e6);
 
 %Spectral width in PPM
 spectralwidthppm=spectralwidth/(txfrq/1e6);
@@ -139,7 +143,8 @@ rawSubspecs=0;
 
 
 %calculate the ppm scale
-ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
+% ppm=[4.65+(spectralwidthppm/2):-spectralwidthppm/(length(specs)-1):4.65-(spectralwidthppm/2)];
+ppm=calcppm(spectralwidth,length(specs),Bo,gamma);
 
 %calculate the dwelltime:
 dwelltime=1/spectralwidth;
@@ -174,6 +179,13 @@ out.seq=sequence;
 out.te=te;
 out.tr=tr;
 out.pointsToLeftshift=0;
+
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+%Unsure how to set these for now - PT,2023
+out.hdr='';
+out.filename=inDir;
 
 
 %FILLING IN THE FLAGS

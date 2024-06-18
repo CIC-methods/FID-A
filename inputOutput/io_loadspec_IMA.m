@@ -99,8 +99,8 @@ elseif ndims(fids)<4  %To many permutations...ask user for dims.
 %     dims.subSpecs=input('Enter the subSpecs Dimension (0 for none);  ');
 end
 
-specs=fftshift(ifft(fids,[],dims.t),dims.t);
-
+% specs=fftshift(ifft(fids,[],dims.t),dims.t);
+specs=FIDAfft(fids,dims.t,'t');
 
     
 
@@ -109,8 +109,12 @@ specs=fftshift(ifft(fids,[],dims.t),dims.t);
 %Calculate Dwell Time
 dwelltime=1/spectralwidth;
 
+%get nucleus and gamma, hardcode for 1H for now - PT,2023
+nucleus = '1H';
+gamma=getgamma(nucleus);
+
 %Calculate TxFrq
-txfrq=42577000*Bo;
+txfrq=gamma*Bo*1e6;
 
 %Get Date
 date=01012000;
@@ -153,10 +157,10 @@ end
 
 
 %Calculate t and ppm arrays using the calculated parameters:
-f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
-
+% f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
+% ppm=-f/(Bo*42.577);
+% ppm=ppm+4.65;
+ppm=calcppm(spectralwidth,sz(1),Bo,gamma);
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
 
@@ -181,6 +185,12 @@ out.te=te;
 out.tr=tr;
 out.pointsToLeftshift=0;
 
+%PT - 2023
+out.nucleus=nucleus;
+out.gamma=gamma;
+%Unsure how to set header and filename, update later - PT,2023
+out.hdr=info;
+out.filename=filename;
 
 %FILLING IN THE FLAGS
 out.flags.writtentostruct=1;

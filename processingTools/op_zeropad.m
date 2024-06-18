@@ -36,19 +36,26 @@ zp=ceil((in.sz(1)*zpFactor)-in.sz(1));
 fids=padarray(in.fids,zp,'post');
 
 %Calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %recalculate the sz vector
 sz=size(fids);
 
 
 %Now re-calculate t and ppm arrays using the calculated parameters:
-f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):...
-    in.spectralwidth/(sz(1)):...
-    (in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
-
-ppm=-f/(in.Bo*42.577);
-ppm=ppm+4.65;
+% f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):...
+%     in.spectralwidth/(sz(1)):...
+%     (in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
+% 
+% ppm=-f/(in.Bo*42.577);
+% ppm=ppm+4.65;
+if isfield(in,'gamma')
+    gamma=in.gamma;
+else
+    gamma=getgamma('1H');
+end
+ppm=calcppm(in.spectralwidth,sz(1),in.Bo,gamma);
 
 t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
 

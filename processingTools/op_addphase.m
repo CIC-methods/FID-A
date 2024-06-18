@@ -36,7 +36,8 @@ ph1;
 fids=in.fids.*ones(size(in.fids))*exp(1i*ph0*pi/180);
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+% specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+specs=FIDAfft(fids,in.dims.t,'t');
 
 %Now add 1st-order phase
 specs=addphase1(specs,in.ppm,ph1,ppm0,in.Bo);
@@ -45,13 +46,18 @@ specs=addphase1(specs,in.ppm,ph1,ppm0,in.Bo);
 %if the length of Fids is odd, then you have to do a circshift of one to
 %make sure that you don't introduce a small frequency shift into the fids
 %vector.
-if mod(size(specs,in.dims.t),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
-else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
-end
+% if mod(size(specs,in.dims.t),2)==0
+%     %disp('Length of vector is even.  Doing normal conversion');
+%     fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
+% else
+%     %disp('Length of vector is odd.  Doing circshift by 1');
+%     fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
+% end
+
+%re-calculated Fids using FIDAfft. This command also addresses frequency
+%shift for odd-sized vectors
+fids=FIDAfft(specs,in.dims.t,'f');
+
 
 if length(size(specs))<3 && ~suppressPlot
     plot(in.ppm,real(specs));

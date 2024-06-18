@@ -80,18 +80,26 @@ end
 %if the length of Fids is odd, then you have to do a circshift of one to
 %make sure that you don't introduce a small frequency shift into the fids
 %vector.
-if mod(size(specs,in1.dims.t),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fids=fft(fftshift(specs,in1.dims.t),[],in1.dims.t);
+% if mod(size(specs,in1.dims.t),2)==0
+%     %disp('Length of vector is even.  Doing normal conversion');
+%     fids=fft(fftshift(specs,in1.dims.t),[],in1.dims.t);
+% else
+%     %disp('Length of vector is odd.  Doing circshift by 1');
+%     fids=fft(circshift(fftshift(specs,in1.dims.t),1),[],in1.dims.t);
+% end
+fids=FIDAfft(specs,in1.dims.t,'f');
+
+%In case gamma wasn't included in input structure - PT, 2023
+if isfield(in1,'gamma')
+    gamma=in1.gamma;
 else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fids=fft(circshift(fftshift(specs,in1.dims.t),1),[],in1.dims.t);
+    gamma=42.577;
 end
- 
+
 %Calculate the new spectral width and dwelltime; 
 dppm=abs(ppmnew(2)-ppmnew(1));
 ppmrange=abs((ppmnew(end)-ppmnew(1)))+dppm; 
-spectralwidth=ppmrange*in1.Bo*42.577;
+spectralwidth=ppmrange*in1.Bo*gamma;
 dwelltime=1/spectralwidth;
  
 %Calculate the time scale

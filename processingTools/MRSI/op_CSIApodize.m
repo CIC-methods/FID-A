@@ -74,8 +74,8 @@ function MRSIStruct = op_CSIApodize(MRSIStruct, filterArguments)
         if(mod(size(weightMatrix, 2), 2) == 1)
             weightMatrix = circshift(weightMatrix, 1, 2);
         end
-        weightsFT = fftshift(fft(fftshift(weightMatrix, 1), [], 1), 1);
-        weightsFT = fftshift(fft(fftshift(weightsFT, 2), [], 2), 2);
+        weightsFT = FIDAfft(fftshift(weightMatrix, 1),1,'t');
+        weightsFT = FIDAfft(fftshift(weightsFT, 2),2,'t');
         weightsFT = weightsFT/(numel(weightsFT));
         
         for iExtra = 1:getSizeFromDimensions(MRSIStruct, {'extras'})

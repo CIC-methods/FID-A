@@ -46,13 +46,15 @@ specs=in.specs-dcOffset;
 %if the length of Fids is odd, then you have to do a circshift of one to
 %make sure that you don't introduce a small frequency shift into the fids
 %vector.
-if mod(size(specs,in.dims.t),2)==0
-    %disp('Length of vector is even.  Doing normal conversion');
-    fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
-else
-    %disp('Length of vector is odd.  Doing circshift by 1');
-    fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
-end
+% if mod(size(specs,in.dims.t),2)==0
+%     %disp('Length of vector is even.  Doing normal conversion');
+%     fids=fft(fftshift(specs,in.dims.t),[],in.dims.t);
+% else
+%     %disp('Length of vector is odd.  Doing circshift by 1');
+%     fids=fft(circshift(fftshift(specs,in.dims.t),1),[],in.dims.t);
+% end
+
+fids=FIDAfft(spec,in.dims.t,'f');
 
 %FILLING IN DATA STRUCTURE
 out=in;
