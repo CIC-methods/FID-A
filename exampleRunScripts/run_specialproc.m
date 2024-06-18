@@ -75,9 +75,9 @@ else
 end
 
 %now combine the coil channels:
-[out_cc,fid_pre,spec_pre,ph,sig]=op_addrcvrs(out_raw,2,'w',coilcombos);
+[out_cc,fid_pre,spec_pre]=op_addrcvrs(out_raw,2,'w',coilcombos);
 if water
-    [out_w_cc,fid_w_pre,spec_w_pre,ph_w,sig_w]=op_addrcvrs(out_w_raw,2,'w',coilcombos);
+    [out_w_cc,fid_w_pre,spec_w_pre]=op_addrcvrs(out_w_raw,2,'w',coilcombos);
 end
 
 %make the un-processed spectra, which may be optionally output from this function:

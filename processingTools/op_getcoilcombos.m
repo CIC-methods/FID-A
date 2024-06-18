@@ -27,7 +27,10 @@
 %                     Neuroimage 2014). 
 %
 % OUTPUTS:
-% coilcombos         = Structure containing the calculated coil weights and phases. 
+% coilcombos    = Structure containing two fields:
+%                   ph:  Vector of coil phases (in [degrees]) used for alignment.
+%                   sig: Vector of coil weights.
+
 
 function coilcombos=op_getcoilcombos(file_or_struct,point,mode);
 
@@ -58,7 +61,7 @@ else
     coilcombos.sig=zeros(in.sz(in.dims.coils),1);
     
     for n=1:in.sz(in.dims.coils);
-        coilcombos.ph(n)=phase(in.fids(point,n,1,1));
+        coilcombos.ph(n)=phase(in.fids(point,n,1,1))*180/pi; %in [degrees]
         switch mode
             case 'w'
                 coilcombos.sig(n)=abs(in.fids(point,n,1,1));

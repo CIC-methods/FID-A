@@ -27,7 +27,9 @@
 %                     Default = 1);
 %
 % OUTPUTS:
-% coilcombos         = Structure containing the calculated coil weights and phases. 
+% coilcombos    = Structure containing two fields:
+%                   ph:  Vector of calculated coil phases (in [degrees]).
+%                   sig: Vector of calculated coil weights.
 
 
 function coilcombos=op_getcoilcombos_specReg(file_or_struct,tmin,tmax,point);
@@ -71,7 +73,7 @@ else
     for n=begin:B
         %disp(['Fitting coil number ' num2str(n) 'to first coil']);
         phFit=nlinfit(in.fids(in.t>=tmin & in.t<tmax,n,1,1)/coilcombos.sig(n,1),base,@op_phaseShiftRealNest,phGuess);
-        coilcombos.ph(n,1)=(-1*phFit*pi/180);
+        coilcombos.ph(n,1)=(-1*phFit);
         %     subplot(1,2,1);
         %     plot(in.ppm,in.specs(:,1,1,1)/coilcombos.sig(1,1),in.ppm,fftshift(ifft(addphase(in.fids(:,n,1,1),phFit)))/coilcombos.sig(n,1));xlim([4 5.5]);
         %     subplot(1,2,2);
@@ -80,7 +82,7 @@ else
         
     end
     
-    coilcombos.ph=coilcombos.ph+(phase(in.fids(point,bestSNRindex,1,1)));
+    coilcombos.ph=coilcombos.ph+(phase(in.fids(point,bestSNRindex,1,1))*180/pi);
     %Now normalize the coilcombos.sig so that the max amplitude is 1;
     coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
     
@@ -91,7 +93,7 @@ end
         p=pars(1);     %Phase Shift [deg]
         
         fid=input(:);
-        y=phase(addphase(fid,p));
+        y=phase(addphase(fid,p))*180/pi;
           
     end
 end

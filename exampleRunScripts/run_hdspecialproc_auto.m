@@ -95,11 +95,11 @@ else
 end
 
 %now combine the coil channels:
-[out1_cc,fid1_pre,spec1_pre,ph1,sig1]=op_addrcvrs(out_raw,2,'w',coilcombos1);
-[out2_cc,fid2_pre,spec2_pre,ph2,sig2]=op_addrcvrs(out_raw,2,'w',coilcombos2);
+[out1_cc,fid1_pre,spec1_pre]=op_addrcvrs(out_raw,2,'w',coilcombos1);
+[out2_cc,fid2_pre,spec2_pre]=op_addrcvrs(out_raw,2,'w',coilcombos2);
 if water
-    [out1_w_cc,fid1_w_pre,spec1_w_pre,ph1_w,sig1_w]=op_addrcvrs(out_w_raw,2,'w',coilcombos1);
-    [out2_w_cc,fid2_w_pre,spec2_w_pre,ph2_w,sig2_w]=op_addrcvrs(out_w_raw,2,'w',coilcombos2);
+    [out1_w_cc,fid1_w_pre,spec1_w_pre]=op_addrcvrs(out_w_raw,2,'w',coilcombos1);
+    [out2_w_cc,fid2_w_pre,spec2_w_pre]=op_addrcvrs(out_w_raw,2,'w',coilcombos2);
 end
 
 %Do the hadamard reconstruction:

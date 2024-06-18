@@ -19,8 +19,8 @@
 % freqs    = measured frequency drift
 % phases    = measured phase drift
 
-
-function [out,freqs,phases,fid0,fid0_sr]=op_CSISpecReg(in,averagingMode,pointsPerLoop)
+function [out,freqs,phases,tmax]=op_CSISpecReg(in,averagingMode,pointsPerLoop)
+%function [out,freqs,phases,fid0,fid0_sr,tmax]=op_CSISpecReg(in,averagingMode,pointsPerLoop)
 % arguments
 %     in (1,1) struct
 % end
@@ -84,10 +84,11 @@ if(new.dims.averages>1)
       phases=zeros(fid0.sz(fid0.dims.coils),fid0.sz(fid0.dims.averages));
 
      %Now loop through all coils and calculate the frequency/phase drift
-     %for each channel and shot. 
+     %for each channel and shot. Using parfor here to speed this up.
+     %Change to "for" if parallel processing tookit not available. 
         for n=1:fid0.sz(fid0.dims.coils)
             fid0_coiln=op_takecoils(fid0,n);
-            [temp{n},f,p]=op_CSIalignAverages(fid0_coiln,0.5, 'y');
+            [temp{n},f,p,tmax{n}]=op_CSIalignAverages(fid0_coiln,0.5, 'y');
             freqs(n,:)=f;
             phases(n,:)=p;
         end
@@ -160,7 +161,7 @@ if(new.dims.averages>1)
   end
 end
 
-function [out,fs,phs]=op_CSIalignAverages(in,tmax,med,initPars)
+function [out,fs,phs,tmax]=op_CSIalignAverages(in,tmax,med,initPars)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');

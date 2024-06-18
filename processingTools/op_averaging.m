@@ -16,18 +16,12 @@
 
 function out=op_averaging(in);
 
-if in.flags.averaged || in.averages<2
-    %DO NOTHING
-    disp('WARNING: No averages found. Returning input without modification!');
-    return;
-end
-
-if in.dims.averages==0
+if in.flags.averaged || in.averages<2 || in.dims.averages==0
     %DO NOTHING
     disp('WARNING: No averages found. Returning input without modification!');
     out=in;
     return;
-else
+end
     
     %add the spectrum along the averages dimension;
     fids=sum(in.fids,in.dims.averages);

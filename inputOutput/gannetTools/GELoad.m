@@ -65,19 +65,19 @@ end
 % float user22      pulse width (-1 default)
 
 switch num2str(rdbm_rev_num)
-    
+
     case '14.3'
-        
+
         % int
         rdb_hdr_off_image   = 377;
         rdb_hdr_off_data    = 368;
         rdb_hdr_ps_mps_freq = 107;
-        
+
         % float
         rdb_hdr_user0  = 55;
         rdb_hdr_user4  = 59;
         rdb_hdr_user19 = 74;
-        
+
         % short
         rdb_hdr_nechoes       = 36;
         rdb_hdr_navs          = 37;
@@ -87,29 +87,29 @@ switch num2str(rdbm_rev_num)
         rdb_hdr_da_yres       = 53;
         rdb_hdr_dab_start_rcv = 101;
         rdb_hdr_dab_stop_rcv  = 102;
-        
+
         % int
         image_te = 181;
         image_tr = 179;
-        
+
         % float
         image_user8  = 38;
         image_user19 = 49;
         image_user20 = 50;
         image_user22 = 52;
-        
+
     case '16'
-        
+
         % int
         rdb_hdr_off_image   = 377;
         rdb_hdr_off_data    = 368;
         rdb_hdr_ps_mps_freq = 107;
-        
+
         % float
         rdb_hdr_user0  = 55;
         rdb_hdr_user4  = 59;
         rdb_hdr_user19 = 74;
-        
+
         % short
         rdb_hdr_nechoes       = 36;
         rdb_hdr_navs          = 37;
@@ -119,28 +119,29 @@ switch num2str(rdbm_rev_num)
         rdb_hdr_da_yres       = 53;
         rdb_hdr_dab_start_rcv = 101;
         rdb_hdr_dab_stop_rcv  = 102;
-        
+
         % int
         image_te = 193;
         image_tr = 191;
-        
+
         % float
         image_user8  = 50;
         image_user19 = 61;
         image_user20 = 62;
         image_user22 = 64;
-        
-    case '24'
+
+    case {'20.006','20.007','24'}
+
         % int
         rdb_hdr_off_image   = 377;
         rdb_hdr_off_data    = 368;
         rdb_hdr_ps_mps_freq = 107;
-        
+
         % float
         rdb_hdr_user0  = 55;
         rdb_hdr_user4  = 59;
         rdb_hdr_user19 = 74;
-        
+
         % short
         rdb_hdr_nechoes       = 36;
         rdb_hdr_navs          = 37;
@@ -150,91 +151,29 @@ switch num2str(rdbm_rev_num)
         rdb_hdr_da_yres       = 53;
         rdb_hdr_dab_start_rcv = 101;
         rdb_hdr_dab_stop_rcv  = 102;
-        
+
         % int
         image_te = 267;
         image_tr = 265;
-        
+
         % float
         image_user8  = 98;
         image_user19 = 109;
         image_user20 = 110;
         image_user22 = 112;
-        
-    case '20.007'
-        % int
-        rdb_hdr_off_image   = 377;
-        rdb_hdr_off_data    = 368;
-        rdb_hdr_ps_mps_freq = 107;
-        
-        % float
-        rdb_hdr_user0  = 55;
-        rdb_hdr_user4  = 59;
-        rdb_hdr_user19 = 74;
-        
-        % short
-        rdb_hdr_nechoes       = 36;
-        rdb_hdr_navs          = 37;
-        rdb_hdr_nframes       = 38;
-        rdb_hdr_point_size    = 42;
-        rdb_hdr_da_xres       = 52;
-        rdb_hdr_da_yres       = 53;
-        rdb_hdr_dab_start_rcv = 101;
-        rdb_hdr_dab_stop_rcv  = 102;
-        
-        % int
-        image_te = 267;
-        image_tr = 265;
-        
-        % float
-        image_user8  = 98;
-        image_user19 = 109;
-        image_user20 = 110;
-        image_user22 = 112;
-        
-     case '20.006'
-        % int
-        rdb_hdr_off_image   = 377;
-        rdb_hdr_off_data    = 368;
-        rdb_hdr_ps_mps_freq = 107;
-        
-        % float
-        rdb_hdr_user0  = 55;
-        rdb_hdr_user4  = 59;
-        rdb_hdr_user19 = 74;
-        
-        % short
-        rdb_hdr_nechoes       = 36;
-        rdb_hdr_navs          = 37;
-        rdb_hdr_nframes       = 38;
-        rdb_hdr_point_size    = 42;
-        rdb_hdr_da_xres       = 52;
-        rdb_hdr_da_yres       = 53;
-        rdb_hdr_dab_start_rcv = 101;
-        rdb_hdr_dab_stop_rcv  = 102;
-        
-        % int
-        image_te = 267;
-        image_tr = 265;
-        
-        % float
-        image_user8  = 98;
-        image_user19 = 109;
-        image_user20 = 110;
-        image_user22 = 112;
-        
-    case '26.002'
-        
+
+    case {'26.002','27','27.001','28.002','28.003','30'}
+
         % int
         rdb_hdr_off_image   = 11;
         rdb_hdr_off_data    = 2;
         rdb_hdr_ps_mps_freq = 123;
-        
+
         % float
         rdb_hdr_user0  = 71;
         rdb_hdr_user4  = 75;
         rdb_hdr_user19 = 90;
-        
+
         % short
         rdb_hdr_nechoes       = 74;
         rdb_hdr_navs          = 75;
@@ -244,17 +183,17 @@ switch num2str(rdbm_rev_num)
         rdb_hdr_da_yres       = 91;
         rdb_hdr_dab_start_rcv = 133;
         rdb_hdr_dab_stop_rcv  = 134;
-        
+
         % int
         image_te = 267;
         image_tr = 265;
-        
+
         % float
         image_user8  = 98;
         image_user19 = 109;
         image_user20 = 110;
         image_user22 = 112;
-        
+
 end
 
 

@@ -28,15 +28,15 @@ function [MRSIStruct, weightMatrix] = op_CSIDensityCompensation(MRSIStruct, k_sp
     if(getFlags(MRSIStruct, 'spatialft') == true)
         error('Please keep the image data in the k-space when using density compensation')
     end
-    k_space = getKSpace(k_space_file);
-
-    weights = voronoi(k_space_file, NameValueArgs, k_space);
+    
+    [kTable,kArray] = readKFile(k_space_file);
+    
+    weights = voronoi(k_space_file, NameValueArgs, kArray);
     %calculate density (desnity = 1/w_i);
 
-
-    spatialPoints = calculateNumSpatialPoints(k_space_file);
+    spatialPoints = getKPtsPerCycle(kTable);
     timePoints = floor(getSizeFromDimensions(MRSIStruct, {'t'}) / spatialPoints);
-    TR = length(k_space)/spatialPoints;
+    TR = length(kArray)/spatialPoints;
     
     
 
@@ -186,8 +186,8 @@ function weights = voronoi(k_space_file, NameValueArgs, k_space)
     weights = voronoiArea(indexofOccurences);
     weights = normalize(weights, 'range', [0.1, 1]);
 
-    
-    spatialPoints = calculateNumSpatialPoints(k_space_file);
+    [kTable,kArray]=readKFile(k_space_file);
+    spatialPoints = calculateKPointsPerCycle(kTable);
     TR = length(k_space)/spatialPoints;
 
     weights = reshape(weights, [spatialPoints, TR]);

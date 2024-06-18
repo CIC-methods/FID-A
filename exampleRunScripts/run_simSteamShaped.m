@@ -46,22 +46,22 @@
 
 function [out,out_posxy]=run_simSteamShaped(spinSys)
 % ************INPUT PARAMETERS**********************************
-rfWaveform='ex40.b4_384_14.pta'; %name of RF pulse waveform.
-Tp=1.920; %duration of refocusing pulses[ms]
+rfWaveform='sampleExcPulse.pta'; %name of RF pulse waveform.
+Tp=3; %duration of refocusing pulses[ms]
 flipAngle=90; %RF pulse flip angle [degrees]
 Npts=8192; %number of spectral points
 sw=6000; %spectral width [Hz]
-Bfield=2.89; %magnetic field strength [Tesla]
+Bfield=6.98; %magnetic field strength [Tesla]
 lw=1; %linewidth of the output spectrum [Hz]
 thkX=2.5; %slice thickness of x RF pulse [cm]
 thkY=2.5; %slice thickness of y RF pulse [cm]
 fovX=5; %size of the full simulation Field of View in the x-direction [cm]
 fovY=5; %size of the full simulation Field of View in the y-direction [cm]
-nX=48; %Number of grid points to simulate in the x-direction
-nY=48; %Number of grid points to simulate in the y-direction
-tau1=6; %TE for STEAM sequence [ms]
+nX=9; %Number of grid points to simulate in the x-direction
+nY=9; %Number of grid points to simulate in the y-direction
+tau1=135; %TE for STEAM sequence [ms]
 tau2=32; %TM for STEAM sequence [ms]
-centreFreq=2.3; %Centre frequency of refocusing pulses [ppm]
+centreFreq=2.7; %Centre frequency of refocusing pulses [ppm]
 % ************END OF INPUT PARAMETERS**********************************
 
 %set up spatial grid

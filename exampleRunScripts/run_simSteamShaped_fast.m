@@ -44,7 +44,7 @@
 function out=run_simSteamShaped_fast(sys)
 tic
 % ************INPUT PARAMETERS**********************************
-rfWaveform='ex40.b4_384_14.pta'; %name of RF pulse waveform.
+rfWaveform='sampleExcPulse.pta'; %name of RF pulse waveform.
 Tp=1.920; %duration of RF pulses[ms]
 flipAngle=90;  %Flip Angle of the RF pulses [degrees]
 Npts=8192; %number of spectral points

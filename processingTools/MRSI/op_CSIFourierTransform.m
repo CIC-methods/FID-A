@@ -34,9 +34,11 @@ function MRSIStruct = op_CSIFourierTransform(MRSIStruct, k_file, fourierTransfor
             %applying the fast fourier transform if k space is cartesian
             MRSIStruct = applyFastFourierTransformSpatial(MRSIStruct);
         else
-            [kTrajectory, numSpatial, numSpectral] = readKSpaceFile(k_file, MRSIStruct);
-            MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, numSpectral);
-            MRSIStruct = calculateSpectralValues(MRSIStruct, numSpatial, numSpectral);
+            [kTable, kArray] = readKFile(k_file);
+            kPtsPerCycle = getKPtsPerCycle(kTable);
+            NPtemporal = getTemporalPts(kTable,MRSIStruct);
+            MRSIStruct = slowFourierTransfrom(MRSIStruct, kArray, kPtsPerCycle, NPtemporal);
+            MRSIStruct = calculateSpectralValues(MRSIStruct, kPtsPerCycle, NPtemporal);
         end
         
         MRSIStruct = setFlags(MRSIStruct, 'spatialFT', true);
@@ -176,7 +178,7 @@ function MRSIStruct = applyFastFourierTransformSpatial(MRSIStruct)
 end
 
 
-function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, numSpectral)
+function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, kPtsPerCycle, NPtemporal)
     
     [xCoordinates, yCoordinates, imageTrajectory] = getImageTrajectory(MRSIStruct);
     
@@ -188,7 +190,7 @@ function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, 
     data = getData(MRSIStruct);
 
     % apply slow fourier transform matrix to data
-    image = applySlowFourierTranformMatrix(MRSIStruct, sftOperator, data, numSpectral, numSpatial);
+    image = applySlowFourierTranformMatrix(MRSIStruct, sftOperator, data, NPtemporal, kPtsPerCycle);
     MRSIStruct = setData(MRSIStruct, image);
 
     kyDimension = getDimension(MRSIStruct, 'ky');
@@ -196,24 +198,24 @@ function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, numSpatial, 
     prevPermute = addDimPrevPermute(prevPermute, 'y', kyDimension);
     prevPermute = addDimPrevPermute(prevPermute, 'x', kyDimension + 1);
 
-    prevSize(1) = numSpectral;
+    prevSize(1) = NPtemporal;
     prevSize(2) = length(yCoordinates);
     prevSize = [prevSize(1:2), length(xCoordinates), prevSize(3:end)];
     MRSIStruct = reshapeBack(MRSIStruct, prevPermute, prevSize);
 end
 
-function image = applySlowFourierTranformMatrix(MRSIStruct, sftOperator, data, numSpectral, numSpatial)
+function image = applySlowFourierTranformMatrix(MRSIStruct, sftOperator, data, NPtemporal, kPtsPerCycle)
     yLength = length(getCoordinates(MRSIStruct, 'y'));
     xLength = length(getCoordinates(MRSIStruct, 'x'));
 
     %image dimensions after fourier tranform is time, y, x, and extras.
-    imageDimensions = [numSpectral, yLength, xLength, ...
+    imageDimensions = [NPtemporal, yLength, xLength, ...
                                         getSizeFromDimensions(MRSIStruct, {'extras'})];
     image = zeros(imageDimensions);
     
-    for iPoint = 1:numSpectral
-        startingPoint = (iPoint - 1)*numSpatial + 1;
-        endingPoint = iPoint * numSpatial;
+    for iPoint = 1:NPtemporal
+        startingPoint = (iPoint - 1)*kPtsPerCycle + 1;
+        endingPoint = iPoint * kPtsPerCycle;
         kSpaceSlice = data(startingPoint:endingPoint, :, :);
         vectorizedSlice = reshape(kSpaceSlice, [], size(kSpaceSlice,3));
         ftVectorizedSlice = sftOperator*vectorizedSlice;
@@ -279,10 +281,10 @@ function ppm = calculatePPM(MRSIStruct)
 end
 
 
-function MRSIStruct = calculateSpectralValues(MRSIStruct, numSpatial, numSpectral)
-    spectralDwellTime = calculateSpectralDwellTime(MRSIStruct, numSpatial);
+function MRSIStruct = calculateSpectralValues(MRSIStruct, kPtsPerCycle, NPtemporal)
+    spectralDwellTime = calculateSpectralDwellTime(MRSIStruct, kPtsPerCycle);
     spectralWidth = 1/spectralDwellTime;
-    spectralTime = calculateSpectralTime(spectralDwellTime, numSpectral);
+    spectralTime = calculateSpectralTime(spectralDwellTime, NPtemporal);
 
     MRSIStruct = setSpectralWidth(MRSIStruct, spectralWidth);
     MRSIStruct = setSpectralDwellTime(MRSIStruct, spectralDwellTime);

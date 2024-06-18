@@ -1,7 +1,4 @@
 
 .DS_Store
-inputOutput/io_loadRFwaveform.asv
 *.asv
-*.pta
-*.mat
-peter_analysis.m
+

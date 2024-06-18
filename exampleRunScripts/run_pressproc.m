@@ -66,9 +66,9 @@ else
 end
 
 %now combine the coil channels:
-[out_cc,fid_pre,spec_pre,ph,sig]=op_addrcvrs(out_raw,out_raw.pointsToLeftshift+1,'w',coilcombos);
+[out_cc,fid_pre,spec_pre]=op_addrcvrs(out_raw,out_raw.pointsToLeftshift+1,'w',coilcombos);
 if exist(filename2)
-    [out_w_cc,fid_w_pre,spec_w_pre,ph_w,sig_w]=op_addrcvrs(out_w_raw,out_w_raw.pointsToLeftshift+1,'w',coilcombos);
+    [out_w_cc,fid_w_pre,spec_w_pre]=op_addrcvrs(out_w_raw,out_w_raw.pointsToLeftshift+1,'w',coilcombos);
 end
 %make the un-processed spectra:
 out_noproc=op_leftshift(op_averaging(out_cc),out_cc.pointsToLeftshift);

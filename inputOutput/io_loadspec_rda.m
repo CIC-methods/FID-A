@@ -131,7 +131,7 @@ fclose(fid);
 specs=FIDAfft(fids,1,'t');
 
 % make calculations for the output mrs structure
-sz = rda.VectorSize;
+sz = size(specs);
 dwelltime = rda.DwellTime/1000000;
 spectralwidth=1/dwelltime;
 txfrq = rda.MRFrequency*1000000;

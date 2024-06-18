@@ -2,7 +2,7 @@
 %Jay Hennessy, McGill University 2017.
 %
 % USAGE:
-% out=op_removeWater(out,wlim,Kinit,M,plot_bool);
+% [out, K, wppm, amp, alpha, ph, model]=op_removeWater(in,wlim,Kinit,M,plot_bool);
 % 
 % DESCRIPTION:
 % This function removes the water signal from MRS data using HSVD method 
@@ -28,7 +28,7 @@
 % alpha     = The damping factors of the components found [radians/s]
 % ph        = The phases of the components found [radians]
 
-function [ out, K, wppm, amp, alpha, ph] = op_removeWater(in,wlim,Kinit,M,plot_bool)
+function [ out, K, wppm, amp, alpha, ph, model] = op_removeWater(in,wlim,Kinit,M,plot_bool)
 
 % set default values ( intended for seimens data with 4096 data points)
 if nargin<5
@@ -129,6 +129,8 @@ fid_water = (amp(water).*exp(1i*ph(water)))'*exp((-alpha(water) + (1i*w(water)))
 fid_ws = fid-fid_water;
 % spec_ws=fftshift(ifft(fid_ws',[],1),1);
 spec_ws=FIDAfft(fid_ws',1,'t');
+%spec_water=fftshift(ifft(fid_water',[],1),1);
+spec_water=FIDAfft(fid_water',1,'t');
 
 % plot the results
 if plot_bool ==1
@@ -170,6 +172,19 @@ out.watersupp.damp_all = alpha;
 out.watersupp.k = K;
 out.watersupp.residual_error = er;
 
+%set model output
+model=in;
+model.fids=fid_water;
+model.specs=spec_water;
+model.watersupp.damp = alpha(water);
+model.watersupp.freq = w(water);
+model.watersupp.phase = ph(water);
+model.watersupp.amp = amp(water);
+model.watersupp.wppm = wppm(water);
+model.watersupp.wppm_all = wppm;
+model.watersupp.damp_all = alpha;
+model.watersupp.k = K;
+model.watersupp.residual_error = er;
 
 
 end
