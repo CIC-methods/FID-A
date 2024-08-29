@@ -1,11 +1,15 @@
 % io_CSIload_GErosette.m
 % Jamie Near, Sunnybrook 2023.
+% Louis Lauzon, University of Calgary 2023.
 %
 % USAGE:
 % out = io_CSIload_GErosette('filename');
 %
 % DESCRIPTION:
-% Reads in a GE Rosette MRSI dataset (p file) using the GELoad.m function.
+% Reads in a GE Rosette MRSI dataset using the GELoad.m function.  
+% 
+% As input, this script accepts both .h5 files (for with GE systems with 
+% Version MR30), or P-files (for earlier system version). 
 %
 % io_CSIload_GE takes a rosette MRSI scan and outputs a FID-A csi strucure needed
 % for later processing steps. Fids dimensions are arranged acording to the
@@ -28,7 +32,7 @@ function out = io_CSIload_GErosette(filename)
     %record the initial size of the data array:
     sz_init=size(data);
 
-    isRosette = (contains(GEhdr.pat_nam, 'rose', 'IgnoreCase',true));
+    isRosette = (contains(GEhdr.pat_nam, 'rose', 'IgnoreCase',true) || contains(GEhdr.psd_nam, 'eCSI_rst','IgnoreCase',true));
     isCartesian = true;
     %%Add more when more non cartesians come along
     if(isRosette)
