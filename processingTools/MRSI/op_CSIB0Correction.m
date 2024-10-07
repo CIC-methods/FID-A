@@ -132,7 +132,7 @@ function MRSIStruct = applyFreqMap(MRSIStruct, freqMap)
                 %freqmap coordinate.
                 alignMRS = op_freqshift(alignMRS, freqMap(x, y));
                 %add the specs to MRSI object
-                MRSIStruct.data(:, x, y, e) = alignMRS.specs;
+                MRSIStruct.data(:, y, x, e) = alignMRS.specs;
             end
         end
     end
@@ -149,7 +149,7 @@ function MRSIStruct = applyPhaseMap(MRSIStruct, phaseMap)
                 %freqmap coordinate.
                 alignMRS = op_addphase(alignMRS, phaseMap(x, y));
                 %add the specs to MRSI object
-                MRSIStruct.data(:, x, y, e) = alignMRS.specs;
+                MRSIStruct.data(:, y, x, e) = alignMRS.specs;
             end
         end
     end

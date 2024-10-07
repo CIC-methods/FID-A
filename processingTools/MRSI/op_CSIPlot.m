@@ -33,7 +33,7 @@
 % OUTPUTS:
 % fig   = figure handle.
 
-function fig = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
+function [fig] = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
     arguments
         MRSIStruct (1, 1) struct
         plotType.plane_type char {mustBeMember(plotType.plane_type, {'real', 'imag', 'abs', 'phase'})} = 'real'
@@ -45,6 +45,7 @@ function fig = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
         dimensionIndexes.yIndecies (2, 1) double
         dimensionIndexes.xRange (2, 1) double
         dimensionIndexes.yRange (2, 1) double
+        dimensionIndexes.yMul (1, 1) double = 1
     end
     % check arguments to make sure they are okay
     checkArguments(MRSIStruct, dimensionIndexes);
@@ -58,7 +59,7 @@ function fig = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
     ppmVector = setPPMVectorStartToZero(MRSIStruct, ppmVector);
     %scale to be plotted in a voxel 
     %offset ppm by starting coordinate
-    [ppmVector, data] = scalePPMandData(ppmVector, data, MRSIStruct);
+    [ppmVector, data] = scalePPMandData(ppmVector, data, MRSIStruct, dimensionIndexes);
 
     xCoordinate = getCoordinates(MRSIStruct, 'x');
     voxSizeX = getVoxSize(MRSIStruct, 'x');
@@ -175,7 +176,14 @@ function [timeBounds, isPPMDimension] = getDefaultPPMBounds(MRSIStruct, indecies
     timeBounds = [minPPM, maxPPM];
 end
 
-function [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct, timeVector)
+function [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct, timeVector, dimensionIndexes)
+
+    if nargin<4
+        yMul=1;
+    else
+        yMul=dimensionIndexes.yMul;
+    end
+
     %max spectrum difference in a voxel
     spectrumHight = max(max(data, [], 1) - min(data, [], 1), [], 'all');
 
@@ -184,7 +192,7 @@ function [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct
     voxSizeX = getVoxSize(MRSIStruct, 'x');
     voxSizeY = getVoxSize(MRSIStruct, 'y');
     scalefactorX = abs((0.8 * voxSizeX) / (timeVector(end) - timeVector(1)));
-    scalefactorY = abs((0.8 * voxSizeY) / spectrumHight);
+    scalefactorY = yMul * abs((0.8 * voxSizeY) / spectrumHight);
 end
 
 % Argument checks
@@ -236,8 +244,8 @@ end
 
 % scale down ppm and data scale so that they fit into one voxel worth of
 % plotting in MATLAB. 
-function [ppmVector, data] = scalePPMandData(ppmVector, data, MRSIStruct)
-    [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct, ppmVector);
+function [ppmVector, data] = scalePPMandData(ppmVector, data, MRSIStruct, dimensionIndexes)
+    [scalefactorX, scalefactorY] = getPlottingScaleFactors(data, MRSIStruct, ppmVector, dimensionIndexes);
     ppmVector = ppmVector * scalefactorX;
     data = data .* scalefactorY;
 end

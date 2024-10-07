@@ -183,7 +183,7 @@ function MRSIStruct = slowFourierTransfrom(MRSIStruct, kTrajectory, kPtsPerCycle
     [xCoordinates, yCoordinates, imageTrajectory] = getImageTrajectory(MRSIStruct);
     
     %creating fourier transform operator for spatial domain
-    sftOperator = sft2_Operator(kTrajectory, imageTrajectory, 0);
+    sftOperator = sft2_Operator(kTrajectory, imageTrajectory, 1);
     
     %permute so first 3 dimensions are x, y and t
     [MRSIStruct, prevPermute, prevSize] = reshapeDimensions(MRSIStruct, {'t', 'ky'});
@@ -238,7 +238,7 @@ function MRSIStruct = fastFourierTransformTime(MRSIStruct)
     data = getData(MRSIStruct);
     timeDimension = getDimension(MRSIStruct, 't');
     %fourier transform in the spectral domain
-    data = fftshift(fft(data, [], timeDimension), timeDimension);
+    data = fftshift(ifft(data, [], timeDimension), timeDimension);
     
     MRSIStruct = setData(MRSIStruct, data);
     ppm = calculatePPM(MRSIStruct);
