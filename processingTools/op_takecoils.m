@@ -24,19 +24,43 @@ elseif in.dims.coils==1
     %SHOULD NEVER HAPPEN (Time dimension should always be dim=1)
     error('ERROR:  dims.coils==1.  This should never happen!  Aborting!');
 elseif in.dims.coils==2
-    fids=in.fids(:,index,:,:,:);
+    if in.flags.isMRSI
+        data=in.data(:,index,:,:,:);
+    else
+        fids=in.fids(:,index,:,:,:);
+    end
 elseif in.dims.coils==3;
-    fids=in.fids(:,:,index,:,:);
+    if in.flags.isMRSI
+        data=in.data(:,:,index,:,:);
+    else
+        fids=in.fids(:,:,index,:,:);
+    end
 elseif in.dims.coils==4;
-    fids=in.fids(:,:,:,index,:);
+    if in.flags.isMRSI
+        data=in.data(:,:,:,index,:);
+    else
+        fids=in.fids(:,:,:,index,:);
+    end
 elseif in.dims.coils==5
-    fids=in.fids(:,:,:,:,index);
+    if in.flags.isMRSI
+        data=in.data(:,:,:,:,index);
+    else
+        fids=in.fids(:,:,:,:,index);
+    end
 end
 
-fids=squeeze(fids);
+if in.flags.isMRSI
+    data=squeeze(data);
+else
+    fids=squeeze(fids);
+end
 
 %re-calculate Specs using fft
-specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+if ~in.flags.isMRSI
+    specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
+else
+    %do nothing;
+end
 
 %change the dims variables
 dims.t=in.dims.t;
@@ -65,12 +89,20 @@ elseif length(index)>1
 end
 
 %re-calculate the sz variable
-sz=size(fids);
+if in.flags.isMRSI
+    sz=size(data);
+else
+    sz=size(fids);
+end
 
 %FILLING IN DATA STRUCTURE
 out=in;
-out.fids=fids;
-out.specs=specs;
+if in.flags.isMRSI
+    out.data=data;
+else
+    out.fids=fids;
+    out.specs=specs;
+end
 out.sz=sz;
 out.dims=dims;
 
