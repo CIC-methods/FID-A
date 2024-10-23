@@ -75,6 +75,7 @@ isMinn_dkd=~isempty(strfind(sequence,'svs_slaserVOI_dkd2')); %Is this Dinesh Dee
 isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
             ~isempty(strfind(sequence,'svs_st'))) && ... % or the Siemens STEAM sequence?
             isempty(strfind(sequence,'eja_svs'));    %And make sure it's not 'eja_svs_steam'.
+isColumbia_sLASER=~isempty(strfind(sequence,'svs_slaser_cu'));  %Is this the Columbia University sLASER seqeunce?
 
 %If this is the SPECIAL sequence, it probably contains both inversion-on
 %and inversion-off subspectra on a single dimension, unless it is the VB
@@ -200,6 +201,35 @@ if isMinn_dkd
         fids=fids(:,end-(nRefs+Naverages-1):end-nRefs);
     end
 end
+
+%In the Columbia University sLASER sequence, there is an extra dimension
+%where the water unsuppressed data are stored:
+if isColumbia_sLASER
+    if ndims(fids)==4
+        temp = fids(1,1,:,1);
+        nRefs=size(squeeze(temp(temp~=0)),1);
+        %Remove the last dimension from sqzDims:
+        sqzDims=sqzDims(1:3);
+    elseif nDims(fids)==3
+        temp = fids(1,:,1);
+        nRefs=size(squeeze(temp(temp~=0)),1);
+        %Remove the last dimension from sqzDims:
+        sqzDims=szqDims(1:2);
+    end
+
+    if nRefs>0
+        wRefs=true;
+    end
+
+    if ndims(fids)==4
+        fids_w=fids(:,:,1:nRefs,1);
+        fids=fids(:,:,:,2);
+    elseif ndims(fids==3)
+        fids_w=fids(:,1:nRefs,1);
+        fids=fids(:,:,2);
+    end
+end
+
 
 %Now begin indexing the dimensions of the data array. ie. create the dims
 %structure, which specifies which dimensions of the data array are being
@@ -486,7 +516,7 @@ end
 %thanks to Georg Oeltzschner for decoding all of this and sharing the
 %information with me:
 
-if isWIP529 || isWIP859
+if isWIP529 || isWIP859 || (isSiemens && contains(sequence,'svs_se'))
     leftshift = twix_obj.image.cutOff(1,1);
 elseif isSiemens
     leftshift = twix_obj.image.freeParam(1);

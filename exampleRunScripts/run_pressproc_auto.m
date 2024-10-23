@@ -68,9 +68,11 @@ else
 end
 
 % %read in both datasets:
-raw=io_loadspec_twix([filestring '/' filename]);
-if water
+[raw,raww]=io_loadspec_twix([filestring '/' filename]);
+if water && isempty(raww)
     raww=io_loadspec_twix([filestring '_w/' filenamew]);
+elseif ~water && ~isempty(raww)
+    water=true;
 end
 
 %first step should be to combine coil channels.  To do this find the coil
@@ -374,7 +376,10 @@ saveas(h,[filestring '/report/figs/finalSpecFig'],'fig');
 writ='y';
 if writ=='y' || writ=='Y'
      RF=io_writelcm(out,[filestring '/' filestring '_lcm'],out.te);
-    if water
+    if water && ~isempty(filenamew)
+        RF=io_writelcm(outw,[filestring '_w/' filestring '_w_lcm'],outw.te);
+    elseif water && isempty(filenamew)
+        mkdir([filestring '_w']);
         RF=io_writelcm(outw,[filestring '_w/' filestring '_w_lcm'],outw.te);
     end
 end
