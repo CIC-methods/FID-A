@@ -213,6 +213,7 @@ if driftCorr=='n'|| driftCorr=='N'
     out_w_aa=out_w_cs;
 else
     sat='n'
+    rng('default'); %Initialize random number generator to get same results each time.
     while sat=='n' || sat=='N'
         out_rm2=out_rm;
         fsPoly=100;

@@ -244,6 +244,7 @@ else
     end
     sat='n';
     out_rm2=out_rm;
+    rng('default'); %Initialize random number generator to get same results each time for tmax, ppmmin, and ppmmax.
     while sat=='n' || sat=='N'
         iter=0;
         iterin=20;

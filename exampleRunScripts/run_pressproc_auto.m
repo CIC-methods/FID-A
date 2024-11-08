@@ -212,6 +212,7 @@ else
     end
     sat='n';
     out_rm2=out_rm;
+    rng('default'); %Initialize random number generator to get same results each time for choice of tmax, ppmmin and ppmmax;
     while sat=='n' || sat=='N'
         fsPoly=100;
         phsPoly=1000;
