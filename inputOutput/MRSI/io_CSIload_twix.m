@@ -30,7 +30,6 @@ function MRSIStruct = io_CSIload_twix(filename)
     %Squeeze the data to remove singleton dims
     data = squeeze(dOut.data);
     % reverse the direction of rotation
-    data = conj(data);
 
     %get version number and dims
     %version = twix_obj.image.softwareVersion;
@@ -43,7 +42,7 @@ function MRSIStruct = io_CSIload_twix(filename)
     %isSiemens = (contains(sequence,'csi_se') ||... %Or the Siemens CSI PRESS sequence?
     %contains(sequence,'csi_st'));
 
-    isRosette = (contains(sequence, 'ros', 'IgnoreCase',true));
+    isRosette = (contains(sequence, 'ros', 'IgnoreCase',true)) || (contains(sequence,'selexc', 'IgnoreCase',true));
     isCartesian = true;
     %%Add more when more non cartesians come along
     if(isRosette)
