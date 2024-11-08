@@ -69,7 +69,7 @@ end
 
 % %read in both datasets:
 [raw,raww]=io_loadspec_twix([filestring '/' filename]);
-if water && isempty(raww)
+if water && isempty(fields(raww))
     raww=io_loadspec_twix([filestring '_w/' filenamew]);
 elseif ~water && ~isempty(raww)
     water=true;
@@ -327,16 +327,14 @@ if water
 end
 
 %now do automatic zero-order phase correction (Use Creatine Peak):
-out_ls_zp=op_zeropad(out_ls,16);
-[out_ph,ph0]=op_autophase(out_ls,2.9,3.1);
-out_ls_zp=op_addphase(out_ls_zp,ph0);
+out_ls_zp_filt=op_filter(op_zeropad(out_ls,16),5);
+[out_ls_zp_filt_ph,ph0]=op_autophase(out_ls_zp_filt,2.9,3.1);
+out_ls_ph=op_addphase(out_ls,ph0);
 %And now for water unsuppressed data (use water peak):
 if water
-    outw_ls_zp=op_zeropad(outw_ls,16);
-    indexw=find(abs(outw_ls_zp.specs)==max(abs(outw_ls_zp.specs(outw_ls_zp.ppm>4 & outw_ls_zp.ppm<5.5))));
-    ph0w=-phase(outw_ls_zp.specs(indexw))*180/pi;
-    outw_ph=op_addphase(outw_ls,ph0w);
-    outw_ls_zp=op_addphase(outw_ls_zp,ph0w);
+    outw_ls_zp_filt=op_filter(op_zeropad(outw_ls,16),5);
+    [outw_ls_zp_filt_ph,ph0w]=op_autophase(outw_ls_zp_filt,4,5.5);
+    outw_ls_ph=op_addphase(outw_ls,ph0w);
 end
 
 %do same phase corection on unprocessed data
@@ -346,13 +344,13 @@ if water
 end
 
 %Frequency shift all spectra so that Creatine appears at 3.027 ppm:
-[~,frqShift]=op_ppmref(out_ls_zp,2.9,3.1,3.027);
-out=op_freqshift(out_ph,frqShift);
+[~,frqShift]=op_ppmref(out_ls_zp_filt_ph,2.9,3.1,3.027);
+out=op_freqshift(out_ls_ph,frqShift);
 out_noproc=op_freqshift(out_noproc,frqShift);
 %And now for water unsuppressed data (user water peak and set to 4.65 ppm):
 if water
-    [~,frqShiftw]=op_ppmref(outw_ls_zp,4,5.5,4.65);
-    outw=op_freqshift(outw_ph,frqShiftw);
+    [~,frqShiftw]=op_ppmref(outw_ls_zp_filt_ph,4,5.5,4.65);
+    outw=op_freqshift(outw_ls_ph,frqShiftw);
     outw_noproc=op_freqshift(outw_noproc,frqShiftw);
 end
 
