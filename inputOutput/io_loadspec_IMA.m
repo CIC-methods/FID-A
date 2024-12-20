@@ -32,6 +32,7 @@ te = info.csa.EchoTime;
 tr = info.csa.RepetitionTime;
 Bo = info.csa.MagneticFieldStrength; % it's rounded up so not very precise
 spectralwidth = 1/(info.csa.RealDwellTime*1e-9);
+nucleus = info.csa.ImagedNucleus;
 
 dims.t=1;
 if ndims(fids)==4  %Default config when 4 dims are acquired
@@ -133,8 +134,10 @@ end
 
 %Calculate t and ppm arrays using the calculated parameters:
 f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
+ppm = -f./(txfrq./1e6); % Added on 03/05/24 by ETV to account for multiple nuclei
+if strcmp(nucleus, '1H')
+    ppm=ppm+4.65;
+end
 
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
 
