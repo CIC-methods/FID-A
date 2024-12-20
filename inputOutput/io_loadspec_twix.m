@@ -1,6 +1,9 @@
 %io_loadspec_twix.m
 %Jamie Near, McGill University 2014.
-%Edits from Franck Lamberton, 2017.
+%Edits from
+%   Franck Lamberton, 2017.
+%   Edith Touchet-Valle, Texas A&M University, 2024.
+%   Jacob Degitz, Texas A&M University, 2024.
 %
 % USAGE:
 % [out,out_w]=io_loadspec_twix(filename);
@@ -535,14 +538,17 @@ f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralw
 nucleus=twix_obj.hdr.Config.Nucleus;
 switch nucleus
     case '1H'
-        gamma=42.576;
+        gamma=42.5774780505984;
         ppm=-f/(Bo*gamma);
         ppm=ppm+4.65;
     case '31P'
-        gamma=17.235;
+        gamma=17.2514528352478;
         ppm=-f/(Bo*gamma);
     case '13C'
-        gamma=10.7084;
+        gamma=10.7083987615955;
+        ppm=-f/(Bo*gamma);
+    case '23Na' % added by EV 03/24/24
+        gamma=11.2688453499836;
         ppm=-f/(Bo*gamma);
 end
 t=[0:dwelltime:(sz(1)-1)*dwelltime];
