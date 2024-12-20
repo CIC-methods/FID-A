@@ -1,5 +1,8 @@
 % op_addphase.m
 % Jamie Near, McGill University 2014.
+% Edits from
+%   Edith Touchet-Valle, Texas A&M University 2024.
+%   Jacob Degitz, Texas A&M University 2024.
 % 
 % USAGE:
 % out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
@@ -12,7 +15,7 @@
 % ph0            = zero order phase to add (degrees)
 % ph1            = 1st order phase to add (in seconds);
 % ppm0           = (optional) frequency reference point.  Default = 4.65;
-% suppressPlot   = (optional) Boolian to suppress plots.  Default = 0;
+% suppressPlot   = (optional) Boolean to suppress plots.  Default = 0;
 %
 % OUTPUTS:
 % out            = Phase adjusted output spectrum.
@@ -21,17 +24,20 @@
 function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
 
 if nargin<5
-    suppressPlot=0;
+    suppressPlot=1; % 01/05/23 modified by EV to 1
     if nargin<4
-        ppm0=4.65;
+        gamma = (in.txfrq/1e6)/in.Bo;
+        if gamma > 42 % For proton
+            ppm0 = 4.65;
+        else % For all other nuclei
+            ppm0 = 0;
+        end
         if nargin<3
             ph1=0;
         end
     end
 end
 
-ph0;
-ph1;
 %Add Zero-order phase
 fids=in.fids.*ones(size(in.fids))*exp(1i*ph0*pi/180);
 
@@ -39,7 +45,7 @@ fids=in.fids.*ones(size(in.fids))*exp(1i*ph0*pi/180);
 specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
 %Now add 1st-order phase
-specs=addphase1(specs,in.ppm,ph1,ppm0,in.Bo);
+specs=addphase1(specs,in.ppm,ph1,in.Bo,in.txfrq,ppm0);
 
 %re-calculate Fids using fft
 %if the length of Fids is odd, then you have to do a circshift of one to

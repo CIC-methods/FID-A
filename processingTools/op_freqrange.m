@@ -44,7 +44,7 @@ ppm=in.ppm(in.ppm>ppmmin & in.ppm<ppmmax);
 %calculate the new spectral width and dwelltime:
 dppm=abs(ppm(2)-ppm(1));
 ppmrange=abs((ppm(end)-ppm(1)))+dppm;
-spectralwidth=ppmrange*in.Bo*42.577;
+spectralwidth=ppmrange*in.Bo*in.gamma; % Changed from hardcoded '42.577' to gamma to account for X-nuclei
 dwelltime=1/spectralwidth;
 
 %calculate the time scale

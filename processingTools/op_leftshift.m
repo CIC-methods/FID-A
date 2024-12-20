@@ -38,8 +38,10 @@ specs=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
 %Calculate t and ppm arrays using the calculated parameters:
 f=[(-in.spectralwidth/2)+(in.spectralwidth/(2*sz(1))):in.spectralwidth/(sz(1)):(in.spectralwidth/2)-(in.spectralwidth/(2*sz(1)))];
-ppm=-f/(in.Bo*42.577);
-ppm=ppm+4.65;
+gamma = (in.txfrq/1e6)/in.Bo; % to account for multiple nuclei - ETV 01/16/24
+if gamma > 42 % For proton
+    ppm = ppm + 4.65;
+end
 
 %t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
 t=[0:in.dwelltime:(sz(1)-1)*in.dwelltime];
