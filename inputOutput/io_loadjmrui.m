@@ -1,5 +1,7 @@
 %io_loadjmrui.m
 %Jamie Near, McGill University 2014.
+%Edits from
+%   Jacob Degitz, Texas A&M University, 2024.
 %
 % USAGE:
 % out=io_loadjmrui(filename);
@@ -24,7 +26,29 @@ sz=[str2num(info.PointsInDataset) 1];
 dwelltime=str2num(info.SamplingInterval)*1e-3;
 spectralwidth=1/dwelltime;
 date=str2num(info.DateOfExperiment);
-Bo=txfrq/42577000;  %JMRUI HEADER INCORRECTLY SAYS 3.0
+nucleus = info.Nucleus;
+
+switch nucleus % Switch between different Nuclei - JND 12/20/2024
+    case 0 % unknown, assume 1H
+        gamma = 42.5774780505984;
+        ppm_off = 4.65; 
+    case 1 % 1H
+        gamma = 42.5774780505984;
+        ppm_off = 4.65;
+    case 2 % 31P
+        gamma = 17.2514528352478;
+        ppm_off = 0;
+    case 3 % 13C
+        gamma = 10.7083987615955;
+        ppm_off = 0;
+    case 4 % 19F
+        gamma = 40.0775824603147;
+        ppm_off = 0;
+    case 5 % Na
+        gamma = 11.2688453499836;
+        ppm_off = 0;
+end
+Bo=txfrq/(gamma*1e6);
 
 t=[0:dwelltime:sz(1)*dwelltime-dwelltime];
 
@@ -40,8 +64,8 @@ fids=RF(:,1);
 specs=fftshift(ifft(fids,[],dims.t),dims.t);
 
 f=[(-spectralwidth/2)+(spectralwidth/(2*sz(1))):spectralwidth/(sz(1)):(spectralwidth/2)-(spectralwidth/(2*sz(1)))];
-ppm=-f/(Bo*42.577);
-ppm=ppm+4.65;
+ppm=-f/(Bo*gamma);
+ppm=ppm+ppm_off;
 
 out.fids=fids;
 out.specs=specs;
