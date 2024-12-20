@@ -1,5 +1,8 @@
 %io_loadspec_IMA.m
 %Jamie Near, McGill University 2014.
+%Edits from
+%   Edith Touchet-Valle, Texas A&M University, 2024.
+%   Jacob Degitz, Texas A&M University, 2024.
 %
 % USAGE:
 % out=io_loadspec_IMA(filename,Bo,spectralwidth,te,tr);
@@ -9,22 +12,11 @@
 % 
 % INPUTS:
 % filename       = Filename of Siemens .IMA file to load.
-% Bo             = Field strength (Tesla).
-% spectralwidth  = spectral width of the input spectrum (Hz).
-% te             = Echo time (ms).  Optional.  Defulat is [].
-% tr             = Repetition time (ms).  Optional.  Default is [].
 %
 % OUTPUTS:
 % out        = Input dataset in FID-A structure format.
 
-function out=io_loadspec_IMA(filename,Bo,spectralwidth,te,tr);
-
-if nargin<5
-    tr=[];
-    if nargin<4
-        te=[];
-    end
-end
+function out=io_loadspec_IMA(filename);
 
 %Load Dicom Info using Chris Rogers' "SiemensCsaParse.m" function:
 info=SiemensCsaParse(filename);
@@ -34,62 +26,49 @@ info=SiemensCsaParse(filename);
 
 sz=size(fids);
 
-Naverages=1;
-Ncoils=1;
+Naverages = info.csa.NumberOfAverages;
+Ncoils=1; % this is a wrong assumption, not sure where to get the right value
+te = info.csa.EchoTime;
+tr = info.csa.RepetitionTime;
+Bo = info.csa.MagneticFieldStrength; % it's rounded up so not very precise
+spectralwidth = 1/(info.csa.RealDwellTime*1e-9);
 
-
+dims.t=1;
 if ndims(fids)==4  %Default config when 4 dims are acquired
-    dims.t=1;
     dims.coils=2;
     dims.averages=3;
     dims.subSpecs=4;
-elseif ndims(fids)<4  %To many permutations...ask user for dims.
+elseif ndims(fids)<4  %Too many permutations...ask user for dims.
     if Naverages == 1 && Ncoils == 1
-        if ndims(fids)>1
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=0;
+        dims.coils=0;
+        dims.averages=0;
+        if ndims(fids) > 1
             dims.subSpecs=2;
         else
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=0;
             dims.subSpecs=0;
         end
     elseif Naverages>1 && Ncoils==1
-        if ndims(fids)>2
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=2;
+        dims.coils=0;
+        dims.averages=2;
+        if ndims(fids) > 2
             dims.subSpecs=3;
         else
-            dims.t=1;
-            dims.coils=0;
-            dims.averages=2;
             dims.subSpecs=0;
         end
     elseif Naverages==1 && Ncoils>1
-        if ndims(fids)>2
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=0;
+        dims.coils=2;
+        dims.averages=0;
+        if ndims(fids) > 2
             dims.subSpecs=3;
         else
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=0;
             dims.subSpecs=0;
         end
     elseif Naverages>1 && Ncoils>1
-        if ndims(fids)>3
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=3;
+        dims.coils=2;
+        dims.averages=3;
+        if ndims(fids) > 3
             dims.subSpecs=4;
         else
-            dims.t=1;
-            dims.coils=2;
-            dims.averages=3;
             dims.subSpecs=0;
         end
     end
@@ -110,10 +89,10 @@ specs=fftshift(ifft(fids,[],dims.t),dims.t);
 dwelltime=1/spectralwidth;
 
 %Calculate TxFrq
-txfrq=42577000*Bo;
+txfrq=info.csa.ImagingFrequency*1e6; % modified by ETV
 
 %Get Date
-date=01012000;
+date=info.InstanceCreationDate; % modified by ETV
 
 %Find the number of averages.  'averages' will specify the current number
 %of averages in the dataset as it is processed, which may be subject to
@@ -195,6 +174,7 @@ out.flags.addedrcvrs=1;
 out.flags.subtracted=0;
 out.flags.writtentotext=0;
 out.flags.downsampled=0;
+out.info = info; % added by EV 11/08
 if out.dims.subSpecs==0
     out.flags.isFourSteps=0;
 else
