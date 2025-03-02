@@ -46,6 +46,7 @@ function [fig] = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
         dimensionIndexes.xRange (2, 1) double
         dimensionIndexes.yRange (2, 1) double
         dimensionIndexes.yMul (1, 1) double = 1
+        dimensionIndexes.lineWidth (1, 1) double = 1
     end
     % check arguments to make sure they are okay
     checkArguments(MRSIStruct, dimensionIndexes);
@@ -75,7 +76,7 @@ function [fig] = op_CSIPlot(MRSIStruct, plotType, dimensionIndexes)
             % scale y vector to the right position
             y_coords = data(:, y_idx, x_idx) + (size(data, 2) - y_idx)*voxSizeY + yCoordinate(yRange(1));
             %Now start plotting
-            plot(ax, timeVectorPlot, y_coords, 'PickableParts', 'none', 'LineWidth', 1);
+            plot(ax, timeVectorPlot, y_coords, 'PickableParts', 'none', 'LineWidth', dimensionIndexes.lineWidth);
         end
     end
     hold(ax, 'off');
