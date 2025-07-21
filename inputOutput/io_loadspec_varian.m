@@ -44,6 +44,37 @@ sz=size(fids);
 
 fprintf(['\nTHE SIZE OF THE DATA ARRAY IS:  ']);
 k=size(fids);
+
+%***** 
+%Previously, the user was asked to identify the data dimensions in this
+%section (see 'fprintf' section below).  This section has now been removed
+%and the data dimensions are handled automatically.  Varian data generally
+%comes with coils combined, and no subspecs or extra dimensions are
+%generally observed.  And the time dimension is always the 1st dimension.
+%Therefore, if a 2nd dimension exists, it must be the averages dimension.
+%If no 2nd dimension exists, then there are no averages.
+%********
+
+if length(k)==3 && all(k>1) %There are 3 dimensions:
+    dims.t=1;
+    dims.coils=0;
+    dims.averages=2;
+    dims.subSpecs=0;
+    dims.extras=3;
+elseif length(k)==2 && all(k>1) %There are 2 dimensions:
+    dims.t=1;
+    dims.coils=0;
+    dims.averages=2;
+    dims.subSpecs=0;
+    dims.extras=0;
+elseif sum(k>1)==1  %There is only 1 dimension:
+    dims.t=1;
+    dims.coils=0;
+    dims.averages=0;
+    dims.subSpecs=0;
+    dims.extras=0;
+end
+
 while length(k)>0
     if length(k)>1
         fprintf([num2str(k(1)) ' x ' ]);
@@ -54,18 +85,18 @@ while length(k)>0
     end
 end
 
-fprintf('Now please identify each of the data dimensions.  Note, if any two \n');
-fprintf('data dimensions have the same array index, you will also need to \n');
-fprintf('specify whether they are interleaved or not.  For example, if averages \n');
-fprintf('and coils are both indexed in the 2nd diemension of the array, please \n');
-fprintf('answer ''2'' below for both averages and coils, and then answer ''y'' or ''n'' to \n');
-fprintf('the question about whether they are interleaved or not. \n\n');
+%fprintf('Now please identify each of the data dimensions.  Note, if any two \n');
+%fprintf('data dimensions have the same array index, you will also need to \n');
+%fprintf('specify whether they are interleaved or not.  For example, if averages \n');
+%fprintf('and coils are both indexed in the 2nd diemension of the array, please \n');
+%fprintf('answer ''2'' below for both averages and coils, and then answer ''y'' or ''n'' to \n');
+%fprintf('the question about whether they are interleaved or not. \n\n');
 
-dims.t=input('Which is the time dimension? (Usually it is ''1''):  ');
-dims.coils=input('Which is the coils dimension? (''0'' for none):  ');
-dims.averages=input('Which is the averages dimension? (''0'' for none):  ');
-dims.subSpecs=input('Which is the subspecs dimension? (''0'' for none):  ');
-dims.extras=input('Any extra dimensions not listed above?  (''0'' for none):  ');
+% dims.t=input('Which is the time dimension? (Usually it is ''1''):  ');
+% dims.coils=input('Which is the coils dimension? (''0'' for none):  ');
+% dims.averages=input('Which is the averages dimension? (''0'' for none):  ');
+% dims.subSpecs=input('Which is the subspecs dimension? (''0'' for none):  ');
+% dims.extras=input('Any extra dimensions not listed above?  (''0'' for none):  ');
 
 %Now check if any dimensions are stored along the same array index.  If so,
 %then separate them.
@@ -264,13 +295,8 @@ date=par.date;
 %of averages in the dataset as it is processed, which may be subject to
 %change.  'rawAverages' will specify the original number of acquired 
 %averages in the dataset, which is unchangeable.
-if length(par.nt)>1
-    averages=length(par.nt);
-    rawAverages=length(par.nt);
-else
-    averages=1;
-    rawAverages=par.nt;
-end
+averages=length(par.nt);
+rawAverages=sum(par.nt);
 
 
 %Find the number of subspecs.  'subspecs' will specify the current number
