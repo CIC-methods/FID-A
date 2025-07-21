@@ -183,6 +183,10 @@ try
          if any(cor ~= cor(1))
             k = k - cor(ones(1,size(k,1)),:);
          else
+            if isinteger(k) %JN Added this if statment to handle some data types where k is int32 and can't do arithmatic with cor, which is a double. 
+                disp('Converting raw data from int32 to double precision');
+                k=double(k);
+            end
             k = k - cor(1);
          end
       end

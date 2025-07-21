@@ -44,7 +44,12 @@ specialfield = 'zzzzz_not_a_valid_MATLAB_field_name';
 
 % Read in all the parameters
 while (true)
-   [field, count] = fscanf(fp, '%s', 1);
+    
+    [field, count] = fscanf(fp, '%s', 1);
+    
+    if strcmp(field,'0'); %JN added this if statement for handling blank lines in the procpar
+        [field, count] = fscanf(fp, '%s', 1); %read the next line (if the last one was blank). 
+    end
    
    if (count == 0)
       break
