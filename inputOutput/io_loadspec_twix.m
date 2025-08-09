@@ -63,7 +63,8 @@ isjnSpecial=~isempty(strfind(sequence,'jn_svs_special')) ||...  %or Jamie Near's
             ~isempty(strfind(sequence,'md_Adiab_Special')) ||... %or Masoumeh Dehghani's Adiabatic SPECIAL sequence?
             ~isempty(strfind(sequence,'md_Special')) ||... %or another version of Masoumeh Dehghani's SPECIAL sequence?
             ~isempty(strfind(sequence,'md_Inv_special')) ||... %or Masoumeh Dehghani's Inversion Recovery SPECIAL sequence?
-            ~isempty(strfind(sequence,'pt_svs_special_31p')); %or Peter Trong's 31P SPECIAL seqeunce?
+            ~isempty(strfind(sequence,'pt_svs_special_31p')) ||...; %or Peter Trong's 31P SPECIAL seqeunce?
+            ~isempty(strfind(sequence,'md_svox_special')); %or another one of Masoumeh Deghani's SPECIAL sequence versions?
 ishdSPECIAL=~isempty(strfind(sequence,'md_dvox_special')); %Is this Masoumeh Dehghani's hadamard-encoded dual-SPECIAL sequence?
 isjnMP=~isempty(strfind(sequence,'jn_MEGA_GABA')); %Is this Jamie Near's MEGA-PRESS sequence?
 isjnseq=~isempty(strfind(sequence,'jn_')) ||... %Is this another one of Jamie Near's sequences 
@@ -75,6 +76,7 @@ isMinn_dkd=~isempty(strfind(sequence,'svs_slaserVOI_dkd2')); %Is this Dinesh Dee
 isSiemens=(~isempty(strfind(sequence,'svs_se')) ||... %Is this the Siemens PRESS seqeunce?
             ~isempty(strfind(sequence,'svs_st'))) && ... % or the Siemens STEAM sequence?
             isempty(strfind(sequence,'eja_svs'));    %And make sure it's not 'eja_svs_steam'.
+isUniversal=~isempty(strfind(sequence,'smm_svs_herc'));  %Is this Pavi's Hercules seqeunce?
 isColumbia_sLASER=~isempty(strfind(sequence,'svs_slaser_cu'));  %Is this the Columbia University sLASER seqeunce?
 
 %If this is the SPECIAL sequence, it probably contains both inversion-on
@@ -88,6 +90,7 @@ isColumbia_sLASER=~isempty(strfind(sequence,'svs_slaser_cu'));  %Is this the Col
 %sequence also falls into this category. 
 if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequence 
         (strcmp(version,'vd') && isjnSpecial) ||... %and the VD/VE versions of Jamie Near's SPECIAL sequence
+        (isUniversal && isempty(twix_obj.hdr.MeasYaps.sWipMemBlock.alFree{8})) ||... %Catches Pavi's MEGA-PRESS sequence
         (strcmp(version,'vd') && isjnMP && twix_obj.image.NSet==1 );  %and the VD/VE versions of Jamie Near's MEGA-PRESS sequence
                                                                         %NOTE:  I added the twix_obj.image.NSet==1 condition to the 
                                                                         %above 'if' statement becuase I found that there is a legacy 
@@ -210,11 +213,11 @@ if isColumbia_sLASER
         nRefs=size(squeeze(temp(temp~=0)),1);
         %Remove the last dimension from sqzDims:
         sqzDims=sqzDims(1:3);
-    elseif nDims(fids)==3
+    elseif ndims(fids)==3
         temp = fids(1,:,1);
         nRefs=size(squeeze(temp(temp~=0)),1);
         %Remove the last dimension from sqzDims:
-        sqzDims=szqDims(1:2);
+        sqzDims=sqzDims(1:2);
     end
 
     if nRefs>0
