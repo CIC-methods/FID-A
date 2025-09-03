@@ -90,9 +90,15 @@ function colors = distinguishable_colors(n_colors,bg,func)
     lab = func(rgb);
     bglab = func(bg);
   else
-    C = makecform('srgb2lab');
-    lab = applycform(rgb,C);
-    bglab = applycform(bg,C);
+      %Octave doesn't has makecform,applycform libraries - **PT**2025
+      if exist('OCTAVE_VERSION','builtin')~=0 % Running in Octave
+          lab = rgb2lab_oct(rgb);
+          bglab = rgb2lab_oct(bg);
+      else % Running in MATLAB
+          C = makecform('srgb2lab');
+          lab = applycform(rgb,C);
+          bglab = applycform(bg,C);
+      end
   end
 
   % If the user specified multiple background colors, compute distances
@@ -149,4 +155,29 @@ function c = colorstr2rgb(c)
       error('MATLAB:UnknownColorString', 'Unknown color string.');
     end
   end
+end
+
+%Adding in function for Octave, as it doesn't support makecform&applycform - **PT**2025
+function lab = rgb2lab_oct(rgb)
+  mask = rgb <= 0.04045;
+  rgb(mask) = rgb(mask)/12.92;
+  rgb(~mask) = ((rgb(~mask)+0.055)/1.055).^2.4;
+  rgb = rgb * 100;
+
+  M = [0.4124564 0.3575761 0.1804375;
+       0.2126729 0.7151522 0.0721750;
+       0.0193339 0.1191920 0.9503041];
+  XYZ = rgb * M';
+
+  refX = 95.047; refY = 100.000; refZ = 108.883;
+  X = XYZ(:,1)/refX; Y = XYZ(:,2)/refY; Z = XYZ(:,3)/refZ;
+
+  f = @(t) (t > 0.008856) .* (t.^(1/3)) + (t <= 0.008856) .* (7.787.*t + 16/116);
+  fX = f(X); fY = f(Y); fZ = f(Z);
+
+  L = 116*fY - 16;
+  a = 500*(fX - fY);
+  b = 200*(fY - fZ);
+
+  lab = [L a b];
 end
