@@ -101,9 +101,21 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
                                                                         %with this new condition.                                                                     
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
-        data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
-        data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
-        sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
+        if isjnseq && size(sqzDims,2)>3 %Subspec 1 and 2 saved under different indices
+            if sum(squeezedData(:,1,2,1))~=0 %There are no zero arrays
+                data=squeezedData;
+                %sqzSize=sqzSize;
+            else %there are zero arrays, which means data was saved in alternating pattern within subspecs
+                data(:,:,:,1)=squeezedData(:,:,[1:2:end-1],1);
+                data(:,:,:,2)=squeezedData(:,:,[2:2:end],2);
+                sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
+            end
+            sqzDims(end)=[]; %reset the last sqzDims to make it parsing of data run typically
+        else
+            data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
+            data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
+            sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
+        end        
     elseif twix_obj.image.NCol>1 && twix_obj.image.NCha==1
         data(:,:,1)=squeezedData(:,[1:2:end-1]);
         data(:,:,2)=squeezedData(:,[2:2:end]);
