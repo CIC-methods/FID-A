@@ -92,15 +92,32 @@ begin=1;
 %DO FITTING
 n=1;
 %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
-parsFit=nlinfit(in.fids(:,2),base,@op_freqPhaseShiftComplexNest,parsGuess,...
-                'weights', [ppmWeights ppmWeights]');
-A=op_freqPhaseShiftNest(parsFit,in.fids(:,2),phShift);
-size(A);
-size(fids);
-fids(:,1)=in.fids(:,1);
-fids(:,2)=A;
-fs=parsFit(1);
-phs=parsFit(2)+phShift;
+if exist('OCTAVE_VERSION', 'builtin') ~= 0 %If using Octave, nlinfit doesn't have 'weights' option - **PT**2025
+    % Combine weights for real + imaginary parts
+    combinedWeights = [ppmWeights ppmWeights]';  % column
+
+    % Scale y and create a model that returns scaled predictions
+    yWeighted = sqrt(combinedWeights) .* base;
+    weightedModel = @(pars, input) sqrt(combinedWeights) .* op_freqPhaseShiftComplexNest(pars, input);
+
+    % Fit using Octave's nlinfit
+    parsFit = nlinfit(in.fids(:,2), yWeighted, weightedModel, parsGuess);
+    A = op_freqPhaseShiftNest(parsFit, in.fids(:,2), phShift);
+    fids(:,1) = in.fids(:,1);
+    fids(:,2) = A;
+    fs = parsFit(1);
+    phs = parsFit(2) + phShift;
+else
+    parsFit=nlinfit(in.fids(:,2),base,@op_freqPhaseShiftComplexNest,parsGuess,...
+        'weights', [ppmWeights ppmWeights]');
+    A=op_freqPhaseShiftNest(parsFit,in.fids(:,2),phShift);
+    size(A);
+    size(fids);
+    fids(:,1)=in.fids(:,1);
+    fids(:,2)=A;
+    fs=parsFit(1);
+    phs=parsFit(2)+phShift;
+end
 %plot(in.ppm,fftshift(ifft(fids(:,1,m))),in.ppm,fftshift(ifft(fids(:,n,m))));
 
 %re-calculate Specs using fft
