@@ -162,7 +162,7 @@ switch num2str(rdbm_rev_num)
         image_user20 = 110;
         image_user22 = 112;
 
-    case {'26.002','27','27.001','28.002','28.003','30'}
+    case {'26.002','27','27.001','28.002','28.003','30','30.1'}
 
         % int
         rdb_hdr_off_image   = 11;
@@ -262,11 +262,20 @@ fclose(fid);
 %              NEX=2/noadd=0, NEX=2/noadd=1, NEX=8/noadd=0, NEX=8/noadd=1
 % MM (171120): RTN edits to accomodate HERMES aquisitions; better looping
 %              over phase cycles
+% MM (200713): RTN edits for proper handling of no_add if nechoes == 1
 if nechoes == 1
     
+    if (dataframes + refframes) ~= nframes
+        mult = 1;
+        dataframes = dataframes * nex;
+        refframes = nframes - dataframes;
+    else
+        mult = 1/nex;
+    end
+    
     ShapeData = reshape(raw_data, [2 npoints totalframes nreceivers]);
-    WaterData = ShapeData(:,:,2:refframes+1,:);
-    FullData = ShapeData(:,:,refframes+2:end,:);
+    WaterData = ShapeData(:,:,2:refframes+1,:) * mult;
+    FullData = ShapeData(:,:,refframes+2:end,:) * mult;
     
     totalframes = totalframes - (refframes+1);
     waterframes = refframes;
