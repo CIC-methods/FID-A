@@ -56,7 +56,7 @@ else
     parsFit=[0,0];
     
     if nargin<3
-        med='n'
+        med='n';
         if nargin<2
             %if tmax is not specified, find the time at which the SNR
             %drops below 5

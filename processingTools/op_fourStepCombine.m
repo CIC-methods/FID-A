@@ -22,7 +22,7 @@
 % OUTPUTS:
 % out        = Output following combination of subspectra.  
 
-function out=op_fourStepCombine(in,mode);
+function out=op_fourStepCombine(in,mode)
 
 if ~in.flags.isFourSteps
     error('ERROR:  requires a dataset with 4 subspecs as input!  Aborting!');

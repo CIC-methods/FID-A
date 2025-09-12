@@ -18,7 +18,7 @@
 % OUTPUTS:
 % out       = Output following combination of subspectra.  
 
-function out=op_combinesubspecs(in,mode);
+function out=op_combinesubspecs(in,mode)
 
 if in.flags.subtracted
     error('ERROR:  Subspectra have already been combined!  Aborting!');

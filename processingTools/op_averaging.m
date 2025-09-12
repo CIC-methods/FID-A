@@ -14,7 +14,7 @@
 % OUTPUTS:
 % out   = Output following averaging.  
 
-function out=op_averaging(in);
+function out=op_averaging(in)
 
 if in.flags.averaged || in.averages<2 || in.dims.averages==0
     %DO NOTHING

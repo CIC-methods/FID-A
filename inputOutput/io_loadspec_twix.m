@@ -22,7 +22,7 @@
 % out_w      = Input water reference data (only available for some
 %               sequences.  This will be empty for others).
 
-function [out,out_w]=io_loadspec_twix(filename);
+function [out,out_w]=io_loadspec_twix(filename)
 
 
 %read in the data using the new mapVBVD.  This code has been adapted to 

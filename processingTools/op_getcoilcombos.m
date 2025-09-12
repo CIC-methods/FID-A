@@ -32,10 +32,10 @@
 %                   sig: Vector of coil weights.
 
 
-function coilcombos=op_getcoilcombos(file_or_struct,point,mode);
+function coilcombos=op_getcoilcombos(file_or_struct,point,mode)
 
 
-if isstr(file_or_struct)
+if ischar(file_or_struct)
     in=io_loadspec_twix(file_or_struct);
 else
     in=file_or_struct;
@@ -60,7 +60,7 @@ else
     coilcombos.ph=zeros(in.sz(in.dims.coils),1);
     coilcombos.sig=zeros(in.sz(in.dims.coils),1);
     
-    for n=1:in.sz(in.dims.coils);
+    for n=1:in.sz(in.dims.coils)
         coilcombos.ph(n)=phase(in.fids(point,n,1,1))*180/pi; %in [degrees]
         switch mode
             case 'w'

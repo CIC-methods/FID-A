@@ -18,7 +18,7 @@
 % out            = Phase adjusted output spectrum.
 
 
-function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
+function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot)
 
 if nargin<5
     suppressPlot=0;

@@ -17,8 +17,8 @@
 % RF         = Same as input.  Not used.  The primary output of this
 %                function is a text file in LCModel raw format. 
 
-function RF=io_writelcm(in,outfile,te);
-%function RF=writelcm(in,outfile,te);
+function RF=io_writelcm(in,outfile,te)
+%function RF=writelcm(in,outfile,te)
 
 if in.flags.isFourSteps
     error('ERROR:  Must first combine four subspecs using op_fourStepCombine');
