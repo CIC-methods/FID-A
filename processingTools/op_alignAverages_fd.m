@@ -49,6 +49,8 @@ if nargin<6
 end
 
 parsFit=[0,0];
+nlinopts=statset('nlinfit');
+nlinopts=statset(nlinopts,'MaxIter',400,'TolX',1e-8,'TolFun',1e-8);
 
 if in.dims.subSpecs==0
     B=1;
@@ -98,7 +100,7 @@ for m=1:B
             %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
             datarange=op_freqrange(in,minppm,maxppm);
             start=datarange.fids(datarange.t>=0 & datarange.t<tmax,n,m);
-            parsFit=nlinfit(start,base,@op_freqPhaseShiftComplexRangeNest,parsGuess);
+            parsFit=nlinfit(start,base,@op_freqPhaseShiftComplexRangeNest,parsGuess,nlinopts);
             fids(:,n,m)=op_freqPhaseShiftNest(parsFit,in.fids(:,n,m));
             fs(n,m)=parsFit(1);
             phs(n,m)=parsFit(2);
