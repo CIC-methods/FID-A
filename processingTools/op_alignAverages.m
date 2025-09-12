@@ -38,7 +38,7 @@
 % phs       = Vector of phase shifts (in degrees) used for alignment.
 
 
-function [out,fs,phs]=op_alignAverages(in,tmax,med,initPars)
+function [out,fs,phs]=op_alignAverages(in,tmax,med)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');

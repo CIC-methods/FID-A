@@ -59,7 +59,6 @@ if nargin<4
    
 end
 avfids=av.fids;
-avspecs=av.specs;
 
 %initialize phase matrix and the amplitude maxtrix that are the size of nPoints x Coils
 ph=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
@@ -104,7 +103,7 @@ ph=repmat(ph,replicate);
 
 
 %now apply the phases by multiplying the data by exp(-i*ph);
-fids=in.fids.*exp(-i*ph*pi/180);
+fids=in.fids.*exp(-1i*ph*pi/180);
 fids_presum=fids;
 specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 
