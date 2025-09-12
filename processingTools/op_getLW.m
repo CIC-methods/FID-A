@@ -104,6 +104,6 @@ FWHM2=FWHM2*(42.577*in.Bo);  %Assumes Proton.
 FWHM=mean([FWHM1 FWHM2]);  
 
 if ~suppressPlots
-    disp(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
+    fprintf(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
 end
 

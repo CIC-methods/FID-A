@@ -84,5 +84,5 @@ noisesd=std(real(noise));
 SNR=signal/noisesd;
 
 if ~suppressPlots
-    disp(['The calculated signal-to-noise ratio is:  ' num2str(SNR) '.']);
+    fprintf(['The calculated signal-to-noise ratio is:  ' num2str(SNR) '.']);
 end
