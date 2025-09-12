@@ -66,7 +66,8 @@ else
             noise=mean(mean(mean(noise,2),3),4);
             snr=sig/noise;
             
-            for n=1:(numel(snr)/size(snr,1))
+            tmax_est=zeros(1,numel(snr)/size(snr,1));
+            for n=1:numel(snr)/size(snr,1)
                 N=find(snr(:,n)>5);
                 tmax_est(n)=in.t(N(end));
             end
