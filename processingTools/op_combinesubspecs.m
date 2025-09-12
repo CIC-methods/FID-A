@@ -35,16 +35,16 @@ end
 % end
 
 
-if mode=='diff'
-    %add the spectrum along the subSpecs dimension;
-    fids=sum(in.fids,in.dims.subSpecs);
-    fids=fids/in.sz(in.dims.subSpecs); %divide by number of subspecs so that this is an averaging operation;
-elseif mode=='summ'
-    %subtract the spectrum along the subSpecs dimension;
-    fids=diff(in.fids,1,in.dims.subSpecs);
-    fids=fids/in.sz(in.dims.subSpecs); %divide by nymber of subspecs so that this is an averaging operation;
+switch mode
+    case 'diff'
+        %add the spectrum along the subSpecs dimension;
+        fids=sum(in.fids,in.dims.subSpecs);
+    case 'summ'
+        %subtract the spectrum along the subSpecs dimension;
+        fids=diff(in.fids,1,in.dims.subSpecs);
 end
 
+fids=fids/in.sz(in.dims.subSpecs); %divide by nymber of subspecs so that this is an averaging operation;
 fids=squeeze(fids);
 
 %re-calculate Specs using fft

@@ -60,34 +60,36 @@ fs=zeros(in.sz(in.dims.averages),B);
 phs=zeros(in.sz(in.dims.averages),B);
 fids=zeros(in.sz(in.dims.t),1,B);
 for m=1:B
-    if med=='y' || med=='Y'
-        disp('Aligning all averages to the Average of the averages.');
-        base=op_averaging(in);
-        base=op_freqrange(base,minppm,maxppm);
-        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
-        ind_min=0;
-    elseif med=='n' || med=='N'
-        %First find the average that is most similar to the total average:
-        inavg=op_median(in);
-        for k=1:in.sz(in.dims.averages)
-            for l=1:B
-                metric(k,l)=sum((real(in.fids(in.t>=0 & in.t<=tmax,k,l))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,l)))).^2);
+    switch lower(med)
+        case 'y'
+            disp('Aligning all averages to the Average of the averages.');
+            base=op_averaging(in);
+            base=op_freqrange(base,minppm,maxppm);
+            base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
+            ind_min=0;
+        case 'n'
+            %First find the average that is most similar to the total average:
+            inavg=op_median(in);
+            metric=zeros(in.sz(in.dims.averages),B);
+            for k=1:in.sz(in.dims.averages)
+                for l=1:B
+                    metric(k,l)=sum((real(in.fids(in.t>=0 & in.t<=tmax,k,l))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,l)))).^2);
+                end
             end
-        end
-        [temp,ind_min]=min(metric(:,m));
-        
-        %Now set the base function using the index of the most similar
-        %average:
-        disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
-        base=op_freqrange(in,minppm,maxppm);
-        base=[real(base.fids(base.t>=0 & base.t<tmax,ind_min,m));imag(base.fids(base.t>=0 & base.t<tmax,ind_min,m))];
-        fids(:,ind_min,m)=in.fids(:,ind_min,m);
-    elseif med=='r' || med=='R'
-        disp('Aligning all averages to an externally provided reference spectrum.');
-        base=ref;
-        base=op_freqrange(base,minppm,maxppm);
-        base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
-        ind_min=0;
+            [~,ind_min]=min(metric(:,m));
+
+            %Now set the base function using the index of the most similar
+            %average:
+            disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
+            base=op_freqrange(in,minppm,maxppm);
+            base=[real(base.fids(base.t>=0 & base.t<tmax,ind_min,m));imag(base.fids(base.t>=0 & base.t<tmax,ind_min,m))];
+            fids(:,ind_min,m)=in.fids(:,ind_min,m);
+        case 'r'
+            disp('Aligning all averages to an externally provided reference spectrum.');
+            base=ref;
+            base=op_freqrange(base,minppm,maxppm);
+            base=[real(base.fids(base.t>=0 & base.t<tmax,m));imag(base.fids(base.t>=0 & base.t<tmax,m))];
+            ind_min=0;
     end
     for n=1:in.sz(in.dims.averages)
         if n~=ind_min
