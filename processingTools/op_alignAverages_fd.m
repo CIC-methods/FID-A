@@ -43,7 +43,7 @@ if nargin<6
     ref=struct();
     if nargin<5
         med='y';
-    elseif (strcmp(med,'r') || strcmp(med,'R'))
+    elseif strcmpi(med,'r')
         error('ERROR:  If using the ''r'' option for input variable ''med'', then a 6th input argument must be provided');
     end
 end

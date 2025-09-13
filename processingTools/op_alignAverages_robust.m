@@ -62,7 +62,7 @@ else
         %Determine optimal alignment order by calculating a similarity metric (mean squared error)
         D=zeros(in.sz(in.dims.averages));
         for ii=1:in.sz(in.dims.averages)
-            D(ii,:)=MSEfun(real(in.fids(in.t>=0 & in.t<tmax,ii,m)), real(in.fids(in.t>=0 & in.t<tmax,:,m)));
+            D(ii,:)=MSEfun(real(in.fids(in.t>=0 & in.t<tmax,ii,m)),real(in.fids(in.t>=0 & in.t<tmax,:,m)));
         end
         D(~D)=NaN;
         [~,alignOrd]=sort(median(D,'omitnan'));

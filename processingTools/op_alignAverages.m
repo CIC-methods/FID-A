@@ -76,7 +76,7 @@ else
         end
     end
     
-    if (strcmp(med,'r') || strcmp(med,'R'))
+    if strcmpi(med,'r')
         if nargin<4
             error('ERROR:  If using the ''r'' option for input variable ''med'', then a 4th input argument must be provided');
         end
