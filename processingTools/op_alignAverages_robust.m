@@ -36,6 +36,8 @@ if in.dims.averages==0
 else
     
     parsFit=[0,0];
+    nlinopts=statset('nlinfit');
+    nlinopts=statset(nlinopts,'MaxIter',400,'TolX',1e-8,'TolFun',1e-8);
     
     if in.dims.subSpecs==0
         B=1;
@@ -71,7 +73,7 @@ else
         for n=alignOrd
             parsGuess=parsFit;
             %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
-            parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax,n,m),base,@op_freqPhaseShiftComplexNest,parsGuess);
+            parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax,n,m),base,@op_freqPhaseShiftComplexNest,parsGuess,nlinopts);
             fids(:,n,m)=op_freqPhaseShiftNest(parsFit,in.fids(:,n,m));
             fs(n,m)=parsFit(1);
             phs(n,m)=parsFit(2);
