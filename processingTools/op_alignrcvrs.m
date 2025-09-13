@@ -102,7 +102,7 @@ ph=repmat(ph,replicate);
 %sig=sig/max(max(max(max(sig))));
 
 
-%now apply the phases by multiplying the data by exp(-i*ph);
+%now apply the phases by multiplying the data by exp(-1i*ph);
 fids=in.fids.*exp(-1i*ph*pi/180);
 fids_presum=fids;
 specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
