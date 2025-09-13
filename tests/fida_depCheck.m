@@ -23,13 +23,13 @@
 % flist   = List of all file dependencies
 % plist   = List of all Matlab product dependencies
 
-function [flist,plist]=fida_depCheck(in);
+function [flist,plist]=fida_depCheck(in)
 
 if nargin<1
-        toolbox = 'all'
+    toolbox = 'all';
 end
 
-if exist(in)==2
+if exist(in,'var')
     [flist,plist]=matlab.codetools.requiredFilesAndProducts(in);
 else
 
@@ -55,7 +55,7 @@ else
     fields=strsplit(a,'/'); %Not sure if this will work on a Windows machine.  Might need to adjust later.
     fields=fields(2:end-2);
     tempStr='';
-    for n=1:length(fields);
+    for n=1:length(fields)
         tempStr=[tempStr '/' fields{n}];
     end
     FIDAroot=tempStr;
@@ -70,7 +70,7 @@ else
     for n=1:length(tbs)
         cd(tbs{n});
         a=dir('./*');
-        for m=1:length(a);
+        for m=1:length(a)
             if strcmp(a(m).name,'.') || strcmp(a(m).name,'..')
                 %do nothing
                 disp('Ignoring ''.'' and ''..'' dirs.');
