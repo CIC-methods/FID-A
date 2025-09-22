@@ -24,7 +24,9 @@
 %                      -'h' performs amplitude weighting of channels based on the
 %                     maximum signal of each coil channel divided by the square of
 %                     the noise in each coil channel (as described by Hall et al.
-%                     Neuroimage 2014). 
+%                     Neuroimage 2014).
+%                     -'gls' combines channels using generalized least squares
+%                     (GLS) (as described by An et al., 2013, doi﻿:10.1002/jmri.23941).
 %
 % OUTPUTS:
 % coilcombos    = Structure containing two fields:
@@ -32,10 +34,10 @@
 %                   sig: Vector of coil weights.
 
 
-function coilcombos=op_getcoilcombos(file_or_struct,point,mode);
+function coilcombos=op_getcoilcombos(file_or_struct,point,mode)
 
 
-if isstr(file_or_struct)
+if ischar(file_or_struct)
     in=io_loadspec_twix(file_or_struct);
 else
     in=file_or_struct;
@@ -59,21 +61,29 @@ else
     
     coilcombos.ph=zeros(in.sz(in.dims.coils),1);
     coilcombos.sig=zeros(in.sz(in.dims.coils),1);
-    
-    for n=1:in.sz(in.dims.coils);
-        coilcombos.ph(n)=phase(in.fids(point,n,1,1))*180/pi; %in [degrees]
-        switch mode
-            case 'w'
-                coilcombos.sig(n)=abs(in.fids(point,n,1,1));
-            case 'h'
-                S=abs(in.fids(point,n,1,1));
-                N=std(in.fids(end-100:end,n,1,1));
-                coilcombos.sig(n)=(S/(N.^2));
-        end
+
+    switch mode
+        case 'gls'
+            fids_avg=mean(in.fids,in.dims.averages);
+            coilcombos.sig=fids_avg(point,:).';
+        otherwise
+            for n=1:in.sz(in.dims.coils)
+                coilcombos.ph(n)=phase(in.fids(point,n,1,1))*180/pi; %in [degrees]
+                switch mode
+                    case 'w'
+                        coilcombos.sig(n)=abs(in.fids(point,n,1,1));
+                    case 'h'
+                        S=abs(in.fids(point,n,1,1));
+                        N=std(in.fids(end-100:end,n,1,1));
+                        coilcombos.sig(n)=(S/(N.^2));
+                end
+            end
     end
     
     %Now normalize the coilcombos.sig so that the max amplitude is 1;
-    coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
+    if ~strcmp(mode,'gls')
+        coilcombos.sig=coilcombos.sig/max(coilcombos.sig);
+    end
 end
 
 

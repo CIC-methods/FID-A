@@ -17,8 +17,8 @@
 % RF         = Same as input.  Not used.  The primary output of this
 %                function is a text file in LCModel raw format. 
 
-function RF=io_writelcm(in,outfile,te);
-%function RF=writelcm(in,outfile,te);
+function RF=io_writelcm(in,outfile,te)
+%function RF=writelcm(in,outfile,te)
 
 if in.flags.isFourSteps
     error('ERROR:  Must first combine four subspecs using op_fourStepCombine');
@@ -40,9 +40,9 @@ end
 % datsets=1;
 % zop=0;
 % t0=0;
-  Bo=in.Bo;
-  hzppm=42.577*Bo;
-  dwelltime=in.dwelltime;
+% Bo=in.Bo;
+% hzppm=42.577*Bo;
+% dwelltime=in.dwelltime;
 % Nuc=0;
 % PatName='No Name';
 % scanner='TrioTim';
@@ -75,10 +75,10 @@ fprintf(fid,' $SEQPAR');
 %fprintf(fid,'sig(real)\tsig(imag)\tfft(real)\tfft(imag)\n');
 %fprintf(fid,'Signal 1 out of %i in file\n',datsets);
 fprintf(fid,'\n echot= %2.2f',te);
-fprintf(fid,'\n seq= ''PRESS''');
+fprintf(fid,'\n seq= ''%s''',seq);
 fprintf(fid,'\n hzpppm= %5.6f',in.txfrq/1e6);
 fprintf(fid,'\n NumberOfPoints= %i',in.sz(1));
-fprintf(fid,'\n dwellTime= %5.6f' ,dwelltime);
+fprintf(fid,'\n dwellTime= %5.6f',in.dwelltime);
 fprintf(fid,'\n $END');
 fprintf(fid,'\n $NMID');
 fprintf(fid,'\n id=''ANONYMOUS '', fmtdat=''(2E15.6)''');

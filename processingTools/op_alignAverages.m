@@ -38,7 +38,7 @@
 % phs       = Vector of phase shifts (in degrees) used for alignment.
 
 
-function [out,fs,phs]=op_alignAverages(in,tmax,med,initPars)
+function [out,fs,phs]=op_alignAverages(in,tmax,med)
 
 if ~in.flags.addedrcvrs
     error('ERROR:  I think it only makes sense to do this after you have combined the channels using op_addrcvrs.  ABORTING!!');
@@ -54,9 +54,11 @@ if in.dims.averages==0
 else
 
     parsFit=[0,0];
-    
+    nlinopts=statset('nlinfit');
+    nlinopts=statset(nlinopts,'MaxIter',400,'TolX',1e-8,'TolFun',1e-8);
+
     if nargin<3
-        med='n'
+        med='n';
         if nargin<2
             %if tmax is not specified, find the time at which the SNR
             %drops below 5
@@ -66,7 +68,8 @@ else
             noise=mean(mean(mean(noise,2),3),4);
             snr=sig/noise;
             
-            for n=1:(numel(snr)/size(snr,1))
+            tmax_est=zeros(1,numel(snr)/size(snr,1));
+            for n=1:numel(snr)/size(snr,1)
                 N=find(snr(:,n)>5);
                 tmax_est(n)=in.t(N(end));
             end
@@ -75,7 +78,7 @@ else
         end
     end
     
-    if (strcmp(med,'r') || strcmp(med,'R'))
+    if strcmpi(med,'r')
         if nargin<4
             error('ERROR:  If using the ''r'' option for input variable ''med'', then a 4th input argument must be provided');
         end
@@ -95,42 +98,44 @@ else
     phs=zeros(in.sz(in.dims.averages),B);
     fids=zeros(in.sz(in.dims.t),1,B);
     for m=1:B
-        if med=='y' || med=='Y'
-            disp('Aligning all averages to the median of the averages.');
-            base=op_median(in);
-            base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
-            ind_min=0;
-        elseif med=='a' || med=='a'
-            disp('Aligning all averages to the average of the averages.');
-            base=op_averaging(in);
-            base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
-            ind_min=0;
-        elseif med=='n' || med=='N'
-            %First find the average that is most similar to the total average:
-            inavg=op_median(in);
-            for k=1:in.sz(in.dims.averages)
-                for l=1:B
-                    metric(k,l)=sum((real(in.fids(in.t>=0 & in.t<=tmax,k,l))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,l)))).^2);
+        switch lower(med)
+            case 'y'
+                disp('Aligning all averages to the median of the averages.');
+                base=op_median(in);
+                base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
+                ind_min=0;
+            case 'a'
+                disp('Aligning all averages to the average of the averages.');
+                base=op_averaging(in);
+                base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
+                ind_min=0;
+            case 'n'
+                %First find the average that is most similar to the total average:
+                inavg=op_median(in);
+                metric=zeros(in.sz(in.dims.averages),B);
+                for k=1:in.sz(in.dims.averages)
+                    for l=1:B
+                        metric(k,l)=sum((real(in.fids(in.t>=0 & in.t<=tmax,k,l))-(real(inavg.fids(inavg.t>=0 & inavg.t<=tmax,l)))).^2);
+                    end
                 end
-            end
-            [temp,ind_min]=min(metric(:,m));
+                [~,ind_min]=min(metric(:,m));
 
-            %Now set the base function using the index of the most similar
-            %average:
-            disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
-            base=[real(in.fids(in.t>=0 & in.t<tmax,ind_min,m));imag(in.fids(in.t>=0 & in.t<tmax,ind_min,m))];
-            fids(:,ind_min,m)=in.fids(:,ind_min,m);
-        elseif med=='r' || med=='R'
-            disp('Aligning all averages to an externally provided reference spectrum.');
-            base=ref;
-            base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
-            ind_min=0;
+                %Now set the base function using the index of the most similar
+                %average:
+                disp(['Aligning all averages to average number ' num2str(ind_min) '.']);
+                base=[real(in.fids(in.t>=0 & in.t<tmax,ind_min,m));imag(in.fids(in.t>=0 & in.t<tmax,ind_min,m))];
+                fids(:,ind_min,m)=in.fids(:,ind_min,m);
+            case 'r'
+                disp('Aligning all averages to an externally provided reference spectrum.');
+                base=ref;
+                base=[real(base.fids( in.t>=0 & in.t<tmax ,m));imag(base.fids( in.t>=0 & in.t<tmax ,m))];
+                ind_min=0;
         end
         for n=1:in.sz(in.dims.averages)
             if n~=ind_min
                 parsGuess=parsFit;
                 %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
-                parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax,n,m),base,@op_freqPhaseShiftComplexNest,parsGuess);
+                parsFit=nlinfit(in.fids(in.t>=0 & in.t<tmax,n,m),base,@op_freqPhaseShiftComplexNest,parsGuess,nlinopts);
                 fids(:,n,m)=op_freqPhaseShiftNest(parsFit,in.fids(:,n,m));
                 fs(n,m)=parsFit(1);
                 phs(n,m)=parsFit(2);
