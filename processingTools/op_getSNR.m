@@ -58,8 +58,8 @@ if ~suppressPlots
 
     figure
     plot(in.ppm,real(in.specs));
-    noiseppmmin=input('input lower ppm limit for noise: ');
-    noiseppmmax=input('input upper ppm limit for noise: ');
+    %noiseppmmin=input('input lower ppm limit for noise: ');
+    %noiseppmmax=input('input upper ppm limit for noise: ');
 end
 
 %NOW FIND THE STANDARD DEVIATION OF THE NOISE:
