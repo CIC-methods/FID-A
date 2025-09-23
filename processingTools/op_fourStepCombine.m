@@ -22,7 +22,7 @@
 % OUTPUTS:
 % out        = Output following combination of subspectra.  
 
-function out=op_fourStepCombine(in,mode);
+function out=op_fourStepCombine(in,mode)
 
 if ~in.flags.isFourSteps
     error('ERROR:  requires a dataset with 4 subspecs as input!  Aborting!');
@@ -45,20 +45,21 @@ ind2=[3 4];
 ind3=[1 3];
 ind4=[2 4];
 sz(end)=sz(end)-2;
-if mode==0
-    reshapedFids(:,1)=sum(reshapedFids(:,ind1),2);
-    reshapedFids(:,2)=sum(reshapedFids(:,ind2),2);
-elseif mode==1
-    reshapedFids(:,1)=diff(reshapedFids(:,ind1),1,2);
-    reshapedFids(:,2)=diff(reshapedFids(:,ind2),1,2);
-elseif mode==2
-    reshapedFids(:,1)=sum(reshapedFids(:,ind3),2);
-    reshapedFids(:,2)=sum(reshapedFids(:,ind4),2);
-elseif mode==3
-    reshapedFids(:,1)=diff(reshapedFids(:,ind3),1,2);
-    reshapedFids(:,2)=diff(reshapedFids(:,ind4),1,2);
-else
-    error('ERROR: mode not recognized. Value must be 0, 1, 2 or 3');
+switch mode
+    case 0
+        reshapedFids(:,1)=sum(reshapedFids(:,ind1),2);
+        reshapedFids(:,2)=sum(reshapedFids(:,ind2),2);
+    case 1
+        reshapedFids(:,1)=diff(reshapedFids(:,ind1),1,2);
+        reshapedFids(:,2)=diff(reshapedFids(:,ind2),1,2);
+    case 2
+        reshapedFids(:,1)=sum(reshapedFids(:,ind3),2);
+        reshapedFids(:,2)=sum(reshapedFids(:,ind4),2);
+    case 3
+        reshapedFids(:,1)=diff(reshapedFids(:,ind3),1,2);
+        reshapedFids(:,2)=diff(reshapedFids(:,ind4),1,2);
+    otherwise
+        error('ERROR: mode not recognized. Value must be 0, 1, 2 or 3');
 end
 fids=reshape(reshapedFids(:,ind1),sz);
 fids=fids/2;  %Divide by 2 so that this is an averaging operation;

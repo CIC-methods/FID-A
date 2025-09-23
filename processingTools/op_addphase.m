@@ -12,16 +12,16 @@
 % ph0            = zero order phase to add (degrees)
 % ph1            = 1st order phase to add (in seconds);
 % ppm0           = (optional) frequency reference point.  Default = 4.65;
-% suppressPlot   = (optional) Boolian to suppress plots.  Default = 0;
+% suppressPlot   = (optional) Boolean to suppress plots.  Default = 0;
 %
 % OUTPUTS:
 % out            = Phase adjusted output spectrum.
 
 
-function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot);
+function out=op_addphase(in,ph0,ph1,ppm0,suppressPlot)
 
 if nargin<5
-    suppressPlot=0;
+    suppressPlot=1;
     if nargin<4
         ppm0=4.65;
         if nargin<3
@@ -30,8 +30,6 @@ if nargin<5
     end
 end
 
-ph0;
-ph1;
 %Add Zero-order phase
 fids=in.fids.*ones(size(in.fids))*exp(1i*ph0*pi/180);
 
