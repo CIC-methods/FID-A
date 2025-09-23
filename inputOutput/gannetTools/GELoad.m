@@ -209,7 +209,121 @@ if rdbm_rev_num > 11.0
     pfile_header_size = i_hdr_value(rdb_hdr_off_data);
 end
 
-hdr.Larmor = i_hdr_value(rdb_hdr_ps_mps_freq)/1e7;
+%FINDING THE LARMOR FREQUENCY / B0:
+% There is a 'probe-s' sequence in which the original code did not
+% successfully retrieve the larmor frequency.  So here I will use a 
+% different method if the seuqence is the 'probe-s' version.  This section
+% is long because it takes some time to find the pulse sequence name (psd_nam):
+%**************************************
+SIZE_CHAR   = 1;
+SIZE_IMTX   = 2;
+SIZE_SHRT   = 2;
+SIZE_ATMC   = 4;
+SIZE_INT    = 4;
+SIZE_FLT    = 4;
+SIZE_DTYP   = 4;
+SIZE_PTYP   = 4;
+SIZE_RSPT   = 4;
+SIZE_DBL    = 8;
+SIZE_ASUB   = 48;
+
+BYTE_ORDER = 'ieee-le';
+
+G_to_T      = 1e-4;
+MM_to_CM    = 0.1;
+US_to_S     = 1e-6;
+US_to_MS    = 1e-3;
+
+%OFFSETS AND VERSION
+fseek(fid,0,'eof');
+off_end=ftell(fid);
+
+fseek(fid,0,'bof');
+verF=fread(fid,1,'float');
+fseek(fid,0,'bof');
+verI=fread(fid,1,'int');
+
+off_data=fread(fid,1,'int');
+
+off_pass=fread(fid,1,'int');
+
+off = 4 * SIZE_INT;
+fseek(fid,off,'cof');
+off_tool=fread(fid,1,'int');
+
+off_exm=fread(fid,1,'int');
+
+off_ser=fread(fid,1,'int');
+
+off_img=fread(fid,1,'int');
+
+%IMAGE INFO:
+off = off_img + SIZE_ASUB + 32 * SIZE_DBL;
+fseek(fid,off,'bof');
+fov = fread(fid,1,'float') * MM_to_CM;
+
+off = SIZE_FLT;
+fseek(fid,off,'cof');
+t_acq = fread(fid,1,'float') * US_to_S;
+
+slthk = fread(fid,1,'float');
+
+off = 5 * SIZE_FLT;
+fseek(fid,off,'cof');
+sar_avg = fread(fid,1,'float');
+
+sar_pk = fread(fid,1,'float');
+
+off = 50 * SIZE_FLT;
+fseek(fid,off,'cof');
+ptl_dt = fread(fid,1,'float');
+
+ptl_ns = fread(fid,1,'float');
+
+n_x = fread(fid,1,'float');
+
+n_ptl_tr = fread(fid,1,'float');
+
+n_ptl_fov = fread(fid,1,'float');
+
+n_avg = fread(fid,1,'float');
+
+ltavg = fread(fid,1,'float');
+
+exc_fa = fread(fid,1,'float');
+
+off = 19 * SIZE_FLT + 24 * SIZE_RSPT + 2 * SIZE_DTYP + 2 * SIZE_PTYP ...
+    + 30 * SIZE_FLT + 2 * SIZE_ATMC + 40 * SIZE_INT;
+fseek(fid,off,'cof');
+t_rep = fread(fid,1,'int') * US_to_MS;
+
+off = SIZE_INT;
+fseek(fid,off,'cof');
+t_ech = fread(fid,1,'int') * US_to_MS;
+
+off = 75 * SIZE_INT + 2 * SIZE_IMTX + 3 * SIZE_SHRT;
+fseek(fid,off,'cof');
+n_ech = fread(fid,1,'uint16');
+
+off = 126 * SIZE_SHRT;
+fseek(fid,off,'cof');
+psd_nam = fread(fid,[1 33]*SIZE_CHAR,'char');
+psd_nam = char(psd_nam(psd_nam>0));
+%**************************************
+
+%OK now we have the pulse sequence name (psd_nam).  If psd_nam is
+%'probe-s', we will get the Larmor frequeny and B0 values a new way.
+%Otherwise, we will just do it the old way.
+
+if strcmp(psd_nam,'probe-s')
+    off = off_exm + 32 * SIZE_DBL + 36 * SIZE_FLT + 11 * SIZE_ATMC + 32 * SIZE_INT;
+    fseek(fid,off,'bof');
+    Bo = fread(fid,1,'int') * G_to_T; %Field strength
+    hdr.Larmor = Bo*42.577;
+else
+    hdr.Larmor = i_hdr_value(rdb_hdr_ps_mps_freq)/1e7;
+end
+
 hdr.sw = f_hdr_value(rdb_hdr_user0);
 
 nechoes = hdr_value(rdb_hdr_nechoes);
