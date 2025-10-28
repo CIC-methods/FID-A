@@ -27,7 +27,7 @@
 % FWHM       = Estimated linewidth of the input spectrum (in Hz).
 
 
-function [FWHM]=op_getLW(in,Refppmmin,Refppmmax,zpfactor,suppressPlots);
+function FWHM=op_getLW(in,Refppmmin,Refppmmax,zpfactor,suppressPlots)
 
 if nargin<5
     suppressPlots=false;
@@ -88,7 +88,7 @@ while sat=='n'
         if isempty(sat)
             sat='y';
         end
-        if sat=='n';
+        if sat=='n'
             waterFreq=input('input new water frequency guess: ');
         end
     else
@@ -104,6 +104,6 @@ FWHM2=FWHM2*(42.577*in.Bo);  %Assumes Proton.
 FWHM=mean([FWHM1 FWHM2]);  
 
 if ~suppressPlots
-    disp(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
+    fprintf(['The calculated linewidth is:  ' num2str(FWHM) ' Hz.' ]);
 end
 

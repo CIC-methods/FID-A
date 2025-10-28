@@ -1,4 +1,4 @@
-%rf_goia.m
+%rf_hs.m
 %Jamie Near, McGill University 2020.  Based on old code from 2007.
 %
 % USAGE:

@@ -14,7 +14,7 @@
 % out   = Output dataset following median calculation.
 
 
-function out=op_median(in);
+function out=op_median(in)
 
 if in.flags.averaged || in.dims.averages==0 || in.averages<2
     %DO NOTHING
