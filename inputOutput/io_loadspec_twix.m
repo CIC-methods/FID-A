@@ -101,7 +101,7 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
                                                                         %with this new condition.                                                                     
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
-        if isjnseq && size(sqzDims,2)>3 %Subspec 1 and 2 saved under different indices
+        if isjnseq && ndims(squeezedData)>3 %Subspec 1 and 2 saved under different indices
             if sum(squeezedData(:,1,2,1))~=0 %There are no zero arrays
                 data=squeezedData;
                 %sqzSize=sqzSize;
