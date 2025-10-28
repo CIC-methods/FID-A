@@ -24,7 +24,7 @@
 % weights       = Structure containing the coil weights and phases that were
 %                 applied.
 
-function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw);
+function [out,outw,out_presum,outw_presum,weights]=op_combineRcvrs(in,inw)
 
 %first find the weights using the water unsuppressed data:
 weights=op_getcoilcombos(inw,2,'h');

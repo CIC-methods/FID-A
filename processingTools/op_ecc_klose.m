@@ -16,7 +16,7 @@
 % out    = Water suppressed output following eddy current correction  
 % outw   = Water unsuppressed output following eddy current correction
 
-function [out,outw]=op_ecc_klose(in,inw);
+function [out,outw]=op_ecc_klose(in,inw)
 
 if inw.dims.coils~=0 || inw.dims.averages~=0 || inw.dims.subSpecs~=0
     error('ERROR:  Must combine receivers, averages and subspecs prior to running ecc!! ABORTING!!');

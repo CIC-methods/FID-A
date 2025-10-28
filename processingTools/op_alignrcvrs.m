@@ -29,7 +29,7 @@
 %                   ph:  Vector of coil phases (in [degrees]) used for alignment.
 %                   sig: Vector of coil weights.
 
-function [out,coilcombos]=op_alignrcvrs(in,point,mode,coilcombos);
+function [out,coilcombos]=op_alignrcvrs(in,point,mode,coilcombos)
 
 if in.flags.addedrcvrs
     error('ERROR:  Receivers have already been combined!  Aborting!');
@@ -59,7 +59,6 @@ if nargin<4
    
 end
 avfids=av.fids;
-avspecs=av.specs;
 
 %initialize phase matrix and the amplitude maxtrix that are the size of nPoints x Coils
 ph=ones(in.sz(in.dims.t),in.sz(in.dims.coils));
@@ -103,8 +102,8 @@ ph=repmat(ph,replicate);
 %sig=sig/max(max(max(max(sig))));
 
 
-%now apply the phases by multiplying the data by exp(-i*ph);
-fids=in.fids.*exp(-i*ph*pi/180);
+%now apply the phases by multiplying the data by exp(-1i*ph);
+fids=in.fids.*exp(-1i*ph*pi/180);
 fids_presum=fids;
 specs_presum=fftshift(ifft(fids,[],in.dims.t),in.dims.t);
 

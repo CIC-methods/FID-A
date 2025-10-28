@@ -60,6 +60,9 @@ else
    parsGuess=initPars;
 end
 
+nlinopts=statset('nlinfit');
+nlinopts=statset(nlinopts,'MaxIter',400,'TolX',1e-8,'TolFun',1e-8);
+
 % Normalize weights 
 ppmWeights = ppmWeights / sum(ppmWeights);
 
@@ -93,7 +96,7 @@ begin=1;
 n=1;
 %disp(['fitting subspec number ' num2str(m) ' and average number ' num2str(n)]);
 parsFit=nlinfit(in.fids(:,2),base,@op_freqPhaseShiftComplexNest,parsGuess,...
-                'weights', [ppmWeights ppmWeights]');
+                nlinopts, 'weights', [ppmWeights ppmWeights]');
 A=op_freqPhaseShiftNest(parsFit,in.fids(:,2),phShift);
 size(A);
 size(fids);

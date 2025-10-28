@@ -20,7 +20,7 @@
 % out        = Output following automatic phasing.
 % phaseShift = The phase shift (in degrees) that was applied.
 
-function [out,phShft]=op_autophase(in,ppmmin,ppmmax,ph,dimNum);
+function [out,phShft]=op_autophase(in,ppmmin,ppmmax,ph,dimNum)
 
 
 if in.dims.coils>0
