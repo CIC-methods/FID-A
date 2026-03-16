@@ -104,7 +104,7 @@ if exist('OCTAVE_VERSION', 'builtin') ~= 0 %If using Octave, nlinfit doesn't hav
     weightedModel = @(pars, input) sqrt(combinedWeights) .* op_freqPhaseShiftComplexNest(pars, input);
 
     % Fit using Octave's nlinfit
-    parsFit = nlinfit(in.fids(:,2), yWeighted, weightedModel, parsGuess);
+    parsFit = nlinfit(in.fids(:,2), yWeighted, weightedModel, parsGuess, nlinopts);
     A = op_freqPhaseShiftNest(parsFit, in.fids(:,2), phShift);
     fids(:,1) = in.fids(:,1);
     fids(:,2) = A;
