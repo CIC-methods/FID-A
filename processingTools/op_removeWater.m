@@ -59,7 +59,7 @@ spec = in.specs;
 H = hankel(fid(1:M),fid(M:end));
 
 % calculate the svd
-[U,S,V] = svd(H);
+[U,~,~] = svd(H);
 
 % initialize while loop
 amp = 0;
@@ -73,8 +73,8 @@ while sum(find(amp==0))>=1 || sum(isnan(amp) >= 1)
     
     % truncate the data
     Uk = U(:,1:K);
-    Sk = S(1:K,1:K);
-    Vk = V(:,1:K);
+    % Sk = S(1:K,1:K);
+    % Vk = V(:,1:K);
     
     % get he eigenvalues of the transform matrix
     Utk = Uk(2:end,:);
@@ -102,7 +102,7 @@ while sum(find(amp==0))>=1 || sum(isnan(amp) >= 1)
 
     count = count+1;
     if K<2
-        display('####### Could not find a suitable number of components ########');
+        fprintf('####### Could not find a suitable number of components ########');
         break;
     end
 end
@@ -154,7 +154,7 @@ end
 
 
 if ~sum(amp(water))
-    display('##########  The fit did not work. Try reducing the number of components K.  #############');
+    fprintf('##########  The fit did not work. Try reducing the number of components K.  #############');
 end
 
 % set output

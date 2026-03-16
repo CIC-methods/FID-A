@@ -6,8 +6,8 @@
 % 
 % DESCRIPTION:
 % Write a matlab RF pulse structure (containing N X 3 (or 4) waveform array 
-%field with rf.waveform(:,1)= phase [deg], rf.waveform(:,2)=amplitude 
-%[a.u.], and rf.waveform(:,3)=timestep), and optionally rf.waveform(:,4)= 
+%field with rf.waveform(:,1)= amplitude [a.u.], rf.waveform(:,2)=phase 
+%[degrees], and rf.waveform(:,3)=timestep), and optionally rf.waveform(:,4)= 
 %gradient [G/cm], to an RF pulse text file with 4 columns in the following 
 %order:  Amplitude, phase, time-step, and gradient.
 %  
@@ -38,9 +38,16 @@ if fid < 0
 end
     
 if ~isempty(outfile)
-    for n=1:N
-        fprintf(fid,'%5.5f  %5.5f  %5.5f  %5.5f\n',RF(n,:));
-    end
-%    fprintf(fid,'#\n');
+    
+    %Write to text file line-by-line
+    %for n=1:N
+    %    fprintf(fid,'%5.5f  %5.5f  %5.5f  %5.5f\n',RF(n,:));
+    %end
+    
+    %Removed the above line-by-line text output in favour of this single
+    %line using dlmwrite:
+    dlmwrite(outfile,RF,'delimiter','\t','precision','%6f');
+
+    %    fprintf(fid,'#\n');
     fclose(fid);
 end

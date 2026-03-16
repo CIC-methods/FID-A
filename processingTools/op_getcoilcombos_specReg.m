@@ -64,7 +64,7 @@ else
     
     coilcombos.ph=zeros(B,1);
     coilcombos.sig(:,1)=abs(in.fids(point,:,1,1));
-    bestSNRindex=find(coilcombos.sig(:,1)==max(coilcombos.sig(:,1)))
+    bestSNRindex=find(coilcombos.sig(:,1)==max(coilcombos.sig(:,1)));
     phGuess=0;
     
     disp('aligning all coils to the first coil');
@@ -89,7 +89,7 @@ else
 end
 
 
-    function y=op_phaseShiftRealNest(pars,input);
+    function y=op_phaseShiftRealNest(pars,input)
         p=pars(1);     %Phase Shift [deg]
         
         fid=input(:);

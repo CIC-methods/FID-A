@@ -58,8 +58,8 @@ if ~suppressPlots
 
     figure
     plot(in.ppm,real(in.specs));
-    noiseppmmin=input('input lower ppm limit for noise: ');
-    noiseppmmax=input('input upper ppm limit for noise: ');
+    %noiseppmmin=input('input lower ppm limit for noise: ');
+    %noiseppmmax=input('input upper ppm limit for noise: ');
 end
 
 %NOW FIND THE STANDARD DEVIATION OF THE NOISE:
@@ -84,5 +84,5 @@ noisesd=std(real(noise));
 SNR=signal/noisesd;
 
 if ~suppressPlots
-    disp(['The calculated signal-to-noise ratio is:  ' num2str(SNR) '.']);
+    fprintf(['The calculated signal-to-noise ratio is:  ' num2str(SNR) '.']);
 end
