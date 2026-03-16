@@ -101,7 +101,7 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
                                                                         %with this new condition.                                                                     
     squeezedData=squeeze(dOut.data);
     if twix_obj.image.NCol>1 && twix_obj.image.NCha>1
-        if isjnseq && size(sqzDims,2)>3 && strcmpi(twix_obj.hdr.Config.SequenceString,'svs_edit') %Subspec 1 and 2 saved under different indices when using 'svs_edit' in XA60A - **PT**2026
+        if isjnseq && strcmpi(twix_obj.hdr.Config.SequenceString,'svs_edit') && contains(twix_obj.hdr.Dicom.SoftwareVersions,'XA60') %In XA60 version of the code, svs_edit was used which saves subspec 1 and 2 under different indices - **PT**2026
             if sum(squeezedData(:,1,2,1))~=0 %There are no zero arrays
                 data=squeezedData;
                 %sqzSize=sqzSize;
@@ -115,11 +115,22 @@ if isSpecial ||... %Catches Ralf Mekle's and CIBM version of the SPECIAL sequenc
             data(:,:,:,1)=squeezedData(:,:,[1:2:end-1]);
             data(:,:,:,2)=squeezedData(:,:,[2:2:end]);
             sqzSize=[sqzSize(1) sqzSize(2) sqzSize(3)/2 2];
-        end        
+        end
     elseif twix_obj.image.NCol>1 && twix_obj.image.NCha==1
-        data(:,:,1)=squeezedData(:,[1:2:end-1]);
-        data(:,:,2)=squeezedData(:,[2:2:end]);
-        sqzSize=[sqzSize(1) sqzSize(2)/2 2];
+        if isjnseq && strcmpi(twix_obj.hdr.Config.SequenceString,'svs_edit') && contains(twix_obj.hdr.Dicom.SoftwareVersions,'XA60') %In XA60 version of the code, svs_edit was used which saves subspec 1 and 2 under different indices - **PT**2026
+            if sum(squeezedData(:,2,1))~=0 %There are no zero arrays
+                data=squeezedData;
+                % sqzSize=sqzSize;
+            else %there are zero arrays, which means data was saved in alternating pattern within subspecs
+                data(:,:,1)=squeezedData(:,[1:2:end-1],1);
+                data(:,:,2)=squeezedData(:,[2:2:end],2);
+                sqzSize=[sqzSize(1) sqzSize(2)/2 2];
+            end
+        else
+            data(:,:,1)=squeezedData(:,[1:2:end-1]);
+            data(:,:,2)=squeezedData(:,[2:2:end]);
+            sqzSize=[sqzSize(1) sqzSize(2)/2 2];
+        end
     end
     if isjnseq
         sqzDims{end+1}='Set';
