@@ -26,6 +26,11 @@
 
 function [y]=op_lorentz(pars,ppm)
 
+% For Octave, force pars to be a row vector - **PT**2025
+if exist('OCTAVE_VERSION','builtin')~=0
+    pars = pars(:).';
+end
+
 A=pars(:,1);     %Amplitude  (Use only positive Numbers)
 w=pars(:,2);     %full width at half max
 ppm0=pars(:,3);  %centre frequency of peak

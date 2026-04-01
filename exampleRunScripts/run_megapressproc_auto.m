@@ -50,8 +50,14 @@ end
 
 %Ensure that filestring is an absolute path, otherwise you can get yourself
 %in a tangle later inserting figures at the report stage.
-if ~java.io.File(filestring).isAbsolute
-    filestring = cd(cd(filestring));    
+if exist('OCTAVE_VERSION', 'builtin') ~= 0 %Option for Octave (doesn't have java library) - **PT**2025
+    if ~is_absolute_filename(filestring)
+        filestring = canonicalize_file_name(filestring);
+    end
+else
+    if ~java.io.File(filestring).isAbsolute
+        filestring = cd(cd(filestring));
+    end
 end
 
 %make a new directory for the output report and figures:

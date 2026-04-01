@@ -156,7 +156,7 @@ function mrprot = parse_ascconv(buffer)
         breaked = false;
         for k=1:numel(v)
             if isOctave
-                vk = v{k};
+                vk = v(k); %Originally with {} brackets, but octave doesn't use this. Fixed in official map_VBVD - **PT**2025
                 if iscell(vk.name)
                     % lazy fix that throws some info away
                     vk.name = vk.name{1};
