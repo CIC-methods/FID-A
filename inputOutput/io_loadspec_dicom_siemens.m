@@ -134,7 +134,7 @@ elseif isVE
         info = infos{a};
         rawbytes = info.Private_7fe1_1010;
         tmp = typecast(rawbytes,'single');
-        data = double(tmp(1:2:end)) + 1i*double(tmp(2:2:end));
+        data = double(tmp(1:2:end)) - 1i*double(tmp(2:2:end));
         data = data(:);
         fids(:,a) = data;
     end
@@ -146,9 +146,13 @@ sz=size(fids);
 %Get vector size:
 nPts = getPhoenixValue(csa,'lVectorSize',true);
 
-%Get dwell time:
+%Get dwell time (with oversampling removed or not):
 dwelltime = getPhoenixValue(csa,'alDwellTime[0]',true);
+rmOversamp = getPhoenixValue(csa,'sSpecPara.ucRemoveOversampling',true);
 dwelltime = dwelltime*1e-9;
+if rmOversamp
+    dwelltime=dwelltime*2;  %JN - Not sure if this makes sense, but it gives the correct SW on test data.
+end
 spectralwidth = 1/dwelltime;
 
 %Get frequency
