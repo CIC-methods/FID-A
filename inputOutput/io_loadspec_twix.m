@@ -229,30 +229,25 @@ if isMinn_dkd
 end
 
 %In the Columbia University sLASER sequence, there is an extra dimension
-%where the water unsuppressed data are stored:
+%where the water unsuppressed data are stored (MM/M with NPhs>1). Dedicated
+%water-only scans are 3D (Col,Cha,Ave) with NPhs=1.
 if isColumbia_sLASER
-    if ndims(fids)==4
-        temp = fids(1,1,:,1);
-        nRefs=size(squeeze(temp(temp~=0)),1);
-        %Remove the last dimension from sqzDims:
-        sqzDims=sqzDims(1:3);
-    elseif ndims(fids)==3
-        temp = fids(1,:,1);
-        nRefs=size(squeeze(temp(temp~=0)),1);
-        %Remove the last dimension from sqzDims:
-        sqzDims=sqzDims(1:2);
-    end
+    hasPhsContrast = twix_obj.image.NPhs > 1 && ...
+        numel(sqzDims) >= 4 && strcmp(sqzDims{end}, 'Phs');
 
-    if nRefs>0
-        wRefs=true;
-    end
-
-    if ndims(fids)==4
-        fids_w=fids(:,:,1:nRefs,1);
-        fids=fids(:,:,:,2);
-    elseif ndims(fids==3)
-        fids_w=fids(:,1:nRefs,1);
-        fids=fids(:,:,2);
+    if hasPhsContrast && ndims(fids) >= 4
+        temp = squeeze(fids(1, 1, :, 1));
+        refIdx = find(temp ~= 0);
+        nRefs = numel(refIdx);
+        sqzDims = sqzDims(1:3);
+        if nRefs > 0
+            wRefs = true;
+            fids_w = fids(:, :, refIdx, 1);
+        end
+        fids = fids(:, :, :, 2);
+    elseif twix_obj.image.NPhs <= 1 && ndims(fids) == 3
+        wRefs = true;
+        fids_w = fids;
     end
 end
 
@@ -659,7 +654,7 @@ if wRefs
     if out_w.dims.subSpecs==0
         out_w.flags.isFourSteps=0;
     else
-        out_w.flags.isFourSteps=(out_w.sz(out_wop_pl.dims.subSpecs)==4);
+        out_w.flags.isFourSteps=(out_w.sz(out_w.dims.subSpecs)==4);
     end
 else
     %No water reference data found.  Returning empty struct for out_w:
