@@ -73,8 +73,7 @@ stdev=std(metric);
 
 %Now z-transform the metric so that it is centered about zero, and they
 %have a standard deviation of 1.0.  
-zmetric=(metric-avg)./stdev;
-
+zmetric=zscore(metric);%used to be zmetric=(metric-avg)./stdev; but caused error (CMcNABB)
 
 for m=1:SS
     
