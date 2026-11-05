@@ -36,7 +36,7 @@ if nargin<7
     if nargin<6
         ph=0;
         if nargin<5
-            peakB1=RF.tw1/tp;
+            peakB1=RF.tw1/tp
             if nargin<4
                 f0=0;
                 if nargin<3
@@ -47,29 +47,8 @@ if nargin<7
     end
 end
 
+%Run the Bloch Simulation:
 [mv,sc]=bes(RF.waveform,tp,'f',peakB1,f0-fspan/2,f0+fspan/2,10000,ph,M0);
 
-figure
-subplot(4,1,1),plot(sc,mv(1,:),'LineWidth',1.2);
-box off;
-ylabel('M_x');
-
-subplot(4,1,2),plot(sc,mv(2,:),'LineWidth',1.2);
-box off;
-ylabel('M_y');
-
-subplot(4,1,3),plot(sc,sqrt(mv(2,:).^2 + mv(1,:).^2),'LineWidth',1.2);
-box off;
-ylabel('M_x_y');
-
-subplot(4,1,4),plot(sc,mv(3,:),'LineWidth',1.2);
-box off;
-ylabel('M_z');
-
-if size(RF.waveform,2)<4
-    xlabel('Frequency (kHz)');
-else
-    xlabel('Position (cm)');
-end
-
-set(gcf,'color','w');
+%Now plot the result:
+rf_plotMvec(mv,sc);
