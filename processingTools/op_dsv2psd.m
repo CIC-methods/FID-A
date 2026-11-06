@@ -48,7 +48,7 @@ function PSD_outputs = op_dsv2psd(dsvFolder, startTime, endTime, invertGrads)
 if nargin < 1 || isempty(dsvFolder),    dsvFolder   = pwd; end
 if nargin < 2 || isempty(startTime),    startTime   = 0;   end
 if nargin < 3 || isempty(endTime),      endTime     = Inf; end
-if nargin < 4 || isempty(invertGrads),  invertGrads = False; end
+if nargin < 4 || isempty(invertGrads),  invertGrads = false; end
 
 % field name, file pattern, label for the plot
 spec = {
