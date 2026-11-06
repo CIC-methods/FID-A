@@ -21,7 +21,9 @@
 %
 % startTime     = start time of the plot in [seconds] (Optional, Default 0).
 % endTime       = end time of the plot in [seconds] (Optional, Default end).
-% 
+% invertGrads   = Boolean variable to invert the gradient polarities for 
+%                 better visualization (Optional.  Default = False);
+%
 % OUTPUTS:
 % PSD_outputs   = struct of structs variable with fields:
 %                   .RFD  RF amplitude      
@@ -41,11 +43,12 @@
 % DSV files are read with io_readdsv.m and unpacked with op_dsv2timecourse.m.
 % ------------------------------------------------------------------------
 
-function PSD_outputs = op_dsv2psd(dsvFolder, startTime, endTime)
+function PSD_outputs = op_dsv2psd(dsvFolder, startTime, endTime, invertGrads)
 
-if nargin < 1 || isempty(dsvFolder), dsvFolder = pwd; end
-if nargin < 2 || isempty(startTime), startTime = 0;   end
-if nargin < 3 || isempty(endTime),   endTime   = Inf; end
+if nargin < 1 || isempty(dsvFolder),    dsvFolder   = pwd; end
+if nargin < 2 || isempty(startTime),    startTime   = 0;   end
+if nargin < 3 || isempty(endTime),      endTime     = Inf; end
+if nargin < 4 || isempty(invertGrads),  invertGrads = False; end
 
 % field name, file pattern, label for the plot
 spec = {
@@ -74,7 +77,7 @@ if ~isempty(rfd) && ~isempty(rfp) && numel(rfd.t) == numel(rfp.t) ...
 end
 
 % ------------------------------ Plot ------------------------------------
-plotPulseSeq(PSD_outputs, spec);
+plotPulseSeq(PSD_outputs, spec, invertGrads);
 
 end
 
@@ -140,7 +143,7 @@ end
 
 
 % ========================================================================
-function plotPulseSeq(PSD, spec)
+function plotPulseSeq(PSD, spec, invertGrads)
 %PLOTPULSESEQ Single-axes cartoon pulse-sequence diagram (unitless traces).
 
 fields  = spec(:,1);
@@ -179,7 +182,11 @@ for r = 1:nPlot
     yc = nPlot - r + 1;                  % first channel at the top
 
     if ismember(fields{k}, gradFields)
-        scale = -2*gradScale;
+        if invertGrads
+            scale = -2*gradScale;
+        else
+            scale = 2*gradScale;
+        end
         yc = (nPlot/2) - 0.5*r + 0.5;    
     elseif ismember(fields{k}, adcField)
         scale = 2*max(abs(ch.amp));
