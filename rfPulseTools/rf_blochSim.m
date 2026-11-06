@@ -50,5 +50,11 @@ end
 %Run the Bloch Simulation:
 [mv,sc]=bes(RF.waveform,tp,'f',peakB1,f0-fspan/2,f0+fspan/2,10000,ph,M0);
 
+if size(RF.waveform,2)>3
+    mode = 'pos';
+else
+    mode = 'f';
+end
+
 %Now plot the result:
-rf_plotMvec(mv,sc);
+rf_plotMvec(mv,sc,mode);

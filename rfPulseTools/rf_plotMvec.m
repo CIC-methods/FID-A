@@ -14,11 +14,23 @@
 %             the number of points along the frequency or position axis. 
 % sc        = Vector of frequencies in [kHz] or positions in [cm] to plot
 %             against.
+% mode      = 'f' - Frequency mode (sc is a frequency scale in [kHz])
+%             'pos' - Position mode (sc is a position scale in [cm] 
+%             (Optional.  Default is 'f'. NOTE: the string 'x' will also 
+%             activate position mode).
 %
 % OUTPUTS:
 % N/A      
 
-function []=rf_plotMvec(mv,sc);
+function []=rf_plotMvec(mv,sc,mode);
+
+if nargin<3
+    mode = 'f';
+else
+    if strcmpi(mode,'f') && strcmpi(mode,'pos') && strcmpi(mode,'x')
+        error('ERROR:  Mode not recognized.');
+    end
+end
 
 %Make a subplot figure with Mx, My, Mxy, and Mz:
 %Mx
@@ -42,9 +54,9 @@ subplot(4,1,4),plot(sc,mv(3,:),'LineWidth',1.5);
 box off;
 ylabel('M_z');
 
-if size(RF.waveform,2)<4
+if strcmpi(mode,'f')
     xlabel('Frequency (kHz)');
-else
+elseif strcmpi(mode,'pos') || strcmpi(mode,'x')
     xlabel('Position (cm)');
 end
 
